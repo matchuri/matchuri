@@ -1,0 +1,4 @@
+interface:
+  display_name: "Matchuri Doc Governance"
+  short_description: "Classify docs into wiki, skills, and harness"
+  default_prompt: "Use $matchuri-doc-governance to audit Matchuri docs and propose a leaner source-of-truth structure."
