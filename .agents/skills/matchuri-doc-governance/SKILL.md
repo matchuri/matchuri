@@ -1,63 +1,63 @@
 ---
 name: matchuri-doc-governance
-description: Govern Matchuri documentation structure and context weight. Use when auditing docs, deciding whether content belongs in docs, GitHub Wiki, AGENTS.md, repo-local skills, or harness scripts, creating a documentation inventory, or checking that tracked docs do not link to ignored local wiki paths.
+description: Matchuri 문서 구조와 컨텍스트 무게를 관리한다. docs 감사, docs/GitHub Wiki/AGENTS.md/repo-local skill/harness script 배치 판단, 문서 인벤토리 생성, 추적 문서의 무시된 local wiki 경로 링크 점검이 필요할 때 사용한다.
 ---
 
-# Matchuri Doc Governance
+# Matchuri 문서 거버넌스
 
-## Overview
+## 개요
 
-Use this skill to keep Matchuri docs lean. It separates human-facing narrative, durable development contracts, reusable agent workflows, and deterministic validation.
+Matchuri 문서를 가볍게 유지한다. 사람용 서사, 지속되는 개발 계약, 재사용 agent workflow, 결정적 검증을 분리한다.
 
-## Classification
+## 분류
 
-Classify each document or proposed addition into exactly one primary bucket.
+각 문서나 추가 제안을 하나의 주 분류로 지정한다.
 
-| Bucket | Meaning | Typical destination |
+| Bucket | 의미 | 위치 |
 | --- | --- | --- |
-| KEEP | Current development contract or index that must travel with the repo | `docs/` |
-| SKILL | Repeated agent workflow or procedural checklist | `.agents/skills/<skill>/SKILL.md` |
-| HARNESS | Rule that should be checked mechanically | skill `scripts/`, repo scripts, tests, or CI |
-| WIKI | Human-readable project narrative or portfolio explanation | GitHub Wiki |
-| REMOVE | Duplicate, stale, or superseded content | Delete after confirming no unique contract |
+| KEEP | repo와 함께 이동해야 하는 현재 개발 계약 또는 index | `docs/` |
+| SKILL | 반복되는 agent workflow 또는 절차 checklist | `.agents/skills/<skill>/SKILL.md` |
+| HARNESS | 기계적으로 확인할 규칙 | skill `scripts/`, repo scripts, tests, CI |
+| WIKI | 사람이 읽는 프로젝트 서사 또는 portfolio 설명 | GitHub Wiki |
+| REMOVE | 중복, 오래됨, 대체됨 | 고유 계약이 없음을 확인한 뒤 삭제 |
 
-## Workflow
+## 절차
 
-1. Read root `AGENTS.md` and the closest nested `AGENTS.md`.
-2. Run the inventory harness when auditing `docs/`:
+1. root `AGENTS.md`와 가장 가까운 하위 `AGENTS.md`를 읽는다.
+2. `docs/`를 감사할 때 inventory harness를 실행한다.
 
    ```powershell
    python .agents\skills\matchuri-doc-governance\scripts\audit_docs.py --root .
    ```
 
-   To refresh the stored first-pass inventory:
+   저장된 1차 inventory를 갱신할 때 실행한다.
 
    ```powershell
    python .agents\skills\matchuri-doc-governance\scripts\audit_docs.py --root . --output .agents\skills\matchuri-doc-governance\references\current-docs-inventory.md
    ```
 
-3. Treat generated classifications as a first pass, not final truth.
-4. Keep `docs/` focused on implementation source of truth, API/data indexes, and ADR-grade decisions.
-5. Move repeated procedures into skills instead of making `docs/` longer.
-6. Move mechanically checkable rules into harness scripts instead of prose.
-7. Move project story, portfolio explanation, and readable summaries into GitHub Wiki.
-8. Do not add tracked links to ignored local wiki paths such as `matchuri.wiki/...`.
-9. Do not read or search `matchuri.wiki/` unless the current task explicitly asks to create, edit, audit, or move content into the Wiki.
+3. 생성된 분류를 최종 진실이 아니라 1차 판단으로 취급한다.
+4. `docs/`에는 구현 source of truth, API/data index, ADR급 결정만 남긴다.
+5. 반복 절차는 `docs/`를 늘리지 말고 skill로 옮긴다.
+6. 기계적으로 확인할 규칙은 prose가 아니라 harness script로 옮긴다.
+7. 프로젝트 이야기, portfolio 설명, 읽기 쉬운 요약은 GitHub Wiki로 옮긴다.
+8. `matchuri.wiki/...` 같은 무시된 local wiki 경로를 추적 문서에 링크하지 않는다.
+9. 현재 작업이 Wiki 생성, 수정, 감사, 이동을 명시하지 않으면 `matchuri.wiki/`를 읽거나 검색하지 않는다.
 
-## Keep In Docs
+## `docs/`에 남길 것
 
-Keep short documents that answer one of these questions:
+아래 질문에 답하는 짧은 문서를 남긴다.
 
-- What is the current implementation contract?
-- Where is the authoritative API, data, backend, or frontend entry point?
-- What durable architectural decision prevents repeated debate?
-- What domain language must code, tests, and agents share?
+- 현재 구현 계약은 무엇인가?
+- 권위 있는 API, data, backend, frontend 진입점은 어디인가?
+- 반복 논쟁을 막는 지속적 architectural decision은 무엇인가?
+- code, tests, agents가 공유해야 하는 domain language는 무엇인가?
 
-Prefer indexes and concise decision records over long tutorial-style prose.
+긴 tutorial prose보다 index와 간결한 decision record를 우선한다.
 
-## Convert To Skills
+## Skill로 전환할 것
 
-Create or update a repo-local skill under `.agents/skills` when content describes a repeatable agent workflow, such as:
+반복되는 agent workflow를 설명하는 내용은 `.agents/skills` 아래 repo-local skill로 만들거나 갱신한다.
 
 - API contract change flow
 - Data model change flow
@@ -66,33 +66,33 @@ Create or update a repo-local skill under `.agents/skills` when content describe
 - GitHub Wiki writing flow
 - Documentation slimming and drift review
 
-Keep `SKILL.md` concise. Put deterministic operations in `scripts/`.
+`SKILL.md`는 간결하게 유지한다. 결정적 작업은 `scripts/`에 둔다.
 
-## Convert To Harness
+## Harness로 전환할 것
 
-Prefer a script, test, or CI check when a rule can be verified without human judgment:
+사람 판단 없이 확인할 수 있는 규칙은 script, test, CI check로 검증한다.
 
-- forbidden links in tracked docs
-- stale API status entries
+- tracked docs의 금지 링크
+- 오래된 API status entry
 - OpenAPI endpoint drift
 - schema/index drift
-- required docs touched for API or data changes
-- oversized docs or duplicated headings
+- API 또는 data 변경 시 필수 docs 갱신 여부
+- 과도하게 큰 docs 또는 중복 heading
 
-## GitHub Wiki Boundary
+## GitHub Wiki 경계
 
-GitHub Wiki is a separate human-facing document space. Tracked repo docs may link to the GitHub Wiki URL, but must not link to ignored local paths such as `matchuri.wiki/Home.md`.
+GitHub Wiki는 별도의 사람용 문서 공간이다. 추적 문서는 GitHub Wiki URL을 링크할 수 있지만, `matchuri.wiki/Home.md` 같은 무시된 local path를 링크하지 않는다.
 
-Wiki documents should be self-contained and should not use root-relative links back to `docs/`, `backend/`, or `frontend/`.
+Wiki 문서는 독립적으로 읽히게 작성한다. `docs/`, `backend/`, `frontend/`로 돌아가는 root-relative link를 사용하지 않는다.
 
-For ordinary development, API, data, backend, and frontend work, ignore local `matchuri.wiki/`. Use code and `docs/` for implementation truth. Open Wiki files only when producing or revising human-facing Wiki content.
+일반 개발, API, data, backend, frontend 작업에서는 local `matchuri.wiki/`를 무시한다. 구현 기준은 code와 `docs/`를 사용한다. 사람용 Wiki content를 만들거나 고칠 때만 Wiki 파일을 연다.
 
-## Reporting
+## 보고
 
-When finishing an audit, report:
+감사를 끝낼 때 아래를 보고한다.
 
-- total file count and total size
-- largest docs by size
+- total file count와 total size
+- size 기준 largest docs
 - bucket counts
-- immediate edits made
-- next migration candidates
+- 즉시 반영한 edits
+- 다음 migration candidates

@@ -25,6 +25,8 @@
 - 데이터 모델: `docs/data/index.md`
 - 설계 결정: `docs/decisions/index.md`
 - 문서 거버넌스 스킬: `.agents/skills/matchuri-doc-governance/SKILL.md`
+- 백엔드 API 변경 스킬: `.agents/skills/matchuri-backend-api-change/SKILL.md`
+- FE/BE API 계약 동기화 스킬: `.agents/skills/matchuri-api-contract-sync/SKILL.md`
 
 ## 작업 규칙
 
@@ -47,3 +49,4 @@
 - API 계약 변경: OpenAPI 메타데이터, Swagger 산출물, 관련 `docs/api/` 문서 확인
 - 데이터 모델 변경: 엔티티/마이그레이션 기준과 `docs/data/` 확인
 - 문서 거버넌스: `python .agents\skills\matchuri-doc-governance\scripts\audit_docs.py --root .`
+- API 계약 동기화: `python .agents\skills\matchuri-api-contract-sync\scripts\audit_api_contract.py --root .`

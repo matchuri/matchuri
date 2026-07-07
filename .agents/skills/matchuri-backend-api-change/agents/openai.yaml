@@ -1,0 +1,4 @@
+interface:
+  display_name: "Matchuri Backend API Change"
+  short_description: "Update backend API contracts safely"
+  default_prompt: "Use $matchuri-backend-api-change to implement or review a Matchuri backend API contract change."
