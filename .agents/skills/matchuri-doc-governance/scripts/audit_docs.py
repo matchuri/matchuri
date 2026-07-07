@@ -181,6 +181,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default=".", help="Repository root")
     parser.add_argument("--output", help="Optional markdown report path")
+    parser.add_argument("--strict", action="store_true", help="Exit non-zero when forbidden tracked links are found")
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
@@ -194,6 +195,9 @@ def main() -> int:
         output.write_text(report, encoding="utf-8")
     else:
         print(report)
+
+    if args.strict and find_forbidden_links(root):
+        return 1
 
     return 0
 

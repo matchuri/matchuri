@@ -58,6 +58,7 @@
 - 새 테이블이 추가되면 개별 정의서, 이 인덱스, `docs/data/implemented-jpa-data-model.md`를 함께 확인합니다.
 - 컬럼, FK, unique, enum, 상태 흐름이 바뀌면 해당 정의서를 갱신합니다.
 - 구현 전 초안은 현재 기준 문서처럼 읽히지 않게 문서 상태를 명확히 표시합니다.
+- 반복적인 JPA Entity, init SQL, data docs index 정합성 확인은 `docs/decisions/data-schema-drift-harness.md`의 harness 설계를 기준으로 자동화합니다.
 
 ## 마지막 갱신
 

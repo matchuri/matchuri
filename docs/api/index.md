@@ -66,7 +66,7 @@
 ## 읽는 방법
 
 - "현재 어떤 방식으로 API 문서를 관리하나?"가 궁금하면 문서화 전략 문서를 먼저 봅니다.
-- "전체 API 중 무엇이 real/mock/planned 상태인가?"가 궁금하면 `docs/api/api-status.md`를 봅니다.
+- "전체 API 중 무엇이 real/mock/planned/deprecated 상태인가?"가 궁금하면 `docs/api/api-status.md`를 봅니다.
 - "API ID를 어떻게 부여하고 유지하나?"가 궁금하면 `docs/api/api-numbering-policy.md`를 봅니다.
 - "현재 계약의 authoritative source가 어디인가?"가 궁금하면 문서 기준 위치 문서를 봅니다.
 - "백엔드 구현 시 어떤 규칙을 따라야 하나?"가 궁금하면 백엔드 가이드를 봅니다.
@@ -77,4 +77,5 @@
 
 - API 계약이 바뀌면 OpenAPI와 관련 `docs/` 문서를 먼저 갱신하고, 필요한 테스트를 함께 맞춥니다.
 - 새 API를 추가하거나 mock에서 real로 전환하면 `docs/api/api-status.md` 상태표를 갱신합니다.
+- `docs/api/api-status.md`는 중기적으로 `api-status.yaml` 기반 generated Markdown 전환을 검토합니다.
 - 문서가 어긋나면 구현과 OpenAPI 산출물을 우선 확인합니다.

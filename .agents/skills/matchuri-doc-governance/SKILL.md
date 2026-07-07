@@ -27,7 +27,7 @@ Matchuri 문서를 가볍게 유지한다. 사람용 서사, 지속되는 개발
 2. `docs/`를 감사할 때 inventory harness를 실행한다.
 
    ```powershell
-   python .agents\skills\matchuri-doc-governance\scripts\audit_docs.py --root .
+   python .agents\skills\matchuri-doc-governance\scripts\audit_docs.py --root . --strict
    ```
 
    저장된 1차 inventory를 갱신할 때 실행한다.

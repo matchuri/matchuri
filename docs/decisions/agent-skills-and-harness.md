@@ -27,6 +27,7 @@
 - 백엔드 신뢰성 리뷰 스킬: `.agents/skills/matchuri-backend-reliability-review/SKILL.md`
 - FE/BE API 계약 동기화 스킬: `.agents/skills/matchuri-api-contract-sync/SKILL.md`
 - API 계약 drift 하네스: `.agents/skills/matchuri-api-contract-sync/scripts/audit_api_contract.py`
+- 데이터 스키마 drift 하네스 설계: `docs/decisions/data-schema-drift-harness.md`
 
 ## 분류 기준
 
@@ -41,7 +42,7 @@
 ## 다음 후보
 
 - API 상세 장문 문서는 OpenAPI metadata, API 상태표, drift harness 중심으로 줄입니다.
-- `docs/api/api-status.md` 중복 행은 API 계약 drift 하네스의 첫 정리 대상으로 봅니다.
-- 데이터 스키마 장문 문서는 엔티티/마이그레이션 기반 생성 또는 검증 harness로 전환합니다.
+- `docs/api/group.md`와 `docs/api/realtime.md`는 계약 요약과 harness 후보 중심으로 줄였습니다.
+- 데이터 스키마 장문 문서는 엔티티/init SQL/docs index drift harness로 전환합니다.
 - 백엔드 보안, 신뢰성, 품질 점수 문서는 기준만 남기고 review skill로 절차를 분리했습니다. 다음은 검증 가능한 항목을 harness로 옮깁니다.
 - 제품 서사는 GitHub Wiki로 옮기고 `docs/product/`는 제품 판단 기준만 남깁니다.
