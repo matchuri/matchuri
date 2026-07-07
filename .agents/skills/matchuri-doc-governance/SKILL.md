@@ -42,6 +42,7 @@ Classify each document or proposed addition into exactly one primary bucket.
 6. Move mechanically checkable rules into harness scripts instead of prose.
 7. Move project story, portfolio explanation, and readable summaries into GitHub Wiki.
 8. Do not add tracked links to ignored local wiki paths such as `matchuri.wiki/...`.
+9. Do not read or search `matchuri.wiki/` unless the current task explicitly asks to create, edit, audit, or move content into the Wiki.
 
 ## Keep In Docs
 
@@ -83,6 +84,8 @@ Prefer a script, test, or CI check when a rule can be verified without human jud
 GitHub Wiki is a separate human-facing document space. Tracked repo docs may link to the GitHub Wiki URL, but must not link to ignored local paths such as `matchuri.wiki/Home.md`.
 
 Wiki documents should be self-contained and should not use root-relative links back to `docs/`, `backend/`, or `frontend/`.
+
+For ordinary development, API, data, backend, and frontend work, ignore local `matchuri.wiki/`. Use code and `docs/` for implementation truth. Open Wiki files only when producing or revising human-facing Wiki content.
 
 ## Reporting
 
