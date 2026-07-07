@@ -1,15 +1,12 @@
-/backend/*
-!/backend/AGENTS.md
-/frontend/*
-!/frontend/AGENTS.md
+/backend
+/frontend
 /mcp/
 /docs/ops/
 /docs/exec-plans/
 /archive/
 /python/
 /journal/
-/matchuri.wiki/*
-!/matchuri.wiki/AGENTS.md
+/matchuri.wiki
 
 .env
 .infisical.json
