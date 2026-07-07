@@ -17,6 +17,7 @@
 - [도메인 용어 사전](./domain-language.md)
 - [문서 기준 위치](./documentation-source-of-truth.md)
 - [Agent Skills와 Harness 도입 기준](./agent-skills-and-harness.md)
+- [Data Schema Drift Harness 설계](./data-schema-drift-harness.md)
 - [API 문서화 전략](./api-docs-strategy.md)
 - [Mock API 계약 우선 개발 가이드](./mock-api-contract-first.md)
 - [OAuth2 Provider 확장 구조](./oauth2-provider-extensibility.md)

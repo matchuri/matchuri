@@ -162,6 +162,20 @@ def report(root: Path) -> tuple[str, bool]:
     endpoint_keys = {(item.method, item.path) for item in endpoints}
     row_keys = {(item.method, item.path) for item in rows if item.status != "planned"}
 
+    duplicate_endpoints: dict[tuple[str, str], list[Endpoint]] = {}
+    for endpoint in endpoints:
+        duplicate_endpoints.setdefault((endpoint.method, endpoint.path), []).append(endpoint)
+    duplicate_endpoints = {
+        key: value for key, value in duplicate_endpoints.items() if len(value) > 1
+    }
+
+    duplicate_api_ids: dict[str, list[StatusRow]] = {}
+    for row in rows:
+        duplicate_api_ids.setdefault(row.api_id, []).append(row)
+    duplicate_api_ids = {
+        key: value for key, value in duplicate_api_ids.items() if len(value) > 1
+    }
+
     duplicate_rows: dict[tuple[str, str], list[StatusRow]] = {}
     for row in rows:
         duplicate_rows.setdefault((row.method, row.path), []).append(row)
@@ -178,12 +192,27 @@ def report(root: Path) -> tuple[str, bool]:
         "",
         f"- Backend `/api/v1` endpoints: {len(endpoints)}",
         f"- API status rows: {len(rows)}",
+        f"- Duplicate backend endpoint keys: {len(duplicate_endpoints)}",
+        f"- Duplicate API IDs: {len(duplicate_api_ids)}",
         f"- Duplicate status keys: {len(duplicate_rows)}",
         f"- Backend endpoints missing status row: {len(missing_status)}",
         f"- Status rows not found in backend mappings: {len(stale_status)}",
         f"- Frontend API directories: {len(frontend_api_dirs(root))}",
         "",
     ]
+
+    if duplicate_endpoints:
+        lines.extend(["## Duplicate Backend Endpoint Mappings", "", "| Method | Path | Sources |", "| --- | --- | --- |"])
+        for (method, path), dupes in sorted(duplicate_endpoints.items()):
+            sources = ", ".join(f"`{item.source.as_posix()}:{item.line}`" for item in dupes)
+            lines.append(f"| {method} | `{path}` | {sources} |")
+        lines.append("")
+
+    if duplicate_api_ids:
+        lines.extend(["## Duplicate API IDs", "", "| API ID | Lines |", "| --- | ---: |"])
+        for api_id, dupes in sorted(duplicate_api_ids.items()):
+            lines.append(f"| `{api_id}` | {', '.join(str(item.source_line) for item in dupes)} |")
+        lines.append("")
 
     if duplicate_rows:
         lines.extend(["## Duplicate Status Rows", "", "| Method | Path | Lines |", "| --- | --- | ---: |"])
@@ -209,7 +238,7 @@ def report(root: Path) -> tuple[str, bool]:
         lines.extend(f"- `{path.as_posix()}`" for path in api_dirs)
         lines.append("")
 
-    has_findings = bool(duplicate_rows or missing_status or stale_status)
+    has_findings = bool(duplicate_endpoints or duplicate_api_ids or duplicate_rows or missing_status or stale_status)
     return "\n".join(lines), has_findings
 
 
