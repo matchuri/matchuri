@@ -24,9 +24,6 @@
 - API 계약/상태: `docs/api/index.md`
 - 데이터 모델: `docs/data/index.md`
 - 설계 결정: `docs/decisions/index.md`
-- 문서 거버넌스 스킬: `.agents/skills/matchuri-doc-governance/SKILL.md`
-- 백엔드 API 변경 스킬: `.agents/skills/matchuri-backend-api-change/SKILL.md`
-- FE/BE API 계약 동기화 스킬: `.agents/skills/matchuri-api-contract-sync/SKILL.md`
 
 ## 작업 규칙
 

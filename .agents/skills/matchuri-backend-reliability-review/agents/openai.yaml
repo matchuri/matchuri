@@ -1,0 +1,4 @@
+interface:
+  display_name: "Matchuri Backend Reliability Review"
+  short_description: "Review backend reliability risks"
+  default_prompt: "Use $matchuri-backend-reliability-review to review Matchuri backend deployment, logs, recovery, and operational reliability."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Matchuri Backend Quality Review"
+  short_description: "Review backend quality and follow-up work"
+  default_prompt: "Use $matchuri-backend-quality-review to review Matchuri backend quality and choose follow-up work."

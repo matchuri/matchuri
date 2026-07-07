@@ -52,7 +52,7 @@ def classify(path: Path, size: int) -> tuple[str, str]:
         if name in {"index.md", "architecture.md", "guide.md"}:
             return "KEEP", "backend development entry point"
         if name in {"quality-score.md", "security.md", "reliability.md"}:
-            return "SKILL", "operational review procedure is better as a repeatable workflow"
+            return "KEEP", "concise backend governance contract; review procedure lives in skill"
         return "KEEP", "backend reference"
 
     if p.startswith("docs/frontend/"):

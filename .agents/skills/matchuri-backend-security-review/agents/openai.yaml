@@ -1,0 +1,4 @@
+interface:
+  display_name: "Matchuri Backend Security Review"
+  short_description: "Review backend security risks"
+  default_prompt: "Use $matchuri-backend-security-review to review Matchuri backend authentication, authorization, secrets, and API security."

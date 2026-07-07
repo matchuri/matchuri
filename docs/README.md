@@ -36,6 +36,7 @@
 2. `docs/backend/architecture.md`
 3. 관련 도메인의 `docs/api/*.md`
 4. 관련 데이터 문서 또는 `docs/data/implemented-jpa-data-model.md`
+5. 리뷰가 필요하면 `.agents/skills/matchuri-backend-quality-review/SKILL.md`
 
 ### API 추가/수정
 
@@ -57,6 +58,7 @@
 - 사람용 위키: GitHub Wiki
 - 에이전트 작업 절차: `.agents/skills/`
 - 문서 거버넌스 스킬: `.agents/skills/matchuri-doc-governance/SKILL.md`
+- 백엔드 리뷰 스킬: `.agents/skills/matchuri-backend-quality-review/SKILL.md`, `.agents/skills/matchuri-backend-security-review/SKILL.md`, `.agents/skills/matchuri-backend-reliability-review/SKILL.md`
 - 내부 운영/실행 계획: `secrets/`
 
 ## 주요 인덱스
