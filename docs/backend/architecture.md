@@ -13,7 +13,7 @@ Matchuri는 개인 취향과 그룹 취향을 함께 반영해 점심 메뉴 결
 
 - `backend/`: Spring Boot 4, Java 21, Gradle Kotlin DSL 기반 API 서버.
 - `docs/`: 현재 개발 기준 문서. 문서 진입점은 `docs/README.md`.
-- `matchuri.wiki/`: 사람이 읽는 프로젝트 소개, 포트폴리오, 협업 안내.
+- GitHub Wiki: 사람이 읽는 프로젝트 소개, 포트폴리오, 협업 안내.
 - `docs/api/`: API 계약 설명과 상태표.
 - `docs/data/`: 현재 데이터 모델과 스키마 설명.
 - 내부 운영 문서: 배포/운영 런북과 인프라 세부 절차.

@@ -2,7 +2,9 @@
 
 `docs/`는 Matchuri의 개발 기준 문서입니다. 제품 판단, 프론트엔드, 백엔드, API, 데이터, 설계 결정처럼 구현과 함께 계속 맞춰야 하는 기준을 한곳에서 찾을 수 있게 유지합니다.
 
-사람이 읽는 프로젝트 소개, 포트폴리오용 설명, 협업 안내는 `matchuri.wiki/`에서 관리합니다. 운영 런북과 실행 계획 기록은 공개 문서에서 제외하고 내부 문서로 관리합니다.
+사람이 읽는 프로젝트 소개, 포트폴리오용 설명, 협업 안내는 GitHub Wiki에서 관리합니다. 운영 런북과 실행 계획 기록은 공개 문서에서 제외하고 내부 문서로 관리합니다.
+
+반복되는 에이전트 작업 절차는 `.agents/skills/`로, 기계적으로 검증할 수 있는 문서 규칙은 harness script나 테스트로 분리합니다.
 
 ## 빠른 시작
 
@@ -34,6 +36,7 @@
 2. `docs/backend/architecture.md`
 3. 관련 도메인의 `docs/api/*.md`
 4. 관련 데이터 문서 또는 `docs/data/implemented-jpa-data-model.md`
+5. 리뷰가 필요하면 `.agents/skills/matchuri-backend-quality-review/SKILL.md`
 
 ### API 추가/수정
 
@@ -52,7 +55,10 @@
 
 ## 관련 문서 공간
 
-- 사람용 위키: `matchuri.wiki/Home.md`
+- 사람용 위키: GitHub Wiki
+- 에이전트 작업 절차: `.agents/skills/`
+- 문서 거버넌스 스킬: `.agents/skills/matchuri-doc-governance/SKILL.md`
+- 백엔드 리뷰 스킬: `.agents/skills/matchuri-backend-quality-review/SKILL.md`, `.agents/skills/matchuri-backend-security-review/SKILL.md`, `.agents/skills/matchuri-backend-reliability-review/SKILL.md`
 - 내부 운영/실행 계획: `secrets/`
 
 ## 주요 인덱스
@@ -76,5 +82,7 @@
 - 데이터 구조가 바뀌면 구현과 `docs/data/`를 함께 맞춥니다.
 - 도메인 용어나 제품 판단이 바뀌면 `docs/decisions/domain-language.md` 또는 `docs/product/product-sense.md`를 갱신합니다.
 - 내부 실행 계획에서 확정된 규칙은 공개 가능한 개발 기준 문서에만 선별 승격합니다.
-- 포트폴리오나 프로젝트 소개에 필요한 요약은 `matchuri.wiki/`에 쓰고, 구현 기준의 원문은 `docs/`에 유지합니다.
+- 포트폴리오나 프로젝트 소개에 필요한 요약은 GitHub Wiki에 쓰고, 구현 기준의 원문은 `docs/`에 유지합니다.
+- 반복 작업 절차는 `docs/`에 길게 쓰지 말고 repo-local skill로 옮깁니다.
+- 검사 가능한 문서 규칙은 harness script로 옮깁니다.
 - 개요 문서는 짧게 유지하고 세부 내용은 도메인별 문서로 연결합니다.

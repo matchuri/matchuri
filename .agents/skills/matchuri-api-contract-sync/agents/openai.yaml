@@ -1,0 +1,4 @@
+interface:
+  display_name: "Matchuri API Contract Sync"
+  short_description: "Keep backend and frontend API contracts aligned"
+  default_prompt: "Use $matchuri-api-contract-sync to check and synchronize Matchuri backend and frontend API contracts."
