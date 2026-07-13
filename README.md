@@ -1,57 +1,94 @@
-# MATCHURI
+# Matchuri 개발 워크스페이스
 
-Matchuri는 함께 먹을 점심 메뉴를 빠르게 정하기 위한 메뉴 의사결정 서비스입니다.
+이 저장소는 Matchuri 팀원이 로컬 개발 환경을 처음 구성할 때 사용하는 워크스페이스 루트입니다. 제품 소개, 포트폴리오, 팀 소개는 [GitHub Wiki](https://github.com/matchuri/matchuri/wiki)에서 관리합니다.
 
-맛집 검색보다 `후보 3개 안팎 + 투표 + 최종 메뉴 확정` 흐름에 집중해, 팀이 메뉴를 고르는 데 쓰는 시간을 줄이는 것을 목표로 합니다.
+## 저장소 구성
 
-## 팀원 소개
+Matchuri는 세 개의 독립 Git 저장소를 한 워크스페이스에서 사용합니다.
 
-<div align="center">
+| 경로 | 저장소 | 역할 |
+| --- | --- | --- |
+| `/` | [matchuri/matchuri](https://github.com/matchuri/matchuri) | 공통 개발 문서, 에이전트 규칙과 워크스페이스 진입점 |
+| `backend/` | [matchuri/backend](https://github.com/matchuri/backend) | Spring Boot API 서버 |
+| `frontend/` | [matchuri/frontend](https://github.com/matchuri/frontend) | Next.js 웹 애플리케이션 |
 
-| Member | Member |
-| ------ | ------ |
-|   <img src="https://github.com/yourjinKR.png" width="150" />     |    <img src="https://github.com/Leejaelim.png" width="150" />     |
-| 유어진 <br/>백엔드, 인프라    | 이재림 <br/> 프론트엔드, 기획, 디자인   |
+`backend/`와 `frontend/`는 루트 저장소에서 추적하지 않습니다. 브랜치, 커밋, 원격 저장소 작업도 각 디렉터리에서 따로 수행합니다.
 
-</div>
+## 준비 사항
 
-## 목차
+- Git과 Matchuri GitHub 조직 저장소 접근 권한
+- JDK 21
+- Docker Desktop 또는 Docker Engine
+- Node.js 22 이상, npm 10 이상
+- Infisical CLI와 Matchuri `dev` 환경 접근 권한
 
-- [MATCHURI](#matchuri)
-  - [팀원 소개](#팀원-소개)
-  - [목차](#목차)
-  - [프로젝트 소개](#프로젝트-소개)
-  - [기술 스택](#기술-스택)
-  - [서비스 아키텍처](#서비스-아키텍처)
-  - [프로젝트 구조](#프로젝트-구조)
-  - [문서 구조](#문서-구조)
-  
-## 프로젝트 소개
+## 최초 설정
 
-Matchuri는 개인 취향과 그룹 상황을 바탕으로 점심 후보를 좁히고, 투표를 통해 최종 메뉴를 확정하는 서비스입니다.
+### 1. 워크스페이스와 애플리케이션 저장소 받기
 
-- 핵심 문제: 점심 메뉴를 정하는 데 반복적으로 드는 대화 비용
-- 핵심 흐름: 후보 추천, 그룹 투표, 최종 메뉴 확정
-- 사람용 문서: [GitHub Wiki](https://github.com/matchuri/matchuri/wiki)
-
-## 기술 스택
-
-## 서비스 아키텍처
-
-## 프로젝트 구조
-
-```text
-backend/        Spring Boot 백엔드
-frontend/       프론트엔드 애플리케이션
-docs/           개발 기준 문서
-secrets/        내부 운영 문서와 실행 계획
+```bash
+git clone https://github.com/matchuri/matchuri.git
+cd matchuri
+git clone https://github.com/matchuri/backend.git backend
+git clone https://github.com/matchuri/frontend.git frontend
 ```
 
-## 문서 구조
+### 2. Infisical 연결하기
 
-- [GitHub Wiki](https://github.com/matchuri/matchuri/wiki): 프로젝트 소개, 포트폴리오, 협업 안내
-- [docs/README.md](docs/README.md): 개발 기준 문서 홈
-- [docs/api/index.md](docs/api/index.md): API 계약과 상태
-- [docs/data/index.md](docs/data/index.md): 데이터 모델
-- [docs/decisions/index.md](docs/decisions/index.md): 설계 결정
-브랜치와 커밋 메시지 규칙
+루트 디렉터리에서 로그인하고 Matchuri 프로젝트를 선택합니다. 생성되는 루트 `.infisical.json`은 로컬 설정이며 Git에서 추적하지 않습니다.
+
+```bash
+infisical login
+infisical init
+```
+
+조직 또는 프로젝트가 보이지 않으면 진행하기 전에 팀 관리자에게 Infisical 접근 권한을 요청합니다.
+
+### 3. 백엔드 실행하기
+
+먼저 [백엔드 README](https://github.com/matchuri/backend#3-실행환경)의 로컬 예시대로 `backend/.env`를 준비합니다.
+
+```powershell
+cd backend
+docker compose up -d db
+.\gradlew.bat bootRun
+```
+
+macOS/Linux에서는 `./gradlew bootRun`을 사용합니다. 서버가 기동되면 다음 주소를 확인합니다.
+
+- Health: <http://localhost:8080/api/v1/health>
+- Swagger UI: <http://localhost:8080/docs/swagger-ui.html>
+
+### 4. 프론트엔드 실행하기
+
+새 터미널에서 실행합니다. `npm run dev`는 Infisical의 `dev` 환경을 `frontend/.env.local`로 내보낸 뒤 개발 서버를 시작합니다.
+
+```bash
+cd frontend
+npm ci
+npm run dev
+```
+
+브라우저에서 <http://localhost:3000>을 엽니다.
+
+## 기본 검증
+
+```powershell
+cd backend
+.\gradlew.bat test
+
+cd ..\frontend
+npm run lint
+npm run build
+```
+
+macOS/Linux에서는 백엔드 테스트 명령으로 `./gradlew test`를 사용합니다.
+
+## 작업 시작 전
+
+- 공통 개발 문서 진입점: [docs/README.md](docs/README.md)
+- 백엔드 작업 규칙: 로컬 `backend/AGENTS.md`
+- 프론트엔드 작업 규칙: 로컬 `frontend/AGENTS.md`
+- 제품 소개와 협업 맥락: [GitHub Wiki](https://github.com/matchuri/matchuri/wiki)
+
+작업하려는 저장소에서 브랜치를 만들고, 동작이나 API 계약·데이터 구조·도메인 용어가 바뀌면 루트 `docs/`의 관련 문서도 함께 갱신합니다.
