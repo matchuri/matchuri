@@ -3,7 +3,7 @@
 ## 문서 상태
 
 - 상태: 현재 구현 기준 인덱스
-- 기준일: 2026-07-02
+- 기준일: 2026-07-13
 - 담당 영역: data docs
 - 기준 소스:
   - JPA Entity: `backend/src/main/java/matchuri/backend/domain/**/entity/*.java`
@@ -17,12 +17,13 @@
 
 ## 현재 범위
 
-현재 JPA Entity 기준 운영 테이블은 29개입니다.
+현재 JPA Entity 기준 운영 테이블은 30개입니다.
 
 | 영역 | 테이블 | 정의서 |
 | --- | --- | --- |
 | 회원 | `members` | [회원](./members-schema.md) |
 | 회원 | `member_agreements` | [회원 약관 동의](./member-agreements-schema.md) |
+| 회원 | `member_locations` | [회원 개인 위치](./member-locations-schema.md) |
 | 회원 취향 | `member_taste_profiles` | [회원 취향 프로필](./member-taste-profiles-schema.md) |
 | 회원 취향 | `member_taste_profile_categories` | [회원 취향 프로필](./member-taste-profiles-schema.md) |
 | 회원 취향 | `member_taste_profile_restriction_ingredients` | [회원 취향 프로필](./member-taste-profiles-schema.md) |
@@ -67,6 +68,7 @@
 | --- | --- | --- | --- |
 | `members` | `member_agreements` | 1 : N | [회원 약관 동의](./member-agreements-schema.md) |
 | `members` | `member_taste_profiles` | 1 : 0..1 | [회원 취향 프로필](./member-taste-profiles-schema.md) |
+| `members` | `member_locations` | 1 : 0..1 | [회원 개인 위치](./member-locations-schema.md) |
 | `member_taste_profiles` | 취향 하위 매핑 3종 | 1 : N | [회원 취향 프로필](./member-taste-profiles-schema.md) |
 | `menu_items` | `menu_attribute_categories`, `menu_ingredients` | 1 : N | [메뉴 카탈로그](./menu-catalog-schema.md) |
 | `menu_items` | `menu_item_images` | 1 : 0..1 | [이미지 자산](./images-schema.md) |
@@ -91,4 +93,4 @@
 
 ## 마지막 갱신
 
-- 2026-07-02
+- 2026-07-13

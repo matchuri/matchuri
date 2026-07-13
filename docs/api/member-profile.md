@@ -12,6 +12,8 @@
 - 내 비밀번호 변경
 - 내 취향 프로필 조회
 - 내 취향 프로필 전체 교체 저장
+- 내 개인 위치 조회
+- 내 개인 위치 전체 교체 저장
 - 회원 탈퇴
 
 ## 비범위
@@ -377,7 +379,68 @@ MemberController 응답도 공통 envelope 구조를 사용합니다.
 - 잘못된 `restriction ingredient` ID면 `MEMBER_INVALID_TASTE_RESTRICTION_INGREDIENT`
 - 잘못된 `disliked menu item` ID면 `MEMBER_INVALID_TASTE_DISLIKED_MENU_ITEM`
 
-### 8. 회원 탈퇴
+### 8. 내 개인 위치 조회
+
+- Method: `GET`
+- URL: `/api/v1/members/me/location`
+- 권한: 회원
+
+동작 기준:
+
+- 현재 인증 회원이 저장한 위치를 반환합니다.
+- 위치가 없으면 `404 MEMBER_LOCATION_NOT_FOUND`를 반환합니다.
+- 필수 온보딩 미완료 또는 비활성 회원은 `403`으로 거절됩니다.
+- 저장 위치를 개인 추천 요청에 자동 적용하는 동작은 현재 범위에 포함하지 않습니다.
+
+성공 응답 예시:
+
+```json
+{
+  "success": true,
+  "data": {
+    "latitude": 37.498095,
+    "longitude": 127.027610,
+    "radiusMeters": 1000,
+    "address": "서울 강남구 테헤란로 123"
+  },
+  "error": null
+}
+```
+
+### 9. 내 개인 위치 전체 교체 저장
+
+- Method: `PUT`
+- URL: `/api/v1/members/me/location`
+- 권한: 회원
+
+요청 body 예시:
+
+```json
+{
+  "latitude": 37.498095,
+  "longitude": 127.027610,
+  "radiusMeters": 1000,
+  "address": "서울 강남구 테헤란로 123"
+}
+```
+
+동작 기준:
+
+- 최초 요청은 위치를 생성하고 이후 요청은 기존 위치를 전체 교체합니다.
+- 생성과 수정 모두 `200 OK`와 최신 위치를 반환합니다.
+- 네 필드는 모두 필수이며 `null`로 일부 필드만 수정할 수 없습니다.
+- 위도는 -90 이상 90 이하, 경도는 -180 이상 180 이하입니다.
+- `radiusMeters`는 0 이상입니다.
+- `address`는 공백 문자열일 수 없고 최대 255자이며 앞뒤 공백을 제거해 저장합니다.
+- 위치 삭제 API와 개인 추천 자동 연동은 현재 범위에 포함하지 않습니다.
+
+대표 실패 기준:
+
+- 필수값 누락, 좌표 범위 위반, 음수 반경, 잘못된 주소는 `COMMON_INVALID_BODY_FIELD`
+- 인증이 없으면 `AUTH_TOKEN_MISSING`
+- 필수 온보딩 미완료 또는 비활성 회원이면 관련 `403` 오류 코드
+
+### 10. 회원 탈퇴
 
 - Method: `DELETE`
 - URL: `/api/v1/members/me`
@@ -417,4 +480,8 @@ MemberController 응답도 공통 envelope 구조를 사용합니다.
 - 취향 저장 후 재조회 시 최신 선택 상태가 반영된다.
 - 중복 ID 또는 잘못된 참조 데이터 저장은 4xx로 실패한다.
 - 비선호 메뉴 ID는 활성 `MenuItem` 기준으로 저장되고 조회 응답에 표시용 `id`, `code`, `name`이 포함된다.
+- 개인 위치 최초 PUT 후 GET에서 같은 위치를 조회할 수 있다.
+- 개인 위치 재 PUT은 기존 row를 추가하지 않고 네 필드를 전체 교체한다.
+- 개인 위치가 없으면 GET은 `MEMBER_LOCATION_NOT_FOUND`를 반환한다.
+- 개인 위치 요청의 필수값 누락과 값 범위 위반은 `COMMON_INVALID_BODY_FIELD`를 반환한다.
 - 회원 탈퇴 후 동일 계정 재로그인은 `MEMBER_INACTIVE_MEMBER`를 반환한다.

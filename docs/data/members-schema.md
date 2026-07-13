@@ -3,7 +3,7 @@
 ## 문서 상태
 
 - 상태: 현재 구현 기준
-- 기준일: 2026-07-02
+- 기준일: 2026-07-13
 - 담당 영역: member
 - 기준 소스:
   - JPA Entity: `Member`, `MemberRole`, `MemberStatus`, `SocialProviderType`
@@ -103,6 +103,7 @@
 | --- | --- | --- | --- |
 | `members.id` | `member_agreements.member_id` | 1 : N | 약관 동의 이력 |
 | `members.id` | `member_taste_profiles.member_id` | 1 : 0..1 | 회원 취향 프로필 |
+| `members.id` | `member_locations.member_id` | 1 : 0..1 | 회원 개인 위치 |
 | `members.id` | `auth_refresh_tokens.member_id` | 1 : N | refresh token |
 | `members.id` | `auth_exchange_codes.member_id` | 1 : N | OAuth2 exchange code |
 | `members.id` | `personal_recommendations.member_id` | 1 : N | 개인 추천 |
@@ -145,10 +146,11 @@
 
 - [회원 약관 동의 테이블 정의서](./member-agreements-schema.md)
 - [회원 취향 프로필 테이블 정의서](./member-taste-profiles-schema.md)
+- [회원 개인 위치 테이블 정의서](./member-locations-schema.md)
 - [인증 refresh token 테이블 정의서](./auth-refresh-tokens-schema.md)
 - [인증 exchange code 테이블 정의서](./auth-exchange-codes-schema.md)
 - [현재 구현 테이블 정의서 인덱스](./implemented-jpa-data-model.md)
 
 ## 마지막 갱신
 
-- 2026-07-02
+- 2026-07-13
