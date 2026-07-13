@@ -3,7 +3,7 @@
 ## 문서 상태
 
 - 상태: 현재 구현 기준 인덱스
-- 기준일: 2026-07-02
+- 기준일: 2026-07-13
 - 담당 영역: data docs
 - 기준 소스:
   - 현재 운영 테이블 정의서: `docs/data/*-schema.md`
@@ -24,6 +24,7 @@
 | [회원 테이블 정의서](./members-schema.md) | `members` |
 | [회원 약관 동의 테이블 정의서](./member-agreements-schema.md) | `member_agreements` |
 | [회원 취향 프로필 테이블 정의서](./member-taste-profiles-schema.md) | `member_taste_profiles`와 하위 매핑 |
+| [회원 개인 위치 테이블 정의서](./member-locations-schema.md) | `member_locations` |
 | [인증 refresh token 테이블 정의서](./auth-refresh-tokens-schema.md) | `auth_refresh_tokens` |
 | [인증 exchange code 테이블 정의서](./auth-exchange-codes-schema.md) | `auth_exchange_codes` |
 | [인증 이메일 검증 테이블 정의서](./auth-email-verifications-schema.md) | `auth_email_verifications` |
@@ -62,4 +63,4 @@
 
 ## 마지막 갱신
 
-- 2026-07-02
+- 2026-07-13
