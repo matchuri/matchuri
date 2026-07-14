@@ -1,6 +1,6 @@
 # Matchuri 개발 워크스페이스
 
-이 저장소는 Matchuri 팀원이 로컬 개발 환경을 처음 구성할 때 사용하는 워크스페이스 루트입니다. 제품 소개, 포트폴리오, 팀 소개는 [GitHub Wiki](https://github.com/matchuri/matchuri/wiki)에서 관리합니다.
+이 저장소는 Matchuri 팀원이 로컬 개발 환경을 처음 구성할 때 사용하는 워크스페이스 루트입니다. 제품 소개, 팀 소개는 [GitHub Wiki](https://github.com/matchuri/matchuri/wiki)에서 관리합니다.
 
 ## 저장소 구성
 
