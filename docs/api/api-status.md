@@ -3,7 +3,7 @@
 이 문서는 Matchuri 공식 API의 전체 현황을 한눈에 보기 위한 coordination table입니다.
 상세 계약은 각 API 문서와 코드의 OpenAPI 메타데이터, `/docs/openapi`, Swagger UI를 기준으로 봅니다.
 
-- 마지막 정리일: 2026-07-13
+- 마지막 정리일: 2026-07-15
 - API ID 정책: `docs/api/api-numbering-policy.md`
 
 ## API ID 기준
@@ -76,7 +76,7 @@ URL 경로나 `/api/v1` 같은 API path version을 대체하지 않습니다.
 | `ONB.060.000` | Member | GET | `/api/v1/members/me/taste-profile` | `real` | `docs/api/member-profile.md` | 내 취향 프로필 조회 |
 | `ONB.070.000` | Member | PATCH | `/api/v1/members/me/taste-profile` | `real` | `docs/api/member-profile.md` | 내 취향 프로필 전체 교체 저장 |
 | `ONB.080.000` | Member | DELETE | `/api/v1/members/me` | `real` | `docs/api/member-profile.md` | 회원 탈퇴 |
-| `ONB.090.000` | Member Location | GET | `/api/v1/members/me/location` | `real` | `docs/api/member-profile.md` | 내 개인 위치 조회. 미등록이면 404 |
+| `ONB.090.000` | Member Location | GET | `/api/v1/members/me/location` | `real` | `docs/api/member-profile.md` | 내 개인 위치 조회. 미등록이면 200과 `data=null` |
 | `ONB.100.000` | Member Location | PUT | `/api/v1/members/me/location` | `real` | `docs/api/member-profile.md` | 내 개인 위치 최초 저장/전체 교체 upsert |
 
 ## REF. 메뉴/취향 참조 플로우
