@@ -3,7 +3,7 @@
 ## 문서 상태
 
 - 상태: 현재 구현 기준
-- 기준일: 2026-07-13
+- 기준일: 2026-07-15
 - 담당 영역: member
 - 기준 소스:
   - JPA Entity: `MemberLocation`
@@ -49,7 +49,7 @@
 
 | 상황 | 기준 컬럼 | 동작 |
 | --- | --- | --- |
-| 내 위치 조회 | `member_id` | 인증 회원 ID로 단건 조회, 없으면 `MEMBER_LOCATION_NOT_FOUND` |
+| 내 위치 조회 | `member_id` | 인증 회원 ID로 단건 조회, 없으면 API에서 `200 OK`와 `data=null` 반환 |
 | 내 위치 최초 PUT | `member_id` | 새 row 생성 |
 | 내 위치 재 PUT | `member_id` | 기존 row의 네 위치 필드를 전체 교체 |
 

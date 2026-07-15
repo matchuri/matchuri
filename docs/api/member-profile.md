@@ -388,7 +388,7 @@ MemberController 응답도 공통 envelope 구조를 사용합니다.
 동작 기준:
 
 - 현재 인증 회원이 저장한 위치를 반환합니다.
-- 위치가 없으면 `404 MEMBER_LOCATION_NOT_FOUND`를 반환합니다.
+- 위치가 없어도 클라이언트 오류로 처리하지 않고 `200 OK`와 `data=null`을 반환합니다.
 - 필수 온보딩 미완료 또는 비활성 회원은 `403`으로 거절됩니다.
 - 저장 위치를 개인 추천 요청에 자동 적용하는 동작은 현재 범위에 포함하지 않습니다.
 
@@ -403,6 +403,16 @@ MemberController 응답도 공통 envelope 구조를 사용합니다.
     "radiusMeters": 1000,
     "address": "서울 강남구 테헤란로 123"
   },
+  "error": null
+}
+```
+
+미등록 응답 예시:
+
+```json
+{
+  "success": true,
+  "data": null,
   "error": null
 }
 ```
@@ -482,6 +492,6 @@ MemberController 응답도 공통 envelope 구조를 사용합니다.
 - 비선호 메뉴 ID는 활성 `MenuItem` 기준으로 저장되고 조회 응답에 표시용 `id`, `code`, `name`이 포함된다.
 - 개인 위치 최초 PUT 후 GET에서 같은 위치를 조회할 수 있다.
 - 개인 위치 재 PUT은 기존 row를 추가하지 않고 네 필드를 전체 교체한다.
-- 개인 위치가 없으면 GET은 `MEMBER_LOCATION_NOT_FOUND`를 반환한다.
+- 개인 위치가 없으면 GET은 `200 OK`, `success=true`, `data=null`, `error=null`을 반환한다.
 - 개인 위치 요청의 필수값 누락과 값 범위 위반은 `COMMON_INVALID_BODY_FIELD`를 반환한다.
 - 회원 탈퇴 후 동일 계정 재로그인은 `MEMBER_INACTIVE_MEMBER`를 반환한다.
