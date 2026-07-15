@@ -1,6 +1,6 @@
 ---
 name: matchuri-api-contract-sync
-description: Matchuri backend와 frontend API 계약을 동기화한다. backend API 변경을 frontend infrastructure/api client, frontend domain type, hook, docs/api status, OpenAPI/Swagger 점검에 반영하거나 backend controller mapping, docs/api/api-status.md, frontend API usage 사이의 drift를 감사할 때 사용한다.
+description: Matchuri backend와 frontend API 계약을 명시적인 cross-stack 범위에서 동기화한다. 사용자가 BE와 FE 동시 수정, frontend consumer 반영, 또는 양쪽 계약 drift 감사를 요청했을 때 backend API, frontend API client와 domain type, hook, docs/api, OpenAPI/Swagger를 함께 점검하거나 수정하는 데 사용한다. backend-only 또는 frontend-only 요청에는 사용하지 않는다.
 ---
 
 # Matchuri API 계약 동기화
@@ -9,7 +9,7 @@ FE/BE contract alignment에 사용한다. 자동 background trigger가 아니라
 
 ## 범위
 
-아래 상황에 사용한다.
+사용자가 cross-stack 작업 또는 양쪽 drift 감사를 명시한 아래 상황에 사용한다.
 
 - backend endpoint path, method, request, response, error contract가 바뀐다.
 - backend에 맞춰 frontend API client 또는 domain type을 바꿔야 한다.
@@ -17,7 +17,7 @@ FE/BE contract alignment에 사용한다. 자동 background trigger가 아니라
 - OpenAPI/Swagger output을 수동 또는 script로 검증해야 한다.
 - PR이 `backend/`와 `frontend/`를 함께 건드린다.
 
-backend-only 구현 세부사항에는 먼저 `matchuri-backend-api-change`를 사용한다.
+상대 영역에 영향이 있다는 사실만으로 이 스킬을 사용하거나 수정 범위를 넓히지 않는다. backend-only 작업에는 `matchuri-backend-scope`와 관련 backend 스킬을 사용하고, frontend-only 작업에는 `matchuri-frontend-scope`를 사용한다.
 
 ## 먼저 읽을 것
 
