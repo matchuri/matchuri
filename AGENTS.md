@@ -29,6 +29,11 @@
 
 - 작업 전에 모든 문서를 읽지 말고, 작업 종류에 맞는 진입점부터 엽니다.
 - 하위 영역에 `AGENTS.md`가 있으면 루트 라우터 다음으로 해당 파일을 확인합니다.
+- backend-only 작업은 `.agents/skills/matchuri-backend-scope/SKILL.md`를 사용합니다.
+- frontend-only 작업은 `.agents/skills/matchuri-frontend-scope/SKILL.md`를 사용합니다.
+- BE와 FE를 함께 수정하라는 명시적 요청에만 `.agents/skills/matchuri-api-contract-sync/SKILL.md`를 cross-stack 작업으로 사용합니다.
+- 범위 스킬은 구현, 리뷰, API 변경 등 다른 작업 스킬보다 우선하며, 다른 스킬이 작업 범위를 확장할 수 없습니다.
+- 명시적인 cross-stack 요청이 없으면 상대 영역은 읽기와 영향 분석만 허용하고 수정하지 않습니다.
 - 동작, API 계약, 데이터 구조, 도메인 용어가 바뀌면 관련 `docs/` 문서를 함께 갱신합니다.
 - 프로젝트 소개, 포트폴리오 서사, 협업 방식처럼 사람이 읽을 맥락은 GitHub Wiki에 남깁니다.
 - GitHub Wiki는 루트 프로젝트와 별도의 문서 저장소로 취급합니다. 루트 저장소 문서에서는 추적하지 않는 로컬 위키 경로를 링크하지 않습니다.

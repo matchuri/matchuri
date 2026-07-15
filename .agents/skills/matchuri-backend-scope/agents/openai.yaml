@@ -1,0 +1,4 @@
+interface:
+  display_name: "Matchuri Backend Scope"
+  short_description: "Keep Matchuri work inside backend ownership"
+  default_prompt: "Use $matchuri-backend-scope to keep this Matchuri task limited to backend-owned files and report frontend follow-up separately."
