@@ -3,7 +3,7 @@
 이 문서는 Matchuri 공식 API의 전체 현황을 한눈에 보기 위한 coordination table입니다.
 상세 계약은 각 API 문서와 코드의 OpenAPI 메타데이터, `/docs/openapi`, Swagger UI를 기준으로 봅니다.
 
-- 마지막 정리일: 2026-07-15
+- 마지막 정리일: 2026-07-17
 - API ID 정책: `docs/api/api-numbering-policy.md`
 
 ## API ID 기준
@@ -57,7 +57,7 @@ URL 경로나 `/api/v1` 같은 API path version을 대체하지 않습니다.
 | `AUTH.050.000` | Member | POST | `/api/v1/members/signup` | `real` | `docs/api/member-local-signup.md` | 자체 회원가입 기본 경로 |
 | `AUTH.060.000` | Auth | GET | `/api/v1/auth/oauth2/{provider}` | `real` | `docs/api/auth-google-oauth2.md` | Google/Kakao/Naver OAuth2 시작 |
 | `AUTH.070.000` | Auth | POST | `/api/v1/auth/oauth2/exchange` | `real` | `docs/api/auth-google-oauth2.md` | OAuth2 code 교환 |
-| `AUTH.080.000` | Auth | POST | `/api/v1/auth/login` | `real` | `docs/api/auth-session.md` | 로컬 로그인 |
+| `AUTH.080.000` | Auth | POST | `/api/v1/auth/login` | `real` | `docs/api/auth-session.md` | CAPTCHA 검증 포함 로컬 로그인. 현재 공급자는 Google reCAPTCHA v3 |
 | `AUTH.090.000` | Auth | POST | `/api/v1/auth/refresh` | `real` | `docs/api/auth-session.md` | refresh token 기반 재발급 |
 | `AUTH.100.000` | Auth | POST | `/api/v1/auth/logout` | `real` | `docs/api/auth-session.md` | 현재 세션 로그아웃 |
 | `AUTH.110.000` | Auth | POST | `/api/v1/auth/recovery/login-id` | `real` | `docs/api/auth-email-verification.md` | 로그인 ID 찾기 |
