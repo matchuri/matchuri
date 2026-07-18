@@ -21,6 +21,11 @@
 
 ## 현재 확정 결정
 
+- `POST /api/v1/auth/login`은 로컬 로그인에만 CAPTCHA 검증을 적용합니다. OAuth2 로그인에는 적용하지 않습니다.
+- 프론트는 로그인 버튼을 누른 직후 `LOGIN` 목적의 토큰을 발급하고 요청 body의 공급자 중립 필드 `captchaToken`으로 전달합니다.
+- 서버 로그인 흐름은 회원 조회와 비밀번호 검증 전에 `CaptchaVerifier`로 토큰과 `CaptchaPurpose.LOGIN`을 검증합니다.
+- 현재 공급자는 Google reCAPTCHA v3이며 Google 어댑터가 `success`, `login` action, score를 검증합니다.
+- 현재 기본 score 임계값은 `0.5`이며 환경 변수로 조정할 수 있습니다.
 - `POST /api/v1/auth/login`은 `accessToken`을 응답 body에 반환합니다.
 - `refreshToken`은 응답 body가 아니라 `HttpOnly` 쿠키로 내려갑니다.
 - `POST /api/v1/auth/refresh`는 요청 body 없이 refresh token 쿠키만으로 새 access token을 발급합니다.
@@ -75,9 +80,12 @@
 ```json
 {
   "loginId": "tester01",
-  "password": "P@ssw0rd!"
+  "password": "P@ssw0rd!",
+  "captchaToken": "captcha-token..."
 }
 ```
+
+`captchaToken`은 특정 공급자 이름을 노출하지 않는 계약 필드입니다. 토큰은 재사용하지 않으며 로그인 요청 직전에 새로 발급합니다.
 
 성공 응답 예시:
 
@@ -106,15 +114,28 @@
 
 동작 기준:
 
-1. 서버는 `loginId`로 회원을 조회합니다.
-2. 비밀번호 해시를 검증합니다.
-3. 활성 회원이면 access token과 refresh token을 발급합니다.
-4. access token은 body에, refresh token은 `HttpOnly` 쿠키에 내려갑니다.
+1. 서버는 선택된 CAPTCHA 공급자 어댑터로 토큰과 `LOGIN` 목적을 검증합니다. 현재 Google 어댑터는 `login` action과 score 임계값도 확인합니다.
+2. 서버는 `loginId`로 회원을 조회합니다.
+3. 비밀번호 해시를 검증합니다.
+4. 활성 회원이면 access token과 refresh token을 발급합니다.
+5. access token은 body에, refresh token은 `HttpOnly` 쿠키에 내려갑니다.
 
 실패 기준:
 
+- 토큰이 누락되거나 빈 값이면 `COMMON_INVALID_BODY_FIELD` (`400`)
+- 토큰이 거절되거나 action 또는 score가 기준에 맞지 않으면 `AUTH_CAPTCHA_VERIFICATION_FAILED` (`400`)
+- 선택된 CAPTCHA 공급자의 통신 장애 또는 secret 설정 오류면 `AUTH_CAPTCHA_SERVICE_UNAVAILABLE` (`503`)
 - 아이디 또는 비밀번호가 올바르지 않으면 `AUTH_LOGIN_FAILED`
 - 비활성 회원이면 `MEMBER_INACTIVE_MEMBER`
+
+보안 및 운영 기준:
+
+- CAPTCHA 검증 실패 시 회원 조회와 비밀번호 비교를 수행하지 않습니다.
+- CAPTCHA token과 secret 원문은 응답이나 log에 남기지 않습니다.
+- CAPTCHA 공급자 검증 API 장애 시 로그인은 fail-closed로 처리합니다.
+- 공급자 선택은 `MATCHURI_CAPTCHA_PROVIDER`로 주입하며 현재 기본값은 `google`입니다.
+- site key는 `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`, secret key는 `MATCHURI_GOOGLE_RECAPTCHA_SECRET_KEY`로 주입합니다.
+- score 임계값은 `MATCHURI_GOOGLE_RECAPTCHA_SCORE_THRESHOLD`로 조정하며 기본값은 `0.5`입니다.
 
 ### 2. refresh token으로 access token 재발급
 
@@ -194,6 +215,9 @@
 
 ## 검증 시나리오 초안
 
+- 유효한 `LOGIN` 목적의 CAPTCHA 토큰이면 로컬 로그인을 계속 진행한다.
+- 현재 Google 공급자에서 토큰 누락, Google 거절, action 불일치, 낮은 score이면 자격 증명을 확인하기 전에 로그인 요청을 거절한다.
+- CAPTCHA 공급자 검증 API 통신 장애는 `503`으로 반환하며 실제 외부 API는 테스트에서 호출하지 않는다.
 - 유효한 로컬 계정이면 access token body와 refresh token 쿠키가 함께 내려간다.
 - 로그인과 refresh 성공 응답에는 `data.onboarding.nextStep`이 포함된다.
 - refresh 호출 성공 시 기존 refresh token은 회전되고 이전 토큰은 더 이상 유효하지 않다.

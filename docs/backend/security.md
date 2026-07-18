@@ -47,6 +47,9 @@
 
 - 인증 프레임워크는 `Spring Security`를 사용합니다.
 - 자체 로그인은 `loginId + password` 기반으로 처리합니다.
+- 자체 로그인 요청은 회원 조회와 비밀번호 비교 전에 CAPTCHA를 검증합니다.
+- CAPTCHA 검증은 로컬 로그인에만 적용하고 OAuth2 로그인에는 적용하지 않습니다.
+- 도메인 로그인 흐름은 `CaptchaVerifier`와 `CaptchaPurpose`만 사용하며 현재 공급자인 Google reCAPTCHA v3의 action, score, API 형식은 infra 어댑터에 격리합니다.
 - 소셜 로그인은 `Spring Security OAuth2 Client`를 사용합니다.
 - API 인증은 Matchuri JWT Access Token 기반으로 통일합니다.
 - Frontend는 backend가 발급한 token만 기준으로 로그인 상태를 해석합니다.
@@ -151,12 +154,17 @@
 - login 실패 메시지는 `loginId`와 password 중 무엇이 틀렸는지 구분하지 않습니다.
 - OAuth2 실패는 frontend가 처리 가능한 code와 message로 정리합니다.
 - password, Access Token, Refresh Token 원문은 log에 남기지 않습니다.
+- CAPTCHA token과 secret key 원문은 log에 남기지 않습니다.
+- CAPTCHA 토큰 거절은 `400`, 공급자 검증 서비스 장애는 `503`으로 구분하며 둘 다 fail-closed로 처리합니다.
 - OAuth2 provider response 원문도 민감 정보 masking 없이 저장하지 않습니다.
 - 인증 실패, 권한 실패, token 검증 실패는 원인 추적이 가능한 구조화 log를 남깁니다.
 
 ## 시크릿 관리
 
 - 모든 시크릿은 Infisical을 source of truth로 사용합니다.
+- Frontend에는 공개 site key인 `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`만 주입합니다.
+- Backend에는 `MATCHURI_GOOGLE_RECAPTCHA_SECRET_KEY`를 주입하며 frontend 환경에는 전달하지 않습니다.
+- Backend 공급자 선택은 `MATCHURI_CAPTCHA_PROVIDER`로 주입하며 현재 값은 `google`입니다.
 - 환경은 `development`, `staging`, `production`으로 분리합니다.
 - `.env` 파일은 저장소에 커밋하지 않습니다.
 - GitHub Actions workflow는 OIDC 기반 단기 권한을 우선합니다.
