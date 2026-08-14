@@ -12,7 +12,7 @@
 ## 현재 기준
 
 - 계약 기준: 코드와 함께 유지되는 OpenAPI 메타데이터와 `/docs/openapi` 산출물
-- 전체 API 상태표: `docs/api/api-status.md`
+- API ID와 flow tag registry: `OpenApiConfig.API_OPERATION_METADATA`
 - API 넘버링/버저닝 정책: `docs/api/api-numbering-policy.md`
 - 문서화 전략: `docs/decisions/api-docs-strategy.md`
 - 구현 실무 기준: `docs/backend/guide.md`
@@ -21,9 +21,8 @@
 
 1. `docs/decisions/documentation-source-of-truth.md`
 2. `docs/decisions/api-docs-strategy.md`
-3. `docs/api/api-status.md`
-4. `docs/api/api-numbering-policy.md`
-5. `docs/backend/guide.md`
+3. `docs/api/api-numbering-policy.md`
+4. `docs/backend/guide.md`
 
 ## 도메인별 API 문서
 
@@ -66,16 +65,17 @@
 ## 읽는 방법
 
 - "현재 어떤 방식으로 API 문서를 관리하나?"가 궁금하면 문서화 전략 문서를 먼저 봅니다.
-- "전체 API 중 무엇이 real/mock/planned/deprecated 상태인가?"가 궁금하면 `docs/api/api-status.md`를 봅니다.
+- 전체 endpoint, method, schema와 deprecated 여부는 `/docs/openapi` 또는 Swagger UI에서 확인합니다.
 - "API ID를 어떻게 부여하고 유지하나?"가 궁금하면 `docs/api/api-numbering-policy.md`를 봅니다.
 - "현재 계약의 authoritative source가 어디인가?"가 궁금하면 문서 기준 위치 문서를 봅니다.
 - "백엔드 구현 시 어떤 규칙을 따라야 하나?"가 궁금하면 백엔드 가이드를 봅니다.
 - 특정 도메인의 API 계약이 궁금하면 위 도메인별 API 문서에서 시작합니다.
-- 특정 endpoint의 구현 상태가 궁금하면 `docs/api/api-status.md`에서 상태와 기준 문서를 확인합니다.
+- 특정 endpoint의 구현 여부는 Controller와 `/docs/openapi`에서 확인합니다.
 
 ## 유지보수 원칙
 
 - API 계약이 바뀌면 OpenAPI와 관련 `docs/` 문서를 먼저 갱신하고, 필요한 테스트를 함께 맞춥니다.
-- 새 API를 추가하거나 mock에서 real로 전환하면 `docs/api/api-status.md` 상태표를 갱신합니다.
-- `docs/api/api-status.md`는 중기적으로 `api-status.yaml` 기반 generated Markdown 전환을 검토합니다.
+- 새 API를 추가하면 Controller mapping과 `OpenApiConfig.API_OPERATION_METADATA`를 갱신합니다.
+- method/path/API ID/status 목록을 별도 문서에 복사하지 않습니다.
+- `audit_api_contract.py --strict`로 Controller mapping과 OpenAPI registry drift를 검사합니다.
 - 문서가 어긋나면 구현과 OpenAPI 산출물을 우선 확인합니다.

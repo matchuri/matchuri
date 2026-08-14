@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit Matchuri docs for size, governance bucket, and forbidden links."""
+"""Audit Matchuri docs for size, governance bucket, and invalid local links."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 import re
+from urllib.parse import unquote
 
 
 FORBIDDEN_LINK_PATTERNS = [
@@ -14,6 +15,7 @@ FORBIDDEN_LINK_PATTERNS = [
     re.compile(r"`matchuri\.wiki/"),
     re.compile(r"\]\(\.\./docs/"),
 ]
+MARKDOWN_LINK_PATTERN = re.compile(r"\[[^\]]*\]\((?P<target>[^)]+)\)")
 
 
 @dataclass(frozen=True)
@@ -35,18 +37,16 @@ def classify(path: Path, size: int) -> tuple[str, str]:
         return "SKILL", "tool/reference material should be loaded only when needed"
 
     if p.startswith("docs/api/"):
-        if name in {"api-status.md", "api-numbering-policy.md"}:
+        if name == "api-numbering-policy.md":
             return "KEEP", "API governance contract"
         if size > 10_000:
             return "HARNESS", "large API detail should move toward OpenAPI/status checks"
         return "KEEP", "concise API contract detail"
 
     if p.startswith("docs/data/"):
-        if name in {"implemented-jpa-data-model.md", "template.md"}:
-            return "KEEP", "data model index or authoring template"
-        if size > 8_000:
-            return "HARNESS", "large schema detail should move toward generated drift checks"
-        return "KEEP", "concise schema contract"
+        if name == "policies.md":
+            return "KEEP", "durable data policy not derivable from JPA mappings"
+        return "KEEP", "data model navigation entry point"
 
     if p.startswith("docs/backend/"):
         if name in {"index.md", "architecture.md", "guide.md"}:
@@ -69,7 +69,6 @@ def classify(path: Path, size: int) -> tuple[str, str]:
             "documentation-source-of-truth.md",
             "domain-language.md",
             "api-docs-strategy.md",
-            "data-docs-style-guide.md",
         }:
             return "KEEP", "durable governance or domain decision"
         if size > 10_000:
@@ -99,6 +98,33 @@ def find_forbidden_links(root: Path) -> list[tuple[Path, int, str]]:
         for idx, line in enumerate(lines, start=1):
             if any(pattern.search(line) for pattern in FORBIDDEN_LINK_PATTERNS):
                 findings.append((path.relative_to(root), idx, line.strip()))
+
+    return findings
+
+
+def markdown_files(root: Path) -> list[Path]:
+    files = [root / "README.md", root / "AGENTS.md"]
+    files.extend((root / "docs").rglob("*.md"))
+    return [path for path in files if path.is_file()]
+
+
+def find_broken_local_links(root: Path) -> list[tuple[Path, int, str]]:
+    findings: list[tuple[Path, int, str]] = []
+    for path in markdown_files(root):
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except UnicodeDecodeError:
+            lines = path.read_text(encoding="utf-8-sig").splitlines()
+
+        for line_no, line in enumerate(lines, start=1):
+            for match in MARKDOWN_LINK_PATTERN.finditer(line):
+                target = match.group("target").strip().strip("<>")
+                if not target or target.startswith(("#", "http://", "https://", "mailto:")):
+                    continue
+                target = unquote(target.split("#", 1)[0].split("?", 1)[0])
+                candidate = (root / target.lstrip("/")) if target.startswith("/") else (path.parent / target)
+                if not candidate.resolve().exists():
+                    findings.append((path.relative_to(root), line_no, match.group("target")))
 
     return findings
 
@@ -173,6 +199,20 @@ def markdown_report(root: Path) -> str:
     else:
         lines.append("No forbidden tracked links found.")
 
+    broken = find_broken_local_links(root)
+    lines.extend([
+        "",
+        "## Broken Local Link Findings",
+        "",
+    ])
+    if broken:
+        lines.extend(["| Path | Line | Target |", "| --- | ---: | --- |"])
+        for path, line_no, target in broken:
+            safe_target = target.replace("|", "\\|")
+            lines.append(f"| `{path.as_posix()}` | {line_no} | `{safe_target}` |")
+    else:
+        lines.append("No broken local links found.")
+
     lines.append("")
     return "\n".join(lines)
 
@@ -180,23 +220,15 @@ def markdown_report(root: Path) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default=".", help="Repository root")
-    parser.add_argument("--output", help="Optional markdown report path")
-    parser.add_argument("--strict", action="store_true", help="Exit non-zero when forbidden tracked links are found")
+    parser.add_argument("--strict", action="store_true", help="Exit non-zero when forbidden or broken local links are found")
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
     report = markdown_report(root)
 
-    if args.output:
-        output = Path(args.output)
-        if not output.is_absolute():
-            output = root / output
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(report, encoding="utf-8")
-    else:
-        print(report)
+    print(report)
 
-    if args.strict and find_forbidden_links(root):
+    if args.strict and (find_forbidden_links(root) or find_broken_local_links(root)):
         return 1
 
     return 0

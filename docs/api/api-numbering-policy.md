@@ -51,7 +51,7 @@ GREC.080.000
 
 새로운 큰 사용자 플로우가 생기면 의미가 분명한 새 영문 코드를 추가합니다.
 기존 플로우 코드의 의미를 바꾸거나 숫자 순서를 재배치하는 대신 새 플로우 코드를 추가하는 것을 우선합니다.
-전체 사용자 플로우 정렬은 API ID가 아니라 `docs/api/api-status.md`의 섹션 순서와 Swagger tag 정렬로 관리합니다.
+전체 사용자 플로우 정렬은 API ID가 아니라 `OpenApiConfig.API_OPERATION_METADATA`의 entry 순서와 Swagger tag 정렬로 관리합니다.
 
 ## 부여 규칙
 
@@ -136,8 +136,6 @@ API ID는 API 계약의 커뮤니케이션 키로 취급합니다.
 
 API ID를 추가하거나 바꾸면 아래를 함께 확인합니다.
 
-- `docs/api/api-status.md`
-- 관련 `docs/api/*` 상세 문서
 - `OpenApiConfig`의 API ID customizer 매핑
 - 필요한 경우 관련 `*Api.java` OpenAPI 메타데이터
 - `/docs/openapi` 산출물과 Swagger UI 표시

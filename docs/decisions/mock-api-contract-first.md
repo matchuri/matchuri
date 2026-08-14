@@ -33,7 +33,6 @@ Mock API는 실제 도메인 처리를 대신하지 않습니다.
 - Controller에서 mock factory 호출이 제거됩니다.
 - Swagger의 Mock API 문구가 실제 구현 상태에 맞게 갱신됩니다.
 - 대표 성공/실패 테스트가 추가됩니다.
-- API 상태표의 `mock`/`real` 상태가 갱신됩니다.
 
 ## 상태 기준
 

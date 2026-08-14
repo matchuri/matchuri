@@ -35,23 +35,22 @@
 1. `docs/backend/guide.md`
 2. `docs/backend/architecture.md`
 3. 관련 도메인의 `docs/api/*.md`
-4. 관련 데이터 문서 또는 `docs/data/implemented-jpa-data-model.md`
+4. 데이터 정책 판단이 필요하면 `docs/data/policies.md`
 5. 리뷰가 필요하면 `.agents/skills/matchuri-backend-quality-review/SKILL.md`
 
 ### API 추가/수정
 
 1. `docs/api/index.md`
-2. `docs/api/api-status.md`
-3. `docs/decisions/api-docs-strategy.md`
-4. 관련 도메인 API 문서
-5. `docs/backend/guide.md`의 DTO/Swagger 규칙
+2. `docs/decisions/api-docs-strategy.md`
+3. 관련 도메인 API 문서
+4. `docs/backend/guide.md`의 DTO/Swagger 규칙
 
 ### 데이터 모델 변경
 
 1. `docs/data/index.md`
-2. `docs/data/implemented-jpa-data-model.md`
-3. 관련 테이블 정의서
-4. `docs/decisions/domain-language.md`
+2. backend JPA Entity
+3. 정책이 바뀌는 경우 `docs/data/policies.md`
+4. 용어가 바뀌는 경우 `docs/decisions/domain-language.md`
 
 ## 관련 문서 공간
 
@@ -79,7 +78,7 @@
 ## 유지보수 규칙
 
 - API 계약이 바뀌면 OpenAPI 메타데이터, Swagger 산출물, 관련 `docs/api/` 문서를 함께 확인합니다.
-- 데이터 구조가 바뀌면 구현과 `docs/data/`를 함께 맞춥니다.
+- 데이터 구조가 바뀌면 엔티티와 테스트를 수정하고 JPA mapping audit를 실행합니다. 구조만으로 알 수 없는 정책이 바뀔 때만 `docs/data/policies.md`를 수정합니다.
 - 도메인 용어나 제품 판단이 바뀌면 `docs/decisions/domain-language.md` 또는 `docs/product/product-sense.md`를 갱신합니다.
 - 내부 실행 계획에서 확정된 규칙은 공개 가능한 개발 기준 문서에만 선별 승격합니다.
 - 포트폴리오나 프로젝트 소개에 필요한 요약은 GitHub Wiki에 쓰고, 구현 기준의 원문은 `docs/`에 유지합니다.

@@ -25,20 +25,22 @@
 | 코드와 마이그레이션 | 실제 동작과 계약의 최종 확인 위치 | 최종 기준 |
 | `secrets/` | 운영 런북, 실행 계획, 내부 기록 | 내부 기준 |
 
-## ERD 관리 원칙
+## 데이터 모델 관리 원칙
 
 ### 현재 기준 위치
 
-- 현재 구현 테이블 인덱스: `docs/data/implemented-jpa-data-model.md`
-- 컬럼 단위 설명: `docs/data/*-schema.md`
-- 구조, 용어, 설계 판단 기준: `docs/`
+- 테이블·컬럼·제약·연관관계: backend JPA Entity
+- 구조만으로 알 수 없는 보존·만료·삭제 정책: `docs/data/policies.md`
+- 용어와 설계 판단 기준: `docs/`
 - 사람용 요약: 필요 시 GitHub Wiki
-- 실제 스키마/JPA 매핑: JPA Entity와 연관관계 구현
+- JPA 규칙 감사: `backend/scripts/audit_jpa_schema.py`
+- 실제 매핑 가능 여부: backend 테스트의 빈 DB schema 생성
 
 ### 업데이트 규칙
 
-- 스키마 구조 판단이 바뀌면 구현과 `docs/data/` 문서를 함께 갱신합니다.
-- 문서와 구현이 다르면 JPA Entity와 빈 DB 생성 결과를 기준으로 확인을 시작합니다.
+- 구조가 바뀌면 엔티티와 테스트를 수정하고 mapping audit를 실행합니다.
+- 정책이 바뀔 때만 `docs/data/policies.md`를 수정합니다.
+- generated schema나 테이블 목록을 Git에 저장하지 않습니다.
 
 ## API 문서 관리 원칙
 
@@ -46,11 +48,14 @@
 
 - 계약 기준: 코드와 함께 유지되는 OpenAPI 메타데이터와 그 산출물
 - 문서화 전략: `docs/decisions/api-docs-strategy.md`
-- API 상태표와 도메인별 설명: `docs/api/`
+- API ID와 flow tag registry: `OpenApiConfig.API_OPERATION_METADATA`
+- 코드 목록만으로 표현할 수 없는 도메인별 정책 설명: `docs/api/`
 
 ### 업데이트 규칙
 
 - API 계약이 바뀌면 OpenAPI, 관련 `docs/api/` 설명 문서, 필요한 테스트를 함께 수정합니다.
+- endpoint 목록과 구현 상태는 별도 문서로 복사하지 않고 `/docs/openapi`에서 확인합니다.
+- API ID와 flow tag는 `OpenApiConfig.API_OPERATION_METADATA`에서만 수정합니다.
 - 공개 문서에 남기는 API 설명은 현재 구현과 클라이언트 계약을 이해하는 데 필요한 수준으로 유지합니다.
 
 ## 문서 작성 판단표
@@ -60,7 +65,7 @@
 - 오래 유지할 개발 기준 중 공개 가능한 것
 - 팀 공통 규칙
 - 현재 구조와 책임 분리
-- 현재 데이터 모델 설명
+- 데이터 구조만으로 알 수 없는 정책
 - 현재 API 문서화 전략
 - 제품/도메인 기준 용어
 
@@ -83,8 +88,8 @@
 ### harness로 둘 것
 
 - 금지 링크 검사
-- OpenAPI와 API 상태표 drift 검사
-- 엔티티/마이그레이션과 데이터 문서 drift 검사
+- Controller mapping과 OpenAPI API ID registry drift 검사
+- JPA table·enum·연관관계 명명 규칙과 빈 DB schema 생성 검사
 - 문서 크기, 중복 제목, 필수 인덱스 누락처럼 자동 판정 가능한 규칙
 
 ### 공개 문서에서 제외할 것
@@ -108,7 +113,7 @@
 
 ## 현재 결론
 
-- ERD와 스키마 설명은 `docs/data/`를 현재 기준으로 둡니다.
+- 데이터 구조는 JPA Entity를, 구조만으로 알 수 없는 정책은 `docs/data/policies.md`를 기준으로 둡니다.
 - API는 코드 인접 OpenAPI와 `docs/api/`를 현재 계약 기준으로 둡니다.
 - 제품 소개, 포트폴리오 서사, 협업 안내는 GitHub Wiki를 사람용 위키로 둡니다.
 - 반복되는 에이전트 작업 절차는 `.agents/skills/`로 둡니다.

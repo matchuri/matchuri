@@ -20,14 +20,13 @@
 
 - 문서 거버넌스 스킬: `.agents/skills/matchuri-doc-governance/SKILL.md`
 - 문서 인벤토리 하네스: `.agents/skills/matchuri-doc-governance/scripts/audit_docs.py`
-- 현재 인벤토리 reference: `.agents/skills/matchuri-doc-governance/references/current-docs-inventory.md`
 - 백엔드 API 변경 스킬: `.agents/skills/matchuri-backend-api-change/SKILL.md`
 - 백엔드 품질 리뷰 스킬: `.agents/skills/matchuri-backend-quality-review/SKILL.md`
 - 백엔드 보안 리뷰 스킬: `.agents/skills/matchuri-backend-security-review/SKILL.md`
 - 백엔드 신뢰성 리뷰 스킬: `.agents/skills/matchuri-backend-reliability-review/SKILL.md`
 - FE/BE API 계약 동기화 스킬: `.agents/skills/matchuri-api-contract-sync/SKILL.md`
-- API 계약 drift 하네스: `.agents/skills/matchuri-api-contract-sync/scripts/audit_api_contract.py`
-- 데이터 스키마 drift 하네스 설계: `docs/decisions/data-schema-drift-harness.md`
+- API 계약 drift 하네스: `backend/scripts/audit_api_contract.py`
+- JPA mapping drift 하네스: `backend/scripts/audit_jpa_schema.py`
 
 ## 분류 기준
 
@@ -41,8 +40,9 @@
 
 ## 다음 후보
 
-- API 상세 장문 문서는 OpenAPI metadata, API 상태표, drift harness 중심으로 줄입니다.
-- `docs/api/group.md`와 `docs/api/realtime.md`는 계약 요약과 harness 후보 중심으로 줄였습니다.
-- 데이터 스키마 장문 문서는 엔티티/빈 DB 생성 스키마/docs index drift harness로 전환합니다.
+- API ID와 flow tag는 `OpenApiConfig.API_OPERATION_METADATA` 한 곳에서 관리하고 별도 상태표는 유지하지 않습니다.
+- API 상세 장문 문서는 OpenAPI metadata와 drift harness 중심으로 줄입니다.
+- `docs/api/group.md`, `recommendation.md`, `realtime.md`의 중복 endpoint 목록은 제거하고 정책만 유지합니다.
+- 데이터 스키마 장문 문서는 제거하고 엔티티, 빈 DB 생성 테스트, JPA mapping audit로 전환했습니다.
 - 백엔드 보안, 신뢰성, 품질 점수 문서는 기준만 남기고 review skill로 절차를 분리했습니다. 다음은 검증 가능한 항목을 harness로 옮깁니다.
 - 제품 서사는 GitHub Wiki로 옮기고 `docs/product/`는 제품 판단 기준만 남깁니다.

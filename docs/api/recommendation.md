@@ -24,18 +24,6 @@
 
 비회원 개인 추천 API는 추천 이력을 저장하지 않고, 요청 취향 입력으로 계산한 후보 목록만 동기 반환합니다.
 
-## API 목록
-
-| Method | Path | 상태 | 설명 |
-| --- | --- | --- | --- |
-| POST | `/api/v1/guest/recommendations` | `real` | 비회원 개인 추천 요청 |
-| GET | `/api/v1/personal/recommendations` | `real` | 내 개인 추천 이력 목록 조회 |
-| POST | `/api/v1/personal/recommendations` | `real` | 개인 추천 요청 생성 |
-| POST | `/api/v1/personal/recommendations/{requestId}/reroll` | `real` | 개인 추천 재요청 |
-| GET | `/api/v1/personal/recommendations/{requestId}` | `real` | 개인 추천 요청 상세 조회 |
-| GET | `/api/v1/personal/recommendations/{requestId}/candidates` | `real` | 개인 추천 후보 목록 조회 |
-| PATCH | `/api/v1/personal/recommendations/{requestId}` | `real` | 개인 추천 후보 선택 |
-
 ## 페이지네이션 기준
 
 개인 추천 이력 목록 조회는 공통 `PageResponse` 구조를 사용하며, `page`, `size` query parameter로 페이지를 지정합니다.

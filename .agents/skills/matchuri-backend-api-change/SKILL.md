@@ -1,6 +1,6 @@
 ---
 name: matchuri-backend-api-change
-description: Matchuri backend API 계약 변경을 구현하거나 검토한다. Spring Boot endpoint, request/response DTO, Swagger/OpenAPI metadata, controller mapping, API docs, API status row, backend 및 docs/api 테스트를 추가, 제거, 폐기, 수정할 때 사용한다.
+description: Matchuri backend API 계약 변경을 구현하거나 검토한다. Spring Boot endpoint, request/response DTO, Swagger/OpenAPI metadata, controller mapping, API docs, backend 및 docs/api 테스트를 추가, 제거, 폐기, 수정할 때 사용한다.
 ---
 
 # Matchuri Backend API 변경
@@ -49,6 +49,7 @@ frontend-only API consumption에는 사용하지 않는다. backend와 frontend�
    - `dto/response`
    - `dto/docs`
    - service command/result 변환이 필요하면 Mapper
+   - `OpenApiConfig.API_OPERATION_METADATA`의 API ID와 flow tag
 
 3. DTO 책임을 분리한다.
    - request DTO: HTTP input과 Bean Validation
@@ -62,11 +63,11 @@ frontend-only API consumption에는 사용하지 않는다. backend와 frontend�
    - business rule을 Mapper나 docs DTO에 숨기지 않는다.
 
 5. API docs를 갱신한다.
-   - `docs/api/api-status.md`
-   - 관련 `docs/api/*.md`
+   - 권한, 만료, 상태 전이처럼 코드만으로 설명되지 않는 정책이 바뀔 때만 관련 `docs/api/*.md`
    - numbering policy가 바뀔 때만 `docs/api/api-numbering-policy.md`
 
 6. 검증한다.
+   - root에서 `python backend\scripts\audit_api_contract.py --root backend --strict`를 실행한다.
    - `backend`에서 `./gradlew test`를 실행한다.
    - 필요하면 좁은 test를 먼저 실행하고, 완료 전 full backend test를 실행한다.
    - frontend 영향은 보고하되 frontend 코드를 수정하지 않는다.
@@ -81,12 +82,12 @@ frontend-only API consumption에는 사용하지 않는다. backend와 frontend�
 - mock API는 operation description에 명확히 표시한다.
 - `real`로 전환할 때 mock 표현을 제거하거나 수정한다.
 
-## Status Table 규칙
+## API Registry 규칙
 
-- public `/api/v1/**` API contract마다 row 하나를 추가한다.
+- public `/api/v1/**` API contract마다 `OpenApiConfig.API_OPERATION_METADATA` entry 하나를 추가한다.
 - 기존 API ID를 재사용하지 않는다.
-- 제거됐지만 호출 가능한 API는 삭제하지 말고 `deprecated`로 표시한다.
-- Controller가 service/domain logic을 호출하고 대표 동작을 tests가 덮을 때만 `mock`을 `real`로 바꾼다.
+- 제거됐지만 호출 가능한 API는 `@Operation(deprecated = true)`로 표시한다.
+- method/path/API ID 목록을 별도 문서에 복사하지 않는다.
 
 ## 완료 Checklist
 
@@ -94,6 +95,6 @@ frontend-only API consumption에는 사용하지 않는다. backend와 frontend�
 - Request validation이 docs와 일치한다.
 - Response DTO가 frontend contract와 일치한다.
 - Error envelope example이 실제 error code와 일치한다.
-- `docs/api/api-status.md` row가 갱신됐다.
+- `OpenApiConfig.API_OPERATION_METADATA`의 API ID와 flow tag가 갱신됐다.
 - 관련 `docs/api/*.md`가 갱신됐다.
 - Backend tests를 실행했거나 실행하지 못한 이유를 보고했다.

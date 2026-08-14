@@ -13,7 +13,7 @@ FE/BE contract alignment에 사용한다. 자동 background trigger가 아니라
 
 - backend endpoint path, method, request, response, error contract가 바뀐다.
 - backend에 맞춰 frontend API client 또는 domain type을 바꿔야 한다.
-- API status table이 오래됐을 수 있다.
+- Controller mapping과 OpenAPI API ID registry가 어긋났을 수 있다.
 - OpenAPI/Swagger output을 수동 또는 script로 검증해야 한다.
 - PR이 `backend/`와 `frontend/`를 함께 건드린다.
 
@@ -25,7 +25,7 @@ FE/BE contract alignment에 사용한다. 자동 background trigger가 아니라
 2. backend code가 관련되면 `backend/AGENTS.md`
 3. frontend code가 관련되면 `frontend/AGENTS.md`
 4. `docs/api/index.md`
-5. `docs/api/api-status.md`
+5. `OpenApiConfig.API_OPERATION_METADATA`에서 관련 API ID/path entry 검색
 6. domain별 `docs/api/*.md`
 
 계약 기준을 찾기 위해 GitHub Wiki나 local Wiki folder를 읽지 않는다.
@@ -43,18 +43,16 @@ FE/BE contract alignment에 사용한다. 자동 background trigger가 아니라
 2. backend/docs drift를 감사한다.
 
    ```powershell
-   python .agents\skills\matchuri-api-contract-sync\scripts\audit_api_contract.py --root .
+   python backend\scripts\audit_api_contract.py --root backend --strict
    ```
-
-   drift finding으로 command를 실패시킬 때만 `--strict`를 사용한다.
 
 3. contract source가 바뀌면 backend를 먼저 갱신한다.
    - `*Api.java`
    - Controller mapping
+   - `OpenApiConfig.API_OPERATION_METADATA`
    - request/response/docs DTOs
    - service tests or controller integration tests
-   - `docs/api/api-status.md`
-   - 관련 `docs/api/*.md`
+   - 정책이 바뀐 경우에만 관련 `docs/api/*.md`
 
 4. frontend consumer를 갱신한다.
    - `frontend/src/features/**/infrastructure/api`
@@ -70,22 +68,24 @@ FE/BE contract alignment에 사용한다. 자동 background trigger가 아니라
 ## Contract 규칙
 
 - Backend OpenAPI metadata와 Controller mapping을 implementation contract source로 본다.
-- `docs/api/api-status.md`는 coordination table이며 code의 대체물이 아니다.
+- API ID와 flow tag의 registry는 `OpenApiConfig.API_OPERATION_METADATA` 한 곳에서 관리한다.
+- method/path/API ID/status 목록을 별도 고정 문서로 유지하지 않는다.
+- 구현 endpoint는 기본적으로 실제 노출 상태이며, 폐기는 `@Operation(deprecated = true)`로 표현한다.
 - Frontend type은 Swagger wrapper DTO를 맹목적으로 따르지 말고 UI가 실제 소비하는 response를 반영한다.
 - Error handling은 backend의 실제 `error.code` 값을 사용한다.
 - SSE contract는 event name과 payload shape를 모두 확인한다.
 
 ## Harness
 
-`scripts/audit_api_contract.py`는 가벼운 static audit를 수행한다.
+`backend/scripts/audit_api_contract.py`는 backend 저장소와 CI에서 가벼운 static audit를 수행한다.
 
 - backend `/api/v1/**` Controller mapping을 추출한다.
-- API status table row를 추출한다.
+- `OpenApiConfig.API_OPERATION_METADATA`의 path, method, API ID, tag를 추출한다.
 - duplicate backend endpoint mapping을 보고한다.
 - duplicate API ID를 보고한다.
-- duplicate status row를 보고한다.
-- status table에 없는 backend endpoint를 보고한다.
-- backend Controller mapping에서 보이지 않는 status table path를 보고한다.
+- duplicate OpenAPI metadata를 보고한다.
+- metadata가 없는 backend endpoint를 보고한다.
+- backend mapping이 없는 stale metadata를 보고한다.
 - frontend `features/**/infrastructure/api` directory를 나열한다.
 
 이 script는 drift detector다. tests 또는 OpenAPI review를 대체하지 않는다.
@@ -96,6 +96,6 @@ FE/BE contract alignment에 사용한다. 자동 background trigger가 아니라
 
 - 변경한 backend endpoints
 - 변경한 frontend API files
-- 변경한 docs/status rows
+- 변경한 OpenAPI registry와 정책 문서
 - 실행한 backend/frontend verification commands
 - 남은 contract risk

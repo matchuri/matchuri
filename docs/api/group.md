@@ -14,40 +14,7 @@
 - 후보 투표와 최종 메뉴 확정
 - MVP 이후 재도입 검토용 deprecated reroll endpoint
 
-## 상태 기준
-
-- 그룹 관리 API는 실제 service/domain 로직과 연결된 `real` 상태입니다.
-- 그룹 추천 준비, 후보 생성, 투표, 최종 확정 API는 실제 service/domain 로직과 연결된 `real` 상태입니다.
-- 그룹 추천 reroll endpoint는 MVP 8단계 클라이언트 계약에서 제외되어 `deprecated` 상태입니다.
-- API 상태표의 전체 행은 `docs/api/api-status.md`를 기준으로 봅니다.
-
-## API 목록
-
-| Method | Path | 상태 | 설명 |
-| --- | --- | --- | --- |
-| POST | `/api/v1/groups` | `real` | 그룹 생성 |
-| GET | `/api/v1/groups` | `real` | 내 그룹 목록 조회 |
-| GET | `/api/v1/groups/{groupId}` | `real` | 그룹 상세 조회 |
-| PATCH | `/api/v1/groups/{groupId}` | `real` | OWNER 전용 그룹 이름/위치 수정 |
-| POST | `/api/v1/groups/invites/nickname` | `real` | OWNER 전용 nickname 기반 초대 생성 |
-| GET | `/api/v1/groups/invites/me` | `real` | 내가 받은 그룹 초대 목록 조회 |
-| POST | `/api/v1/groups/invites/{inviteId}/response` | `real` | 내가 받은 그룹 초대 수락/거절 |
-| POST | `/api/v1/groups/join` | `real` | 기존 초대 코드 기반 참여 |
-| POST | `/api/v1/groups/{groupId}/leave` | `real` | 일반 멤버 탈퇴 |
-| DELETE | `/api/v1/groups/{groupId}` | `real` | OWNER 전용 soft delete |
-| POST | `/api/v1/groups/{groupId}/invite-link` | `real` | OWNER 전용 초대 링크 신규 발급 |
-| POST | `/api/v1/groups/{groupId}/invite-link/reissue` | `real` | OWNER 전용 초대 링크 재발급 |
-| GET | `/api/v1/groups/{groupId}/invite-link` | `real` | OWNER 전용 현재 활성 초대 링크 조회 |
-| POST | `/api/v1/groups/invite-links/join` | `real` | request body의 유효한 초대 링크 토큰 기반 참여 |
-| POST | `/api/v1/groups/{groupId}/recommendations` | `real` | 그룹 추천 준비 세션 시작 |
-| GET | `/api/v1/groups/{groupId}/recommendations/{sessionId}/readiness` | `real` | 그룹 추천 준비 상태 조회 |
-| POST | `/api/v1/groups/{groupId}/recommendations/{sessionId}/ready` | `real` | 현재 회원의 그룹 추천 준비 완료 |
-| GET | `/api/v1/groups/{groupId}/recommendations` | `real` | 그룹 추천 요청 목록 조회 |
-| GET | `/api/v1/groups/{groupId}/recommendations/{sessionId}` | `real` | 그룹 추천 상세 조회 |
-| GET | `/api/v1/groups/{groupId}/recommendations/{sessionId}/candidates` | `real` | 그룹 추천 후보 목록 조회 |
-| POST | `/api/v1/groups/{groupId}/recommendations/{sessionId}/reroll` | `deprecated` | MVP 8단계 클라이언트 계약 제외, 호출 시 410 |
-| POST | `/api/v1/groups/{groupId}/recommendations/{sessionId}/votes` | `real` | 후보 1개 선택 투표 |
-| PATCH | `/api/v1/groups/{groupId}/recommendations/{sessionId}/finalize` | `real` | OWNER 전용 최종 메뉴 확정 |
+전체 endpoint, method, schema와 deprecated 여부는 `GroupApi.java`의 OpenAPI metadata와 `/docs/openapi`에서 확인합니다. 이 문서에는 권한, 만료, 상태 전이처럼 코드 목록을 복사해서는 설명되지 않는 정책만 유지합니다.
 
 ## 핵심 계약
 
@@ -129,27 +96,13 @@
 
 ## 관련 데이터
 
-최신 저장 모델은 아래 테이블을 사용합니다.
-
-- `group_rooms`
-- `group_room_members`
-- `group_locations`
-- `group_invites`
-- `group_invite_links`
-- `group_recommendations`
-- `group_recommendation_readiness`
-- `group_recommendation_candidates`
-- `group_recommendation_votes`
-- `group_menu_actions`
-- `group_presence_events`
-
-데이터 상세는 `docs/data/group-rooms-schema.md`와 `docs/data/group-recommendations-schema.md`를 봅니다.
+최신 저장 구조는 backend의 group JPA Entity를 기준으로 봅니다. 이력·만료·삭제 정책은 `docs/data/policies.md`의 그룹 절을 따릅니다.
 
 ## Harness 후보
 
 아래 항목은 prose보다 harness로 검증하는 방향을 우선합니다.
 
-- `docs/api/api-status.md`의 GROUP/GREC row와 backend Controller mapping drift
+- `OpenApiConfig.API_OPERATION_METADATA`의 GROUP/GREC entry와 backend Controller mapping drift
 - `GroupApi.java` operation의 API ID, method, path, status metadata 누락
 - group recommendation 상태 enum과 문서의 대표 상태 목록 drift
 - group error code enum과 문서의 대표 error code 목록 drift

@@ -1,66 +1,30 @@
-# 데이터 문서 인덱스
+# 데이터 모델
 
-## 문서 상태
+데이터 구조의 단일 기준은 `backend/src/main/java/matchuri/backend/domain/**/entity`의 JPA 매핑입니다. 테이블·컬럼·인덱스·연관관계를 Markdown에 다시 복사하지 않습니다.
 
-- 상태: 현재 구현 기준 인덱스
-- 기준일: 2026-07-13
-- 담당 영역: data docs
-- 기준 소스:
-  - 현재 운영 테이블 정의서: `docs/data/*-schema.md`
-  - 현재 구현 테이블 인덱스: `docs/data/implemented-jpa-data-model.md`
+## 기준과 검증
 
-## 문서 목적
-
-- Matchuri 데이터 모델 문서의 공식 진입점을 제공합니다.
-- 현재 운영 테이블 정의서와 과거/초안 문서를 구분합니다.
-- 코드 구현이나 리뷰 중 어떤 문서를 먼저 볼지 안내합니다.
-
-## 현재 기준 문서
-
-| 문서 | 역할 |
+| 대상 | 기준 |
 | --- | --- |
-| [데이터 정의서 템플릿](./template.md) | 새 데이터 정의서 작성 양식과 에이전트 작업 기준 |
-| [현재 구현 테이블 정의서 인덱스](./implemented-jpa-data-model.md) | 현재 JPA 엔티티 기준 테이블 목록과 문서 매핑 |
-| [회원 테이블 정의서](./members-schema.md) | `members` |
-| [회원 약관 동의 테이블 정의서](./member-agreements-schema.md) | `member_agreements` |
-| [회원 취향 프로필 테이블 정의서](./member-taste-profiles-schema.md) | `member_taste_profiles`와 하위 매핑 |
-| [회원 개인 위치 테이블 정의서](./member-locations-schema.md) | `member_locations` |
-| [인증 refresh token 테이블 정의서](./auth-refresh-tokens-schema.md) | `auth_refresh_tokens` |
-| [인증 exchange code 테이블 정의서](./auth-exchange-codes-schema.md) | `auth_exchange_codes` |
-| [인증 이메일 검증 테이블 정의서](./auth-email-verifications-schema.md) | `auth_email_verifications` |
-| [메뉴 카탈로그 테이블 정의서](./menu-catalog-schema.md) | 메뉴/속성/재료 마스터와 매핑 |
-| [이미지 자산 테이블 정의서](./images-schema.md) | `image_assets`, `menu_item_images` |
-| [개인 추천 테이블 정의서](./personal-recommendations-schema.md) | 개인 추천, 후보, 회원 메뉴 행동 로그 |
-| [그룹 방 테이블 정의서](./group-rooms-schema.md) | 그룹 방, 멤버, 초대, 위치, presence |
-| [그룹 추천 테이블 정의서](./group-recommendations-schema.md) | 그룹 추천, 준비, 후보, 투표, 그룹 행동 로그 |
+| 테이블과 컬럼 | JPA Entity, `@Table`, `@Column` |
+| FK와 연관관계 | JPA association, `@JoinColumn` |
+| unique와 index | `@Table`의 constraint/index 선언 |
+| 실제 매핑 가능 여부 | H2 `ddl-auto: create-drop`를 사용하는 backend 테스트 |
+| 명명·enum·연관관계 규칙 | `backend/scripts/audit_jpa_schema.py` |
+| 구조만으로 알 수 없는 판단 | [데이터 정책](./policies.md) |
 
-## 참고 문서
+검증 명령은 backend 저장소에서 실행합니다.
 
-| 문서 | 상태 | 사용 기준 |
-| --- | --- | --- |
-| [회원 필수 약관 동의 데이터 상세 설계 초안](./member-required-agreements-schema.md) | 구현 전 초안 / 참고 | 현재 기준은 [회원 약관 동의 테이블 정의서](./member-agreements-schema.md)를 우선 |
+```powershell
+python scripts/audit_jpa_schema.py --root . --strict
+./gradlew test
+```
 
-## 먼저 볼 문서
+CI는 두 검증을 모두 실행합니다. 별도의 generated schema 파일은 저장하지 않습니다.
 
-1. [데이터 정의서 템플릿](./template.md)
-2. [현재 구현 테이블 정의서 인덱스](./implemented-jpa-data-model.md)
-3. 작업 대상 도메인의 개별 테이블 정의서
-4. 필요 시 관련 API 문서와 `docs/backend/architecture.md`
+## 변경 규칙
 
-## 읽는 방법
-
-- "현재 어떤 테이블이 운영 중인가?"는 [현재 구현 테이블 정의서 인덱스](./implemented-jpa-data-model.md)를 봅니다.
-- "컬럼, 제약, 인덱스, 상태값이 무엇인가?"는 개별 `*-schema.md` 문서를 봅니다.
-- "전체 관계를 빠르게 보고 싶다"면 [현재 구현 테이블 정의서 인덱스](./implemented-jpa-data-model.md)를 봅니다.
-- 구현과 문서가 다르면 JPA Entity와 실제 write/query 경로를 먼저 확인하고 문서를 갱신합니다.
-
-## 유지보수 원칙
-
-- 새 테이블이 추가되면 개별 정의서, 이 인덱스, `docs/data/implemented-jpa-data-model.md`를 함께 확인합니다.
-- 컬럼, FK, unique, enum, 상태 흐름이 바뀌면 해당 정의서를 갱신합니다.
-- 구현 전 초안은 현재 기준 문서처럼 읽히지 않게 문서 상태를 명확히 표시합니다.
-- 반복적인 JPA Entity, 빈 DB 생성 스키마, data docs index 정합성 확인은 `docs/decisions/data-schema-drift-harness.md`의 harness 설계를 기준으로 자동화합니다.
-
-## 마지막 갱신
-
-- 2026-07-13
+- 구조가 바뀌면 엔티티와 테스트만 수정합니다.
+- 보존 기간, 만료, 삭제, 이력, 개인정보처럼 코드만으로 의도를 알기 어려운 판단이 바뀌면 [데이터 정책](./policies.md)도 수정합니다.
+- 정확한 운영 DB 구조를 확인해야 하면 배포 대상 DB의 schema 또는 migration 결과를 확인합니다.
+- 문서가 엔티티의 필드 목록을 다시 나열하기 시작하면 중복으로 보고 제거합니다.

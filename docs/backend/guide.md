@@ -312,7 +312,7 @@ API 문서화 전략과 업데이트 순서는 `docs/decisions/api-docs-strategy
 - 로컬 샘플 데이터: `backend/src/main/resources/seed/local-sample-data.json`
 - 로컬 수동 테스트용 샘플 계정과 관리자 계정은 개발 환경에서만 생성합니다.
 
-기준 데이터와 스키마 세부 내용은 `docs/data/index.md`, `docs/data/implemented-jpa-data-model.md`를 기준으로 봅니다.
+기준 데이터 정책은 `docs/data/policies.md`, 실제 스키마 구조는 JPA Entity를 기준으로 봅니다.
 
 ## 테스트
 

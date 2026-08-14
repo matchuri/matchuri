@@ -1,6 +1,6 @@
 ---
 name: matchuri-doc-governance
-description: Matchuri 문서 구조와 컨텍스트 무게를 관리한다. docs 감사, docs/GitHub Wiki/AGENTS.md/repo-local skill/harness script 배치 판단, 문서 인벤토리 생성, 추적 문서의 무시된 local wiki 경로 링크 점검이 필요할 때 사용한다.
+description: Matchuri 문서 구조와 컨텍스트 무게를 관리한다. docs 감사, docs/GitHub Wiki/AGENTS.md/repo-local skill/harness script 배치 판단, 문서 중복과 추적 문서 링크 점검이 필요할 때 사용한다.
 ---
 
 # Matchuri 문서 거버넌스
@@ -30,13 +30,7 @@ Matchuri 문서를 가볍게 유지한다. 사람용 서사, 지속되는 개발
    python .agents\skills\matchuri-doc-governance\scripts\audit_docs.py --root . --strict
    ```
 
-   저장된 1차 inventory를 갱신할 때 실행한다.
-
-   ```powershell
-   python .agents\skills\matchuri-doc-governance\scripts\audit_docs.py --root . --output .agents\skills\matchuri-doc-governance\references\current-docs-inventory.md
-   ```
-
-3. 생성된 분류를 최종 진실이 아니라 1차 판단으로 취급한다.
+3. 실행 시점에 생성된 분류를 최종 진실이 아니라 1차 판단으로 취급한다. inventory snapshot은 저장하지 않는다.
 4. `docs/`에는 구현 source of truth, API/data index, ADR급 결정만 남긴다.
 5. 반복 절차는 `docs/`를 늘리지 말고 skill로 옮긴다.
 6. 기계적으로 확인할 규칙은 prose가 아니라 harness script로 옮긴다.
@@ -73,10 +67,9 @@ Matchuri 문서를 가볍게 유지한다. 사람용 서사, 지속되는 개발
 사람 판단 없이 확인할 수 있는 규칙은 script, test, CI check로 검증한다.
 
 - tracked docs의 금지 링크
-- 오래된 API status entry
-- OpenAPI endpoint drift
-- schema/index drift
-- API 또는 data 변경 시 필수 docs 갱신 여부
+- 깨진 로컬 문서 링크
+- OpenAPI endpoint와 registry drift
+- JPA table·enum·연관관계 명명 규칙
 - 과도하게 큰 docs 또는 중복 heading
 
 ## GitHub Wiki 경계

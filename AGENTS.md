@@ -34,7 +34,7 @@
 - BE와 FE를 함께 수정하라는 명시적 요청에만 `.agents/skills/matchuri-api-contract-sync/SKILL.md`를 cross-stack 작업으로 사용합니다.
 - 범위 스킬은 구현, 리뷰, API 변경 등 다른 작업 스킬보다 우선하며, 다른 스킬이 작업 범위를 확장할 수 없습니다.
 - 명시적인 cross-stack 요청이 없으면 상대 영역은 읽기와 영향 분석만 허용하고 수정하지 않습니다.
-- 동작, API 계약, 데이터 구조, 도메인 용어가 바뀌면 관련 `docs/` 문서를 함께 갱신합니다.
+- 동작, API 계약, 데이터 정책, 도메인 용어가 바뀌면 관련 `docs/` 문서를 함께 갱신합니다. 기계적인 API·DB 구조는 코드와 harness를 기준으로 둡니다.
 - 프로젝트 소개, 포트폴리오 서사, 협업 방식처럼 사람이 읽을 맥락은 GitHub Wiki에 남깁니다.
 - GitHub Wiki는 루트 프로젝트와 별도의 문서 저장소로 취급합니다. 루트 저장소 문서에서는 추적하지 않는 로컬 위키 경로를 링크하지 않습니다.
 - 명시적인 Wiki 산출/수정 작업이 아니면 로컬 Wiki 폴더를 열거나 검색하지 않습니다.
@@ -49,6 +49,6 @@
 
 - Backend: `backend`에서 `./gradlew test`
 - API 계약 변경: OpenAPI 메타데이터, Swagger 산출물, 관련 `docs/api/` 문서 확인
-- 데이터 모델 변경: 엔티티/마이그레이션 기준과 `docs/data/` 확인
+- 데이터 모델 변경: backend에서 `python scripts\audit_jpa_schema.py --root . --strict`와 `./gradlew test`; 정책 변경 시 `docs/data/policies.md` 확인
 - 문서 거버넌스: `python .agents\skills\matchuri-doc-governance\scripts\audit_docs.py --root . --strict`
-- API 계약 동기화: `python .agents\skills\matchuri-api-contract-sync\scripts\audit_api_contract.py --root .`
+- API 계약 동기화: `python backend\scripts\audit_api_contract.py --root backend --strict`

@@ -30,13 +30,6 @@
 - 재전송: 1차 구현에서는 `Last-Event-ID` 기반 재전송을 지원하지 않음
 - Frontend는 `Authorization` header 설정을 위해 browser 기본 `EventSource`보다 `fetch` stream 기반 SSE client를 사용합니다.
 
-## Endpoint
-
-| API ID | Method | Path | 상태 | 설명 |
-| --- | --- | --- | --- | --- |
-| `RT.010.000` | GET | `/api/v1/realtime/events` | `real` | 로그인 회원 개인에게 도착하는 event stream |
-| `RT.020.000` | GET | `/api/v1/groups/{groupId}/realtime/events` | `real` | 특정 그룹 상세/추천 화면에서 필요한 group event stream |
-
 ## 개인 stream
 
 수신 대상:
@@ -160,7 +153,7 @@ SSE 연결이 열리기 전에 실패하면 일반 API와 같은 공통 error en
 아래 항목은 prose보다 harness로 검증하는 방향을 우선합니다.
 
 - `RealtimeEventType` enum과 이 문서의 event type 목록 drift
-- `docs/api/api-status.md`의 RT row와 backend Controller mapping drift
+- `OpenApiConfig.API_OPERATION_METADATA`의 RT entry와 backend Controller mapping drift
 - SSE endpoint의 `Produces=text/event-stream` metadata 누락
 - event envelope 필수 field와 frontend SSE client type drift
 - `GROUP_RECOMMENDATION_*` event trigger와 group recommendation API 성공 path 테스트 연결
