@@ -65,7 +65,7 @@
 | `started_at` | datetime | N |  |  | 시작 시각 |
 | `ended_at` | datetime | Y |  |  | 종료 시각 |
 | `selected_candidate_id` | bigint | Y |  | FK | 최종 선택 후보 ID |
-| `context_json` | json | Y |  | JSON | 그룹 추천 컨텍스트 스냅샷 |
+| `context_json` | json | Y |  | JSON | 최종 확정 요청의 위치 컨텍스트 스냅샷. 미확정이면 `null` |
 | `created_at` | datetime | N | CURRENT_TIMESTAMP(6) | auditing | 생성 일시 |
 | `updated_at` | datetime | N | CURRENT_TIMESTAMP(6) | auditing | 수정 일시 |
 

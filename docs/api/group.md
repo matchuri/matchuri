@@ -67,6 +67,18 @@
 - 최종 확정은 `OWNER`만 수행합니다.
 - 최종 확정에서 동률이면 `rankNo`가 가장 낮은 후보를 선택합니다.
 - 투표가 0건이면 `rankNo=1` 후보를 선택합니다.
+- 그룹 추천의 `contextJson`은 후보 생성 및 `OPEN` 전환 시에는 `null`이며, 최종 확정 요청이 전달한 `latitude`, `longitude`, `radiusMeters`, `address`를 스냅샷으로 저장합니다. 이 위치는 `GroupLocation`을 조회하거나 갱신하지 않습니다.
+
+그룹 최종 확정 요청은 아래 위치 필드를 모두 필수로 전달합니다. 클라이언트가 후보 주변에 식당이 없을 때 확장한 최종 검색 반경을 보존합니다.
+
+```json
+{
+  "latitude": 37.498095,
+  "longitude": 127.027610,
+  "radiusMeters": 1500,
+  "address": "서울 강남구 테헤란로 123"
+}
+```
 
 ## 상태와 error code
 

@@ -14,6 +14,7 @@
 - 백엔드는 AWS EC2 단일 서버에 배포합니다.
 - 애플리케이션은 Spring Boot JAR로 실행합니다.
 - 데이터베이스는 같은 EC2 내부의 MySQL로 운영합니다.
+- 공개 DNS와 외부 프록시는 Cloudflare를 사용합니다.
 - 배포 자동화는 GitHub Actions를 사용합니다.
 - Frontend는 Vercel에 별도 배포합니다.
 
@@ -37,6 +38,7 @@
 
 - `GitHub`: 소스 저장소와 배포 트리거 관리
 - `GitHub Actions`: 백엔드 빌드, 테스트, 배포 자동화
+- `Cloudflare`: `matchuri.com` DNS와 `api.matchuri.com` 외부 프록시
 - `EC2`: 백엔드 애플리케이션과 MySQL이 함께 동작하는 단일 서버
 - `Nginx`: 외부 요청 수신과 Spring Boot 애플리케이션 프록시
 - `Spring Boot JAR`: 실제 API 런타임
@@ -46,9 +48,10 @@
 ### 요청 흐름
 
 1. 사용자가 Vercel에 배포된 프론트엔드에 접속합니다.
-2. 프론트엔드는 백엔드 공개 도메인으로 API를 호출합니다.
-3. EC2의 `Nginx`가 외부 요청을 받아 Spring Boot 애플리케이션으로 전달합니다.
-4. Spring Boot 애플리케이션은 동일 서버 내부 MySQL에 접근합니다.
+2. 프론트엔드는 `api.matchuri.com`으로 API를 호출합니다.
+3. Cloudflare가 DNS와 외부 프록시 경계에서 요청을 받아 EC2 origin으로 전달합니다.
+4. EC2의 `Nginx`가 요청을 받아 Spring Boot 애플리케이션으로 전달합니다.
+5. Spring Boot 애플리케이션은 동일 서버 내부 MySQL에 접근합니다.
 
 ## 운영 방식 기본안
 
@@ -74,10 +77,18 @@
 - 단일 장애 지점이지만, 초기 운영 복잡도를 낮추는 대신 의도적으로 선택합니다.
 - 운영 로그, 서비스 상태, 디스크 용량을 한 서버에서 추적할 수 있습니다.
 
+### Cloudflare
+
+- `matchuri.com`의 authoritative DNS를 관리합니다.
+- `api.matchuri.com`을 proxied record로 운영해 외부 요청의 첫 경계가 됩니다.
+- 브라우저와의 TLS 연결을 edge에서 종료하고 EC2 origin에는 HTTPS로 요청을 전달합니다.
+- 외부 health 실패 시 Cloudflare/DNS 구간과 EC2 origin 구간을 분리해 진단합니다.
+- Cloudflare가 origin 자체의 health, 애플리케이션 로그 또는 EC2 자원 감시를 대신한다고 보지 않습니다.
+
 ### Nginx
 
 - 외부 진입점 역할을 맡습니다.
-- HTTPS 종료 지점으로 사용합니다.
+- Cloudflare에서 전달된 HTTPS origin 연결의 종료 지점으로 사용합니다.
 - 향후 정적 에러 페이지, 기본 접근 제어, 요청 제한 같은 최소 운영 기능을 붙이기 쉽습니다.
 
 ### systemd
@@ -139,6 +150,7 @@
 
 - EC2 단일 서버
 - EC2 내부 MySQL
+- Cloudflare DNS + proxied API record
 - GitHub Actions 기반 자동화
 - Spring Boot JAR 배포
 - Nginx + systemd 조합
@@ -157,6 +169,7 @@
 ## 운영 성공 기준
 
 - 프론트엔드가 호출 가능한 공개 백엔드 엔드포인트가 있다.
+- Cloudflare 경유 외부 health와 EC2 내부 health를 구분해 확인할 수 있다.
 - 배포 절차가 문서와 자동화 기준으로 반복 가능하다.
 - 환경 변수와 시크릿 주입 기준이 정리되어 있다.
 - 장애 시 1차 확인 순서와 복구 기준이 있다.

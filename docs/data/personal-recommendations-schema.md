@@ -64,7 +64,7 @@
 | `closed_at` | datetime | Y |  |  | 추천 종료 시각 |
 | `close_reason` | varchar(30) | Y |  | DDL only, JPA 미사용 | 종료 사유 후보 컬럼 |
 | `requested_at` | datetime | N |  |  | 추천 실행 시각 |
-| `context_json` | json | Y |  | JSON | 추천 컨텍스트 스냅샷 |
+| `context_json` | json | Y |  | JSON | 후보 선택 요청의 위치 컨텍스트 스냅샷. 미선택이면 `null` |
 | `selected_candidate_id` | bigint | Y |  | FK | 최종 선택 후보 ID |
 | `created_at` | datetime | N | CURRENT_TIMESTAMP(6) | auditing | 생성 일시 |
 | `updated_at` | datetime | N | CURRENT_TIMESTAMP(6) | auditing | 수정 일시 |

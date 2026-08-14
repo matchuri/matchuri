@@ -98,7 +98,7 @@ URL 경로나 `/api/v1` 같은 API path version을 대체하지 않습니다.
 | `REC.040.000` | Personal Recommendation | POST | `/api/v1/personal/recommendations/{requestId}/reroll` | `real` | `docs/api/recommendation.md` | 이전 개인 추천이 아직 닫히지 않았으면 종료하고 새 개인 추천 실행 |
 | `REC.050.000` | Personal Recommendation | GET | `/api/v1/personal/recommendations/{requestId}` | `real` | `docs/api/recommendation.md` | 개인 추천 요청 상세 |
 | `REC.060.000` | Personal Recommendation | GET | `/api/v1/personal/recommendations/{requestId}/candidates` | `real` | `docs/api/recommendation.md` | 개인 추천 후보 목록 |
-| `REC.070.000` | Personal Recommendation | PATCH | `/api/v1/personal/recommendations/{requestId}` | `real` | `docs/api/recommendation.md` | 닫히지 않은 개인 추천 선택 반영, `SELECTED` 종료, CHOOSE 로그 저장 |
+| `REC.070.000` | Personal Recommendation | PATCH | `/api/v1/personal/recommendations/{requestId}` | `real` | `docs/api/recommendation.md` | 닫히지 않은 개인 추천 선택 반영, 클라이언트 확정 위치 스냅샷 저장, `SELECTED` 종료, CHOOSE 로그 저장 |
 
 ## GROUP. 그룹 생성/참여 플로우
 
@@ -127,7 +127,7 @@ URL 경로나 `/api/v1` 같은 API path version을 대체하지 않습니다.
 | `GREC.060.000` | Group Recommendation | GET | `/api/v1/groups/{groupId}/recommendations/{sessionId}/candidates` | `real` | `docs/api/group.md` | OPEN 추천 후보 목록과 후보별 투표 수. PREPARING이면 409 |
 | `GREC.070.000` | Group Recommendation | POST | `/api/v1/groups/{groupId}/recommendations/{sessionId}/reroll` | `deprecated` | `docs/api/group.md` | MVP 8단계 클라이언트 계약에서 제외. 호출 시 410, 기존 구현은 MVP 이후 재도입 검토용으로 보존 |
 | `GREC.080.000` | Group Vote | POST | `/api/v1/groups/{groupId}/recommendations/{sessionId}/votes` | `real` | `docs/api/group.md` | 후보 1개 선택 투표. 중복 투표 거절 |
-| `GREC.090.000` | Group Recommendation | PATCH | `/api/v1/groups/{groupId}/recommendations/{sessionId}/finalize` | `real` | `docs/api/group.md` | OWNER 전용 최종 메뉴 확정. 동률 시 rank 우선 |
+| `GREC.090.000` | Group Recommendation | PATCH | `/api/v1/groups/{groupId}/recommendations/{sessionId}/finalize` | `real` | `docs/api/group.md` | OWNER 전용 최종 메뉴 확정 및 클라이언트 확정 위치 스냅샷 저장. 동률 시 rank 우선 |
 
 ## RT. 실시간 이벤트 플로우
 

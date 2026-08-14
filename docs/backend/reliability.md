@@ -8,6 +8,7 @@
 
 - Backend는 EC2 단일 서버에 배포합니다.
 - DB는 초기에는 EC2 내부 MySQL로 운영합니다.
+- `api.matchuri.com`의 DNS와 외부 프록시는 Cloudflare를 사용합니다.
 - Frontend는 Vercel에 배포합니다.
 - Redis는 즉시 도입하지 않고, 성능이나 상태 동기화 요구가 분명해질 때 검토합니다.
 - 배포 구조의 근거는 `docs/decisions/backend-deployment-infrastructure.md`를 봅니다.
@@ -51,6 +52,7 @@
 - application은 서버 재시작 후 다시 올릴 수 있는 방식으로 운영합니다.
 - 환경 변수는 code에 hardcoding하지 않고 서버 또는 CI secret으로 관리합니다.
 - health endpoint 또는 Actuator 확인 경로를 유지합니다.
+- 외부 health는 Cloudflare 경유 응답이고, 내부 health는 EC2에서 Spring Boot를 직접 호출한 응답으로 구분합니다.
 - log 확인 위치와 방법을 내부 운영 문서에 남깁니다.
 
 데이터:
@@ -68,6 +70,7 @@
 - 최근 error log 확인
 - deploy success/failure 확인
 - server 상태 확인
+- Cloudflare 경유 외부 health와 EC2 origin 내부 health 비교
 - DB connection failure 확인
 - 인증 실패, 권한 실패, validation 실패, business exception 구분
 
