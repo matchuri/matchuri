@@ -7,17 +7,16 @@
 - 담당 영역: menu
 - 기준 소스:
   - JPA Entity: `AttributeCategory`, `Ingredient`, `MenuItem`, `MenuAttributeCategory`, `MenuIngredient`, `MenuItemImage`, `CategoryType`, `MenuImageRole`
-  - DDL / init SQL: `backend/init/sql/01-schema.sql`
-  - 관련 seed: `backend/init/sql/02-reference-seed.sql`
+  - 관련 seed: `backend/src/main/resources/seed/reference-data.json`
+  - seed loader: `ReferenceDataSeedService`
   - 관련 API 문서: 메뉴/참조 데이터 API 문서
 
 ## 기준 소스 우선순위
 
 1. JPA Entity와 enum
-2. `backend/init/sql/01-schema.sql`
-3. `backend/init/sql/02-reference-seed.sql`
-4. 메뉴 service write path와 repository query
-5. 관련 API 문서
+2. 메뉴 service write path와 repository query
+3. `backend/src/main/resources/seed/reference-data.json`
+4. 관련 API 문서
 
 | 충돌 항목 | 코드 기준 | 문서/DDL 기준 | 판단 | 후속 작업 |
 | --- | --- | --- | --- | --- |
@@ -35,7 +34,8 @@
 - 메뉴 특성과 회원 취향은 `attribute_categories`를 공유합니다.
 - 제한 재료와 메뉴 구성 재료는 `ingredients`를 공유합니다.
 - `attribute_categories`, `ingredients`, `menu_items`는 삭제보다 비활성화를 우선합니다.
-- local/dev seed는 기준 마스터와 메뉴 매핑을 함께 준비합니다.
+- 기준 seed는 속성, 재료, 메뉴와 매핑을 준비하며 기존 row를 수정하거나 삭제하지 않습니다.
+- 메뉴 대표 이미지와 `menu_item_images` 연결은 seed 범위에서 제외합니다.
 
 가정(Assumption):
 
@@ -45,12 +45,12 @@
 
 | 테이블 | 역할 | 기준 소스 |
 | --- | --- | --- |
-| `attribute_categories` | 메뉴 특성과 회원 취향이 공유하는 속성 마스터 | `AttributeCategory`, `01-schema.sql` |
-| `ingredients` | 메뉴 재료와 회원 제한 재료가 공유하는 재료 마스터 | `Ingredient`, `01-schema.sql` |
-| `menu_items` | 추천 가능한 메뉴 단위 | `MenuItem`, `01-schema.sql` |
-| `menu_attribute_categories` | 메뉴-속성 N:M 매핑 | `MenuAttributeCategory`, `01-schema.sql` |
-| `menu_ingredients` | 메뉴-재료 N:M 매핑 | `MenuIngredient`, `01-schema.sql` |
-| `menu_item_images` | 메뉴 대표 이미지 연결 | `MenuItemImage`, `01-schema.sql` |
+| `attribute_categories` | 메뉴 특성과 회원 취향이 공유하는 속성 마스터 | `AttributeCategory` |
+| `ingredients` | 메뉴 재료와 회원 제한 재료가 공유하는 재료 마스터 | `Ingredient` |
+| `menu_items` | 추천 가능한 메뉴 단위 | `MenuItem` |
+| `menu_attribute_categories` | 메뉴-속성 N:M 매핑 | `MenuAttributeCategory` |
+| `menu_ingredients` | 메뉴-재료 N:M 매핑 | `MenuIngredient` |
+| `menu_item_images` | 메뉴 대표 이미지 연결 | `MenuItemImage` |
 
 ## `attribute_categories`
 
@@ -81,10 +81,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_attribute_categories_active` | `is_active` | 활성 목록 조회 | `01-schema.sql` |
-| `idx_attribute_categories_type_active` | `category_type`, `is_active` | 유형별 활성 목록 조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ### enum / 상태값
 
@@ -124,9 +121,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_ingredients_active` | `is_active` | 활성 재료 목록 조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ## `menu_items`
 
@@ -155,9 +150,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_menu_items_active` | `is_active` | 활성 메뉴 목록 조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ## `menu_attribute_categories`
 
@@ -186,9 +179,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_menu_attribute_categories_category` | `attribute_category_id` | 속성 기준 메뉴 역조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ## `menu_ingredients`
 
@@ -217,9 +208,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_menu_ingredients_ingredient` | `ingredient_id` | 재료 기준 메뉴 역조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ## `menu_item_images`
 
@@ -253,9 +242,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_menu_item_images_image_asset` | `image_asset_id` | 이미지 자산 기준 역조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 메뉴 대표 이미지는 seed로 생성하지 않습니다.
 
 ### enum / 상태값
 
@@ -273,7 +260,7 @@
 ## 코드 변경 시 확인할 것
 
 - `CategoryType` 추가 시 seed, 참조 데이터 API, 취향 입력 UI 계약을 함께 확인합니다.
-- 메뉴/속성/재료 마스터 컬럼 변경 시 seed SQL과 관리자 API 문서를 함께 갱신합니다.
+- 메뉴/속성/재료 마스터 컬럼 변경 시 `reference-data.json`, seed loader, 관리자 API 문서를 함께 갱신합니다.
 - 메뉴 이미지 정책 변경 시 `images-schema.md`와 응답의 `thumbnailUrl` 생성 로직을 확인합니다.
 
 ## 함께 볼 문서

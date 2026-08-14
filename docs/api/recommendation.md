@@ -68,7 +68,7 @@
 - 종료된 추천은 재요청할 수 없습니다.
 - 비회원/회원 추천 후보 응답에는 메뉴 대표 이미지 URL인 `thumbnailUrl`을 포함합니다. 대표 이미지가 없으면 `null`이며, 첫 구현에서는 별도 썸네일 파일 없이 원본 이미지 URL을 반환합니다.
 - 사용자의 선택은 추천 결과 갱신, `status=SELECTED`, `closedAt=now`, `member_menu_actions`의 `CHOOSE` 로그 저장을 함께 수행합니다.
-- 개인 추천의 `contextJson`은 후보 생성 시에는 `null`이며, 후보 선택 요청이 전달한 `latitude`, `longitude`, `radiusMeters`, `address`를 스냅샷으로 저장합니다. 이 위치는 `MemberLocation`을 조회하거나 갱신하지 않습니다.
+- 개인 추천의 `contextJson`은 후보 생성 시에는 `null`입니다. 후보 선택 요청에 `latitude`, `longitude`, `radiusMeters`, `address`가 모두 있으면 해당 위치를 스냅샷으로 저장하고, 하나라도 없으면 선택만 처리한 뒤 `null`을 유지합니다. 이 위치는 `MemberLocation`을 조회하거나 갱신하지 않습니다.
 - 개인 추천 상세 응답의 `contextJson`은 JSON 문자열로 반환하며, 파싱은 클라이언트 책임입니다.
 - `status=OPEN`이 아닌 개인 추천은 이후 후보 선택을 허용하지 않습니다.
 - MVP에서는 후보별 요약 텍스트나 결과 요약 JSON을 생성하지 않습니다.
@@ -164,7 +164,7 @@ POST /api/v1/guest/recommendations
 PATCH /api/v1/personal/recommendations/{requestId}
 ```
 
-후보 확정 요청은 선택 후보와 클라이언트가 최종적으로 사용한 검색 위치를 모두 필수로 전달합니다. 클라이언트의 반경 확장 결과를 보존하기 위한 값이며, 서버의 회원 위치를 갱신하지 않습니다.
+후보 확정 요청에서 `selectedCandidateId`는 필수입니다. 위치 필드는 이전 클라이언트와의 호환을 위해 선택 사항이며, 네 필드가 모두 전달된 경우에만 클라이언트의 최종 검색 위치를 저장합니다. 위치 필드가 생략되거나 일부만 전달되면 후보 선택은 정상 처리하고 위치 컨텍스트는 저장하지 않습니다.
 
 ```json
 {

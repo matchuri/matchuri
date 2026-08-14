@@ -58,7 +58,9 @@
 데이터:
 
 - DB backup 주기와 보관 위치를 정합니다.
-- schema 변경은 code, migration, `docs/data`와 함께 관리합니다.
+- schema 변경은 JPA Entity와 `docs/data`를 함께 관리하고 빈 DB 기동으로 검증합니다.
+- 기준 데이터는 application startup에서 누락 항목만 생성하며, 잘못된 seed resource는 기동 실패로 드러냅니다.
+- 운영 배포는 `MATCHURI_SPRING_PROFILE`을 명시해 `local` 샘플 데이터가 실행되지 않도록 합니다.
 - 운영 DB를 개발 편의로 쉽게 덮어쓰는 방식을 피합니다.
 - restore 가능성을 주기적으로 확인하는 방향을 유지합니다.
 

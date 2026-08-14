@@ -7,16 +7,14 @@
 - 담당 영역: member
 - 기준 소스:
   - JPA Entity: `MemberTasteProfile`, `MemberTasteProfileCategory`, `MemberTasteProfileRestrictionIngredient`, `MemberTasteProfileDislikedMenuItem`
-  - DDL / init SQL: `backend/init/sql/01-schema.sql`
   - 관련 API 문서: 취향 프로필 API 문서
 
 ## 기준 소스 우선순위
 
 1. JPA Entity
-2. `backend/init/sql/01-schema.sql`
-3. 취향 저장 service write path와 repository query
-4. 관련 API 문서
-5. 기존 `docs/data/`
+2. 취향 저장 service write path와 repository query
+3. 관련 API 문서
+4. 기존 `docs/data/`
 
 | 충돌 항목 | 코드 기준 | 문서/DDL 기준 | 판단 | 후속 작업 |
 | --- | --- | --- | --- | --- |
@@ -43,10 +41,10 @@
 
 | 테이블 | 역할 | 기준 소스 |
 | --- | --- | --- |
-| `member_taste_profiles` | 회원 취향 프로필 헤더 | `MemberTasteProfile`, `01-schema.sql` |
-| `member_taste_profile_categories` | 선호 속성 카테고리 매핑 | `MemberTasteProfileCategory`, `01-schema.sql` |
-| `member_taste_profile_restriction_ingredients` | 제한 재료 매핑 | `MemberTasteProfileRestrictionIngredient`, `01-schema.sql` |
-| `member_taste_profile_disliked_menu_items` | 비선호 메뉴 매핑 | `MemberTasteProfileDislikedMenuItem`, `01-schema.sql` |
+| `member_taste_profiles` | 회원 취향 프로필 헤더 | `MemberTasteProfile` |
+| `member_taste_profile_categories` | 선호 속성 카테고리 매핑 | `MemberTasteProfileCategory` |
+| `member_taste_profile_restriction_ingredients` | 제한 재료 매핑 | `MemberTasteProfileRestrictionIngredient` |
+| `member_taste_profile_disliked_menu_items` | 비선호 메뉴 매핑 | `MemberTasteProfileDislikedMenuItem` |
 
 ## `member_taste_profiles`
 
@@ -117,9 +115,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_member_taste_profile_categories_category` | `attribute_category_id` | 속성 기준 역조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ## `member_taste_profile_restriction_ingredients`
 
@@ -148,9 +144,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_member_taste_profile_restriction_ingredients_ingredient` | `ingredient_id` | 재료 기준 역조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ## `member_taste_profile_disliked_menu_items`
 
@@ -179,9 +173,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_member_taste_profile_disliked_menu_items_menu` | `menu_id` | 메뉴 기준 역조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ## 영역 공통 판단
 

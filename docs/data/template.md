@@ -19,7 +19,6 @@
 - 담당 영역: member / auth / menu / image / recommendation / group / 기타
 - 기준 소스:
   - JPA Entity:
-  - DDL / migration / init SQL:
   - 관련 seed:
   - 관련 API 문서:
 
@@ -28,8 +27,8 @@
 현재 구현 기준 문서를 갱신할 때는 아래 순서로 확인합니다.
 
 1. JPA Entity와 enum
-2. DDL, migration, init SQL
-3. Repository query, service write path, 테스트
+2. Repository query, service write path, 테스트
+3. seed resource와 loader
 4. 관련 API 문서와 OpenAPI 메타데이터
 5. 기존 `docs/data/`
 
@@ -106,7 +105,8 @@
 주의:
 
 - unique 제약은 데이터 무결성 기준으로, 보조 인덱스와 분리해 적습니다.
-- DDL에는 인덱스가 있지만 JPA `@Index`가 없을 수 있으므로 기준 소스를 함께 적습니다.
+- 성능 목적 인덱스는 JPA `@Index`로 명시한 경우만 문서화합니다.
+- DB가 PK, FK, unique 제약을 지원하기 위해 자동 생성하는 인덱스는 성능 목적 보조 인덱스와 구분합니다.
 
 ### enum / 상태값
 
@@ -153,18 +153,18 @@
 
 ## 코드 변경 시 확인할 것
 
-- 엔티티 필드, 컬럼 표, DDL/init SQL이 일치하는지 확인합니다.
+- 엔티티 필드와 컬럼 표가 일치하는지 확인하고 빈 DB 기동을 검증합니다.
 - FK, unique, nullable, default, length, enum 저장 방식이 일치하는지 확인합니다.
 - Repository query와 service write path가 문서의 주요 쿼리/쓰기 패턴과 어긋나지 않는지 확인합니다.
 - enum 값 변경 시 API 문서, OpenAPI 메타데이터, 프론트 계약 영향이 있는지 확인합니다.
 - 상태 변경 API는 중복 호출, 권한 없음, 상태 충돌, 만료 처리를 확인합니다.
-- seed 기준 데이터가 바뀌면 seed SQL과 문서의 운영 기준을 함께 확인합니다.
+- seed 기준 데이터가 바뀌면 seed resource, loader, 문서의 운영 기준을 함께 확인합니다.
 - 데이터 모델 변경 시 `docs/data/index.md`, `docs/data/implemented-jpa-data-model.md` 갱신 여부를 확인합니다.
 
 ## 에이전트 작업 체크리스트
 
 - 작업 시작 전 이 문서의 `문서 상태`와 `기준 소스`를 먼저 확인합니다.
-- 현재 구현 기준 문서라면 코드와 DDL을 먼저 대조하고 문서를 갱신합니다.
+- 현재 구현 기준 문서라면 JPA Entity와 실제 write/query 경로를 먼저 대조하고 문서를 갱신합니다.
 - 구현 전 초안이라면 현재 구현처럼 단정하지 않고 `권장`, `가정(Assumption):`을 사용합니다.
 - 중복 문서가 보이면 바로 내용을 합치기보다 각 문서의 책임을 먼저 구분합니다.
 - `docs/data/implemented-jpa-data-model.md`는 빠른 요약으로 보고, 컬럼 단위 근거는 개별 `docs/data/*.md`와 코드를 우선합니다.

@@ -7,20 +7,17 @@
 - 담당 영역: recommendation / behavior
 - 기준 소스:
   - JPA Entity: `PersonalRecommendation`, `PersonalRecommendationCandidate`, `MemberMenuAction`, `PersonalRecommendationStatus`, `ActionType`
-  - DDL / init SQL: `backend/init/sql/01-schema.sql`
   - 관련 API 문서: 개인 추천 API 문서
 
 ## 기준 소스 우선순위
 
 1. JPA Entity와 enum
-2. `backend/init/sql/01-schema.sql`
-3. 추천 service write path와 repository query
-4. 관련 API 문서
+2. 추천 service write path와 repository query
+3. 관련 API 문서
 
 | 충돌 항목 | 코드 기준 | 문서/DDL 기준 | 판단 | 후속 작업 |
 | --- | --- | --- | --- | --- |
-| `personal_recommendations.status` 길이 | JPA `varchar(30)` | init SQL `varchar(20)` | JPA 기준으로 문서화하되 init SQL 정합성 확인 필요 | DDL 보정 검토 |
-| `personal_recommendations.close_reason` | JPA 필드 없음 | init SQL 컬럼 존재 | 현재 JPA 미사용 컬럼으로 기록 | DDL 제거 또는 엔티티 반영 여부 결정 |
+| 없음 |  |  |  |  |
 
 ## 문서 목적
 
@@ -43,9 +40,9 @@
 
 | 테이블 | 역할 | 기준 소스 |
 | --- | --- | --- |
-| `personal_recommendations` | 개인 추천 실행 세션 | `PersonalRecommendation`, `01-schema.sql` |
-| `personal_recommendation_candidates` | 개인 추천 후보 메뉴 | `PersonalRecommendationCandidate`, `01-schema.sql` |
-| `member_menu_actions` | 회원 메뉴 행동 로그 | `MemberMenuAction`, `01-schema.sql` |
+| `personal_recommendations` | 개인 추천 실행 세션 | `PersonalRecommendation` |
+| `personal_recommendation_candidates` | 개인 추천 후보 메뉴 | `PersonalRecommendationCandidate` |
+| `member_menu_actions` | 회원 메뉴 행동 로그 | `MemberMenuAction` |
 
 ## `personal_recommendations`
 
@@ -62,9 +59,8 @@
 | `member_id` | bigint | N |  | FK | 회원 ID |
 | `status` | varchar(30) | N |  | enum | 개인 추천 lifecycle 상태 |
 | `closed_at` | datetime | Y |  |  | 추천 종료 시각 |
-| `close_reason` | varchar(30) | Y |  | DDL only, JPA 미사용 | 종료 사유 후보 컬럼 |
 | `requested_at` | datetime | N |  |  | 추천 실행 시각 |
-| `context_json` | json | Y |  | JSON | 후보 선택 요청의 위치 컨텍스트 스냅샷. 미선택이면 `null` |
+| `context_json` | json | Y |  | JSON | 후보 선택 요청에 위치 4개가 모두 있으면 저장하는 컨텍스트 스냅샷. 미선택이거나 위치가 불완전하면 `null` |
 | `selected_candidate_id` | bigint | Y |  | FK | 최종 선택 후보 ID |
 | `created_at` | datetime | N | CURRENT_TIMESTAMP(6) | auditing | 생성 일시 |
 | `updated_at` | datetime | N | CURRENT_TIMESTAMP(6) | auditing | 수정 일시 |
@@ -79,10 +75,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_personal_recommendations_member` | `member_id` | 회원별 추천 조회 | `01-schema.sql` |
-| `idx_personal_recommendations_selected_candidate` | `selected_candidate_id` | 선택 후보 역조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ### enum / 상태값
 
@@ -125,9 +118,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_personal_recommendation_candidates_menu` | `menu_id` | 메뉴 기준 추천 후보 조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ## `member_menu_actions`
 
@@ -160,11 +151,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_member_menu_actions_member` | `member_id` | 회원별 행동 조회 | `01-schema.sql` |
-| `idx_member_menu_actions_menu` | `menu_id` | 메뉴별 행동 조회 | `01-schema.sql` |
-| `idx_member_menu_actions_personal_recommendation` | `personal_recommendation_id` | 추천별 행동 조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ### enum / 상태값
 
@@ -212,7 +199,7 @@
 
 - `PersonalRecommendationStatus` 추가 시 상태 전이와 만료 처리를 함께 확인합니다.
 - `ActionType` 추가 시 후보 제외 정책과 API 응답을 확인합니다.
-- init SQL의 `close_reason` 유지 여부를 엔티티와 맞춰야 합니다.
+- 관계와 제약을 바꾸면 JPA Entity 및 빈 DB 기동 검증을 함께 갱신해야 합니다.
 
 ## 함께 볼 문서
 

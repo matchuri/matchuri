@@ -43,6 +43,6 @@
 
 - API 상세 장문 문서는 OpenAPI metadata, API 상태표, drift harness 중심으로 줄입니다.
 - `docs/api/group.md`와 `docs/api/realtime.md`는 계약 요약과 harness 후보 중심으로 줄였습니다.
-- 데이터 스키마 장문 문서는 엔티티/init SQL/docs index drift harness로 전환합니다.
+- 데이터 스키마 장문 문서는 엔티티/빈 DB 생성 스키마/docs index drift harness로 전환합니다.
 - 백엔드 보안, 신뢰성, 품질 점수 문서는 기준만 남기고 review skill로 절차를 분리했습니다. 다음은 검증 가능한 항목을 harness로 옮깁니다.
 - 제품 서사는 GitHub Wiki로 옮기고 `docs/product/`는 제품 판단 기준만 남깁니다.

@@ -7,16 +7,14 @@
 - 담당 영역: member
 - 기준 소스:
   - JPA Entity: `MemberAgreement`, `AgreementType`
-  - DDL / init SQL: `backend/init/sql/01-schema.sql`
   - 관련 API 문서: `docs/api/member-required-agreements.md`
 
 ## 기준 소스 우선순위
 
 1. JPA Entity와 enum
-2. `backend/init/sql/01-schema.sql`
-3. 약관 동의 service write path와 repository query
-4. 관련 API 문서
-5. 기존 `docs/data/`
+2. 약관 동의 service write path와 repository query
+3. 관련 API 문서
+4. 기존 `docs/data/`
 
 | 충돌 항목 | 코드 기준 | 문서/DDL 기준 | 판단 | 후속 작업 |
 | --- | --- | --- | --- | --- |
@@ -42,7 +40,7 @@
 
 | 테이블 | 역할 | 기준 소스 |
 | --- | --- | --- |
-| `member_agreements` | 회원별 약관 타입/버전 동의 이력 | `MemberAgreement`, `01-schema.sql` |
+| `member_agreements` | 회원별 약관 타입/버전 동의 이력 | `MemberAgreement` |
 
 ## `member_agreements`
 

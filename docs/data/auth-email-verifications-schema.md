@@ -7,16 +7,14 @@
 - 담당 영역: auth
 - 기준 소스:
   - JPA Entity: `EmailVerification`, `EmailVerificationPurpose`, `EmailVerificationStatus`
-  - DDL / init SQL: `backend/init/sql/01-schema.sql`
   - 관련 API 문서: `docs/api/auth-email-verification.md`
   - 관련 설계 문서: `docs/decisions/email-verification-and-account-recovery.md`
 
 ## 기준 소스 우선순위
 
 1. JPA Entity와 enum
-2. `backend/init/sql/01-schema.sql`
-3. 이메일 인증 service write path와 repository query
-4. 관련 API 문서와 설계 문서
+2. 이메일 인증 service write path와 repository query
+3. 관련 API 문서와 설계 문서
 
 | 충돌 항목 | 코드 기준 | 문서/DDL 기준 | 판단 | 후속 작업 |
 | --- | --- | --- | --- | --- |
@@ -41,7 +39,7 @@
 
 | 테이블 | 역할 | 기준 소스 |
 | --- | --- | --- |
-| `auth_email_verifications` | 이메일 인증 코드와 verification token 상태 저장 | `EmailVerification`, `01-schema.sql` |
+| `auth_email_verifications` | 이메일 인증 코드와 verification token 상태 저장 | `EmailVerification` |
 
 ## `auth_email_verifications`
 

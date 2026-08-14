@@ -7,15 +7,13 @@
 - 담당 영역: auth
 - 기준 소스:
   - JPA Entity: `AuthRefreshToken`
-  - DDL / init SQL: `backend/init/sql/01-schema.sql`
   - 관련 API 문서: 인증 API 문서
 
 ## 기준 소스 우선순위
 
 1. JPA Entity
-2. `backend/init/sql/01-schema.sql`
-3. 인증 service write path와 repository query
-4. 관련 API 문서
+2. 인증 service write path와 repository query
+3. 관련 API 문서
 
 | 충돌 항목 | 코드 기준 | 문서/DDL 기준 | 판단 | 후속 작업 |
 | --- | --- | --- | --- | --- |
@@ -40,7 +38,7 @@
 
 | 테이블 | 역할 | 기준 소스 |
 | --- | --- | --- |
-| `auth_refresh_tokens` | refresh token 저장과 만료 관리 | `AuthRefreshToken`, `01-schema.sql` |
+| `auth_refresh_tokens` | refresh token 저장과 만료 관리 | `AuthRefreshToken` |
 
 ## `auth_refresh_tokens`
 
@@ -70,9 +68,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_auth_refresh_tokens_member` | `member_id` | 회원 기준 token 조회/정리 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ### enum / 상태값
 

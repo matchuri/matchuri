@@ -298,20 +298,18 @@ API 문서화 전략과 업데이트 순서는 `docs/decisions/api-docs-strategy
 로컬 환경에서 API를 빠르게 검증할 수 있도록 시드 데이터를 사용할 수 있습니다.
 운영 사고를 막기 위해 아래 원칙을 지킵니다.
 
-- 로컬 Docker Compose DB는 최초 빈 volume 생성 시 `backend/init/sql/*.sql`로 테이블과 기준/샘플 seed를 준비합니다.
-- 애플리케이션 기동 시점의 ApplicationRunner seed는 사용하지 않습니다.
-- `prod`에서는 자동 실행되지 않도록 막습니다.
+- 테이블과 제약조건은 JPA Entity와 `ddl-auto`를 기준으로 생성합니다.
+- 기준 데이터는 `ApplicationRunner`가 모든 비테스트 환경에서 누락 항목만 생성합니다.
+- 로컬 샘플 데이터는 `local` 프로필에서만 생성합니다.
 - 같은 초기화가 여러 번 실행돼도 데이터가 중복 생성되지 않아야 합니다.
 - 기준 데이터(reference data)와 개발 편의용 샘플 데이터(sample data)를 구분합니다.
-- 멱등성은 SQL의 유니크 키와 `ON DUPLICATE KEY UPDATE` 기준으로 보장합니다.
+- 기존 데이터는 자동으로 덮어쓰거나 삭제하지 않습니다.
+- 메뉴 대표 이미지와 이미지 자산은 seed 범위에 포함하지 않습니다.
 
 현재 기준:
 
-- Docker init SQL 경로: `backend/init/sql/`
-  - `01-schema.sql`: 로컬 MySQL 테이블, 인덱스, FK 생성
-  - `02-reference-seed.sql`: 메뉴 기준 데이터와 매핑 seed
-  - `03-local-sample-seed.sql`: 로컬 테스트 회원과 약관 동의 seed
-- 로컬 DB 볼륨을 유지하는 Docker Compose 환경에서는 최초 `docker compose up` 시 init SQL을 실행하고, 이후 일반 실행은 `local`만 사용합니다.
+- 기준 데이터: `backend/src/main/resources/seed/reference-data.json`
+- 로컬 샘플 데이터: `backend/src/main/resources/seed/local-sample-data.json`
 - 로컬 수동 테스트용 샘플 계정과 관리자 계정은 개발 환경에서만 생성합니다.
 
 기준 데이터와 스키마 세부 내용은 `docs/data/index.md`, `docs/data/implemented-jpa-data-model.md`를 기준으로 봅니다.

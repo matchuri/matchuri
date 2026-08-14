@@ -52,14 +52,14 @@
 - "현재 어떤 테이블이 운영 중인가?"는 [현재 구현 테이블 정의서 인덱스](./implemented-jpa-data-model.md)를 봅니다.
 - "컬럼, 제약, 인덱스, 상태값이 무엇인가?"는 개별 `*-schema.md` 문서를 봅니다.
 - "전체 관계를 빠르게 보고 싶다"면 [현재 구현 테이블 정의서 인덱스](./implemented-jpa-data-model.md)를 봅니다.
-- 구현과 문서가 다르면 엔티티와 init SQL을 먼저 확인하고 문서를 갱신합니다.
+- 구현과 문서가 다르면 JPA Entity와 실제 write/query 경로를 먼저 확인하고 문서를 갱신합니다.
 
 ## 유지보수 원칙
 
 - 새 테이블이 추가되면 개별 정의서, 이 인덱스, `docs/data/implemented-jpa-data-model.md`를 함께 확인합니다.
 - 컬럼, FK, unique, enum, 상태 흐름이 바뀌면 해당 정의서를 갱신합니다.
 - 구현 전 초안은 현재 기준 문서처럼 읽히지 않게 문서 상태를 명확히 표시합니다.
-- 반복적인 JPA Entity, init SQL, data docs index 정합성 확인은 `docs/decisions/data-schema-drift-harness.md`의 harness 설계를 기준으로 자동화합니다.
+- 반복적인 JPA Entity, 빈 DB 생성 스키마, data docs index 정합성 확인은 `docs/decisions/data-schema-drift-harness.md`의 harness 설계를 기준으로 자동화합니다.
 
 ## 마지막 갱신
 

@@ -7,20 +7,17 @@
 - 담당 영역: group / recommendation
 - 기준 소스:
   - JPA Entity: `GroupRecommendation`, `GroupRecommendationReadiness`, `GroupRecommendationCandidate`, `GroupRecommendationVote`, `GroupMenuAction`
-  - DDL / init SQL: `backend/init/sql/01-schema.sql`
   - 관련 API 문서: 그룹 추천 API 문서
 
 ## 기준 소스 우선순위
 
 1. JPA Entity와 enum
-2. `backend/init/sql/01-schema.sql`
-3. 그룹 추천 service write path와 repository query
-4. 관련 API 문서
+2. 그룹 추천 service write path와 repository query
+3. 관련 API 문서
 
 | 충돌 항목 | 코드 기준 | 문서/DDL 기준 | 판단 | 후속 작업 |
 | --- | --- | --- | --- | --- |
-| `group_recommendation_readiness` | JPA Entity 존재 | init SQL 테이블 없음 | 현재 운영 엔티티 기준으로 문서화 | init SQL 생성문/FK/인덱스 추가 필요 |
-| `group_recommendation_votes.updated_at` | `BaseEntity`라 `updated_at` 존재 | init SQL에는 `created_at`만 존재 | JPA 기준으로 문서화하되 DDL 정합성 확인 필요 | init SQL 보정 검토 |
+| 없음 |  |  |  |  |
 
 ## 문서 목적
 
@@ -43,11 +40,11 @@
 
 | 테이블 | 역할 | 기준 소스 |
 | --- | --- | --- |
-| `group_recommendations` | 그룹 추천 세션 | `GroupRecommendation`, `01-schema.sql` |
+| `group_recommendations` | 그룹 추천 세션 | `GroupRecommendation` |
 | `group_recommendation_readiness` | 준비 단계의 멤버별 준비 상태 | `GroupRecommendationReadiness`, JPA only |
-| `group_recommendation_candidates` | 그룹 추천 후보 메뉴 | `GroupRecommendationCandidate`, `01-schema.sql` |
-| `group_recommendation_votes` | 그룹 추천 투표 | `GroupRecommendationVote`, `01-schema.sql` |
-| `group_menu_actions` | 그룹 맥락 메뉴 행동 로그 | `GroupMenuAction`, `01-schema.sql` |
+| `group_recommendation_candidates` | 그룹 추천 후보 메뉴 | `GroupRecommendationCandidate` |
+| `group_recommendation_votes` | 그룹 추천 투표 | `GroupRecommendationVote` |
+| `group_menu_actions` | 그룹 맥락 메뉴 행동 로그 | `GroupMenuAction` |
 
 ## `group_recommendations`
 
@@ -65,7 +62,7 @@
 | `started_at` | datetime | N |  |  | 시작 시각 |
 | `ended_at` | datetime | Y |  |  | 종료 시각 |
 | `selected_candidate_id` | bigint | Y |  | FK | 최종 선택 후보 ID |
-| `context_json` | json | Y |  | JSON | 최종 확정 요청의 위치 컨텍스트 스냅샷. 미확정이면 `null` |
+| `context_json` | json | Y |  | JSON | 최종 확정 요청에 위치 4개가 모두 있으면 저장하는 컨텍스트 스냅샷. 미확정이거나 위치가 불완전하면 `null` |
 | `created_at` | datetime | N | CURRENT_TIMESTAMP(6) | auditing | 생성 일시 |
 | `updated_at` | datetime | N | CURRENT_TIMESTAMP(6) | auditing | 수정 일시 |
 
@@ -79,10 +76,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_group_recommendations_room` | `room_id` | 그룹별 추천 조회 | `01-schema.sql` |
-| `idx_group_recommendations_selected_candidate` | `selected_candidate_id` | 선택 후보 역조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ### enum / 상태값
 
@@ -114,7 +108,7 @@
 | `created_at` | datetime | N |  | auditing | 생성 일시 |
 | `updated_at` | datetime | N |  | auditing | 수정 일시 |
 
-이 테이블은 JPA Entity에는 존재하지만 `backend/init/sql/01-schema.sql` 생성문이 없습니다.
+이 테이블은 `GroupRecommendationReadiness` Entity를 기준으로 JPA가 생성합니다.
 
 ### 제약조건
 
@@ -127,7 +121,7 @@
 
 ### 인덱스
 
-- init SQL 테이블 생성문이 없어 명시 보조 인덱스도 아직 없습니다.
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 - 추가 시 `group_recommendation_id`, `member_id` 조회 패턴을 기준으로 검토합니다.
 
 ### enum / 상태값
@@ -167,9 +161,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_group_recommendation_candidates_menu` | `menu_id` | 메뉴 기준 후보 조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ## `group_recommendation_votes`
 
@@ -187,7 +179,7 @@
 | `candidate_id` | bigint | N |  | FK | 후보 ID |
 | `member_id` | bigint | N |  | FK, unique 조합 | 투표 회원 ID |
 | `created_at` | datetime | N | CURRENT_TIMESTAMP(6) | auditing | 생성 일시 |
-| `updated_at` | datetime | N | CURRENT_TIMESTAMP(6) | JPA `BaseEntity`, init SQL 누락 | 수정 일시 |
+| `updated_at` | datetime | N | CURRENT_TIMESTAMP(6) | auditing | 수정 일시 |
 
 ### 제약조건
 
@@ -201,10 +193,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_group_recommendation_votes_candidate` | `candidate_id` | 후보별 투표 집계 | `01-schema.sql` |
-| `idx_group_recommendation_votes_member` | `member_id` | 회원별 투표 조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ## `group_menu_actions`
 
@@ -240,11 +229,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_group_menu_actions_room` | `group_room_id` | 그룹별 행동 조회 | `01-schema.sql` |
-| `idx_group_menu_actions_actor_member` | `actor_member_id` | 회원별 행동 조회 | `01-schema.sql` |
-| `idx_group_menu_actions_menu` | `menu_id` | 메뉴별 행동 조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ### enum / 상태값
 
@@ -268,7 +253,7 @@
 | 상황 | 기준 컬럼 | 동작 | 주의점 |
 | --- | --- | --- | --- |
 | 추천 준비 시작 | `room_id` | `PREPARING` 추천 생성 | 진행 중 추천 중복 여부 확인 |
-| 준비 완료 | `group_recommendation_id`, `member_id` | readiness row 생성/갱신 | init SQL 테이블 누락 주의 |
+| 준비 완료 | `group_recommendation_id`, `member_id` | readiness row 생성/갱신 | Entity 및 unique 제약 유지 |
 | 후보 생성 | `group_recommendation_id` | 후보 row 저장 후 `OPEN` 전환 | 후보 메뉴 중복 방지 |
 | 투표 | `group_recommendation_id`, `member_id` | 없으면 insert, 있으면 후보 변경 | 추천 상태 `OPEN` 확인 |
 | 최종 확정 | `group_recommendation_id`, `candidate_id` | `FINALIZED`, `selected_candidate_id`, `ended_at` 갱신 | 동률/권한 정책 확인 |
@@ -278,7 +263,7 @@
 
 - `PREPARING`, `OPEN` 세션은 `started_at + 24h` 기준으로 만료 처리합니다.
 - `PREPARING` 상태에서는 후보 생성 기준이 확정되지 않았으면 `context_json`을 `null`로 둘 수 있습니다.
-- `OPEN` 전환 시 확정 컨텍스트 스냅샷을 `context_json`에 기록합니다.
+- 최종 확정 요청에 위치 4개가 모두 있으면 컨텍스트 스냅샷을 `context_json`에 기록합니다.
 - 그룹 추천 투표는 세션별/회원별 1개 row를 유지합니다.
 - 그룹 후보 거절 로그는 `group_menu_actions`에 저장하며 개인 취향으로 바로 승격하지 않습니다.
 
@@ -293,7 +278,7 @@
 
 - `GroupRecommendationStatus` 추가 시 상태 전이, 만료 처리, API 응답을 함께 확인합니다.
 - `group_recommendation_readiness`를 운영 DB bootstrap에 반영해야 합니다.
-- `group_recommendation_votes.updated_at`을 init SQL과 맞춰야 합니다.
+- 관계와 제약을 바꾸면 JPA Entity 및 빈 DB 기동 검증을 함께 갱신해야 합니다.
 - 투표 정책 변경 시 unique 제약과 재투표 write path를 확인합니다.
 
 ## 함께 볼 문서

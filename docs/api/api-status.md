@@ -98,7 +98,7 @@ URL 경로나 `/api/v1` 같은 API path version을 대체하지 않습니다.
 | `REC.040.000` | Personal Recommendation | POST | `/api/v1/personal/recommendations/{requestId}/reroll` | `real` | `docs/api/recommendation.md` | 이전 개인 추천이 아직 닫히지 않았으면 종료하고 새 개인 추천 실행 |
 | `REC.050.000` | Personal Recommendation | GET | `/api/v1/personal/recommendations/{requestId}` | `real` | `docs/api/recommendation.md` | 개인 추천 요청 상세 |
 | `REC.060.000` | Personal Recommendation | GET | `/api/v1/personal/recommendations/{requestId}/candidates` | `real` | `docs/api/recommendation.md` | 개인 추천 후보 목록 |
-| `REC.070.000` | Personal Recommendation | PATCH | `/api/v1/personal/recommendations/{requestId}` | `real` | `docs/api/recommendation.md` | 닫히지 않은 개인 추천 선택 반영, 클라이언트 확정 위치 스냅샷 저장, `SELECTED` 종료, CHOOSE 로그 저장 |
+| `REC.070.000` | Personal Recommendation | PATCH | `/api/v1/personal/recommendations/{requestId}` | `real` | `docs/api/recommendation.md` | 닫히지 않은 개인 추천 선택 반영, 위치 4개가 모두 제공되면 스냅샷 저장, `SELECTED` 종료, CHOOSE 로그 저장 |
 
 ## GROUP. 그룹 생성/참여 플로우
 
@@ -113,7 +113,11 @@ URL 경로나 `/api/v1` 같은 API path version을 대체하지 않습니다.
 | `GROUP.070.000` | Group Invite | POST | `/api/v1/groups/invites/{inviteId}/response` | `real` | `docs/api/group.md` | 내가 받은 그룹 초대 수락/거절 |
 | `GROUP.080.000` | Group | POST | `/api/v1/groups/join` | `real` | `docs/api/group.md` | 기존 초대 코드 기반 참여. 신규 코드 입장 API 전환은 보류 |
 | `GROUP.090.000` | Group | POST | `/api/v1/groups/{groupId}/leave` | `real` | `docs/api/group.md` | 일반 멤버 탈퇴. OWNER 탈퇴 거절 |
-| `GROUP.100.000` | Group | DELETE | `/api/v1/groups/{groupId}` | `real` | `docs/api/group.md` | OWNER 전용 soft delete. 활성 초대 revoke |
+| `GROUP.100.000` | Group | DELETE | `/api/v1/groups/{groupId}` | `real` | `docs/api/group.md` | OWNER 전용 soft delete. 직접 초대 revoke 및 링크 초대 만료 |
+| `GROUP.110.000` | Group Invite Link | POST | `/api/v1/groups/{groupId}/invite-link` | `real` | `docs/api/group.md` | OWNER 전용 신규 링크 발급. 활성 링크가 있으면 409 |
+| `GROUP.120.000` | Group Invite Link | POST | `/api/v1/groups/{groupId}/invite-link/reissue` | `real` | `docs/api/group.md` | OWNER 전용 링크 재발급. 기존 활성 링크 즉시 만료 |
+| `GROUP.130.000` | Group Invite Link | GET | `/api/v1/groups/{groupId}/invite-link` | `real` | `docs/api/group.md` | OWNER 전용 현재 활성 링크 조회. 만료 링크 미노출 |
+| `GROUP.140.000` | Group Invite Link | POST | `/api/v1/groups/invite-links/join` | `real` | `docs/api/group.md` | 인증 회원의 유효한 UUID 링크 기반 그룹 참여. 토큰은 request body로 전달 |
 
 ## GREC. 그룹 추천/투표 플로우
 
@@ -127,7 +131,7 @@ URL 경로나 `/api/v1` 같은 API path version을 대체하지 않습니다.
 | `GREC.060.000` | Group Recommendation | GET | `/api/v1/groups/{groupId}/recommendations/{sessionId}/candidates` | `real` | `docs/api/group.md` | OPEN 추천 후보 목록과 후보별 투표 수. PREPARING이면 409 |
 | `GREC.070.000` | Group Recommendation | POST | `/api/v1/groups/{groupId}/recommendations/{sessionId}/reroll` | `deprecated` | `docs/api/group.md` | MVP 8단계 클라이언트 계약에서 제외. 호출 시 410, 기존 구현은 MVP 이후 재도입 검토용으로 보존 |
 | `GREC.080.000` | Group Vote | POST | `/api/v1/groups/{groupId}/recommendations/{sessionId}/votes` | `real` | `docs/api/group.md` | 후보 1개 선택 투표. 중복 투표 거절 |
-| `GREC.090.000` | Group Recommendation | PATCH | `/api/v1/groups/{groupId}/recommendations/{sessionId}/finalize` | `real` | `docs/api/group.md` | OWNER 전용 최종 메뉴 확정 및 클라이언트 확정 위치 스냅샷 저장. 동률 시 rank 우선 |
+| `GREC.090.000` | Group Recommendation | PATCH | `/api/v1/groups/{groupId}/recommendations/{sessionId}/finalize` | `real` | `docs/api/group.md` | OWNER 전용 최종 메뉴 확정. 위치 4개가 모두 제공되면 스냅샷 저장, 동률 시 rank 우선 |
 
 ## RT. 실시간 이벤트 플로우
 

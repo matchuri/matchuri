@@ -7,13 +7,12 @@
 - 담당 영역: data docs
 - 기준 소스:
   - JPA Entity: `backend/src/main/java/matchuri/backend/domain/**/entity/*.java`
-  - DDL / init SQL: `backend/init/sql/01-schema.sql`
   - 개별 테이블 정의서: `docs/data/*-schema.md`
 
 ## 문서 목적
 
 - 현재 JPA Entity 기준으로 운영 중인 테이블과 담당 정의서를 매핑합니다.
-- JPA와 init SQL이 어긋난 부분을 구현자가 놓치지 않게 표시합니다.
+- JPA가 빈 DB에 생성하는 현재 데이터 모델의 탐색 경로를 제공합니다.
 
 ## 현재 범위
 
@@ -45,6 +44,7 @@
 | 그룹 방 | `group_room_members` | [그룹 방](./group-rooms-schema.md) |
 | 그룹 방 | `group_locations` | [그룹 방](./group-rooms-schema.md) |
 | 그룹 방 | `group_invites` | [그룹 방](./group-rooms-schema.md) |
+| 그룹 방 | `group_invite_links` | [그룹 방](./group-rooms-schema.md) |
 | 그룹 방 | `group_presence_events` | [그룹 방](./group-rooms-schema.md) |
 | 그룹 추천 | `group_recommendations` | [그룹 추천](./group-recommendations-schema.md) |
 | 그룹 추천 | `group_recommendation_readiness` | [그룹 추천](./group-recommendations-schema.md) |
@@ -52,15 +52,11 @@
 | 그룹 추천 | `group_recommendation_votes` | [그룹 추천](./group-recommendations-schema.md) |
 | 그룹 추천 | `group_menu_actions` | [그룹 추천](./group-recommendations-schema.md) |
 
-## 기준 소스 충돌
+## 스키마 생성 기준
 
-| 항목 | JPA 기준 | init SQL 기준 | 현재 문서 판단 |
-| --- | --- | --- | --- |
-| `personal_recommendations.status` | `varchar(30)` | `varchar(20)` | JPA 기준으로 문서화, DDL 보정 필요 |
-| `personal_recommendations.close_reason` | 필드 없음 | 컬럼 존재 | DDL only 미사용 컬럼으로 기록 |
-| `group_locations.group_room_id` FK | 필수 관계 | FK 제약 없음 | JPA 관계 기준으로 문서화, DDL 보정 필요 |
-| `group_recommendation_readiness` | 엔티티 존재 | 테이블 생성문 없음 | 현재 운영 엔티티 기준으로 포함, DDL 추가 필요 |
-| `group_recommendation_votes.updated_at` | `BaseEntity`로 존재 | 컬럼 없음 | JPA 기준으로 문서화, DDL 보정 필요 |
+- 별도 init SQL이나 DDL snapshot을 유지하지 않습니다.
+- JPA Entity와 연관관계가 스키마의 단일 구현 기준입니다.
+- 빈 DB 기동 테스트로 Entity와 생성 스키마의 정합성을 검증합니다.
 
 ## 관계 빠른 요약
 
@@ -74,16 +70,16 @@
 | `menu_items` | `menu_item_images` | 1 : 0..1 | [이미지 자산](./images-schema.md) |
 | `members` | `personal_recommendations` | 1 : N | [개인 추천](./personal-recommendations-schema.md) |
 | `personal_recommendations` | `personal_recommendation_candidates` | 1 : N | [개인 추천](./personal-recommendations-schema.md) |
-| `group_rooms` | `group_room_members`, `group_locations`, `group_invites` | 1 : N | [그룹 방](./group-rooms-schema.md) |
+| `group_rooms` | `group_room_members`, `group_locations`, `group_invites`, `group_invite_links` | 1 : N | [그룹 방](./group-rooms-schema.md) |
 | `group_rooms` | `group_recommendations` | 1 : N | [그룹 추천](./group-recommendations-schema.md) |
 | `group_recommendations` | readiness, candidates, votes, actions | 1 : N | [그룹 추천](./group-recommendations-schema.md) |
 
 ## 인덱스 운영 기준
 
 - JPA Entity에는 대부분 명시 보조 인덱스(`@Index`)를 정의하지 않습니다.
-- local bootstrap init SQL에는 조회 보조 인덱스가 일부 존재합니다.
 - unique 제약은 데이터 무결성 기준으로 유지하고, 보조 인덱스와 분리해 판단합니다.
-- 조회 성능 개선이 필요해진 시점에 인덱스 추가 전후를 비교합니다.
+- DB가 PK, FK, unique 제약을 위해 자동 생성하는 인덱스는 제거 대상인 성능 목적 보조 인덱스와 구분합니다.
+- 조회 성능 개선이 필요해진 시점에 실제 쿼리와 실행 계획으로 인덱스 추가 전후를 비교합니다.
 
 ## 함께 볼 문서
 

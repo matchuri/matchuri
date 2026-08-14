@@ -7,7 +7,6 @@
 - 담당 영역: member
 - 기준 소스:
   - JPA Entity: `MemberLocation`
-  - DDL / init SQL: `backend/init/sql/01-schema.sql`
   - 관련 API 문서: `docs/api/member-profile.md`
 
 ## 현재 확정 전제

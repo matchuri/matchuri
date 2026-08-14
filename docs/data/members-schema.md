@@ -7,16 +7,14 @@
 - 담당 영역: member
 - 기준 소스:
   - JPA Entity: `Member`, `MemberRole`, `MemberStatus`, `SocialProviderType`
-  - DDL / init SQL: `backend/init/sql/01-schema.sql`
   - 관련 API 문서: `docs/api/member*.md`, `docs/api/auth*.md`
 
 ## 기준 소스 우선순위
 
 1. JPA Entity와 enum
-2. `backend/init/sql/01-schema.sql`
-3. Repository query, service write path, 테스트
-4. 관련 API 문서
-5. 기존 `docs/data/`
+2. Repository query, service write path, 테스트
+3. 관련 API 문서
+4. 기존 `docs/data/`
 
 | 충돌 항목 | 코드 기준 | 문서/DDL 기준 | 판단 | 후속 작업 |
 | --- | --- | --- | --- | --- |
@@ -43,7 +41,7 @@
 
 | 테이블 | 역할 | 기준 소스 |
 | --- | --- | --- |
-| `members` | 회원 계정, 인증 방식, 역할, 상태의 기준 테이블 | `Member`, `01-schema.sql` |
+| `members` | 회원 계정, 인증 방식, 역할, 상태의 기준 테이블 | `Member` |
 
 ## `members`
 
@@ -138,7 +136,7 @@
 
 ## 코드 변경 시 확인할 것
 
-- `Member` 필드와 `01-schema.sql` 컬럼이 일치하는지 확인합니다.
+- `Member` 필드와 이 문서의 컬럼 표가 일치하는지 확인합니다.
 - `SocialProviderType` 값 추가 시 OAuth2 설정, exchange code 문서, API 문서를 함께 확인합니다.
 - 회원 상태값 추가 시 인증 필터, 탈퇴/복구 정책, API 응답을 확인합니다.
 

@@ -7,15 +7,13 @@
 - 담당 영역: image
 - 기준 소스:
   - JPA Entity: `ImageAsset`, `ImageStorageProvider`, `ImageAssetStatus`, `MenuItemImage`, `MenuImageRole`
-  - DDL / init SQL: `backend/init/sql/01-schema.sql`
   - 관련 API 문서: 메뉴 이미지 업로드 API 문서
 
 ## 기준 소스 우선순위
 
 1. JPA Entity와 enum
-2. `backend/init/sql/01-schema.sql`
-3. 이미지 업로드 service write path
-4. 관련 API 문서
+2. 이미지 업로드 service write path
+3. 관련 API 문서
 
 | 충돌 항목 | 코드 기준 | 문서/DDL 기준 | 판단 | 후속 작업 |
 | --- | --- | --- | --- | --- |
@@ -41,8 +39,8 @@
 
 | 테이블 | 역할 | 기준 소스 |
 | --- | --- | --- |
-| `image_assets` | 업로드된 이미지 객체 메타데이터 | `ImageAsset`, `01-schema.sql` |
-| `menu_item_images` | 메뉴와 이미지 자산 연결 | `MenuItemImage`, `01-schema.sql` |
+| `image_assets` | 업로드된 이미지 객체 메타데이터 | `ImageAsset` |
+| `menu_item_images` | 메뉴와 이미지 자산 연결 | `MenuItemImage` |
 
 ## `image_assets`
 
@@ -125,9 +123,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_menu_item_images_image_asset` | `image_asset_id` | 이미지 자산 기준 역조회 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ### enum / 상태값
 

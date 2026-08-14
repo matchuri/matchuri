@@ -7,15 +7,13 @@
 - 담당 영역: auth
 - 기준 소스:
   - JPA Entity: `AuthExchangeCode`, `SocialProviderType`
-  - DDL / init SQL: `backend/init/sql/01-schema.sql`
   - 관련 API 문서: OAuth2 인증 API 문서
 
 ## 기준 소스 우선순위
 
 1. JPA Entity와 enum
-2. `backend/init/sql/01-schema.sql`
-3. OAuth2 login / exchange service flow
-4. 관련 API 문서
+2. OAuth2 login / exchange service flow
+3. 관련 API 문서
 
 | 충돌 항목 | 코드 기준 | 문서/DDL 기준 | 판단 | 후속 작업 |
 | --- | --- | --- | --- | --- |
@@ -41,7 +39,7 @@
 
 | 테이블 | 역할 | 기준 소스 |
 | --- | --- | --- |
-| `auth_exchange_codes` | OAuth2 로그인 후 token 교환용 일회성 code 저장 | `AuthExchangeCode`, `01-schema.sql` |
+| `auth_exchange_codes` | OAuth2 로그인 후 token 교환용 일회성 code 저장 | `AuthExchangeCode` |
 
 ## `auth_exchange_codes`
 
@@ -73,9 +71,7 @@
 
 ### 인덱스
 
-| 이름 | 컬럼 | 목적 | 기준 소스 |
-| --- | --- | --- | --- |
-| `idx_auth_exchange_codes_member` | `member_id` | 회원 기준 code 조회/정리 | `01-schema.sql` |
+- 현재 명시 보조 인덱스는 없습니다. 실제 조회 성능과 실행 계획을 비교한 뒤 도입합니다.
 
 ### enum / 상태값
 
