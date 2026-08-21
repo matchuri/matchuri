@@ -91,6 +91,14 @@
 
 ## 인가 정책
 
+인증 회원 식별자 전달:
+
+- 보호 API Controller는 `@AuthenticatedMemberId Long memberId`로 JWT principal의 회원 ID만 추출합니다.
+- Service는 `SecurityContext`나 인증 principal을 직접 조회하지 않고 `memberId`를 명시적인 인자로 받습니다.
+- command가 필요한 Service 메서드는 인증 주체인 `memberId`를 command에 포함하지 않고 별도 인자로 전달합니다.
+- 활성 회원 Entity가 필요한 유스케이스는 `MemberReader#getActiveMember(memberId)`로 존재 여부와 활성 상태를 검증합니다.
+- 인증 principal 전체는 Spring Security filter와 공통 접근 정책처럼 인증 계층 내부에서만 사용합니다.
+
 공개 API:
 
 - 회원 가입

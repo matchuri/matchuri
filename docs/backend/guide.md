@@ -216,7 +216,7 @@ API 문서화 세부 전략은 `docs/decisions/api-docs-strategy.md`를 기준�
 현재 기본 판단:
 
 - `MemberService`, `MemberAgreementService`: 인터페이스 유지
-- `ActiveMemberReader`, `RequiredAgreementRevisionResolver`: concrete class 우선
+- `MemberReader`, `RequiredAgreementRevisionResolver`: concrete class 우선
 
 ## 의존 방향
 
