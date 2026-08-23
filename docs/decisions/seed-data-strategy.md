@@ -48,11 +48,12 @@
 - seed 과정에서 기존 행이나 매핑을 삭제하지 않습니다.
 - 기준 데이터 변경을 기존 DB에 강제로 동기화해야 하면 관리자 기능이나 별도 변경 작업으로 수행합니다.
 
-## 이미지 제외
+## 이미지 seed 경계
 
-- `image_assets`와 `menu_item_images`는 seed 대상이 아닙니다.
-- 메뉴 대표 이미지는 관리자 업로드 흐름으로만 생성합니다.
-- JSON seed 리소스에는 image, thumbnail, object key를 두지 않습니다.
+- 메뉴 대표 이미지와 `menu_item_images`는 seed 대상이 아니며 관리자 업로드 흐름으로만 생성합니다.
+- 프로필 프리셋은 이미 R2에 존재하는 기준 자산만 `seed/preset-profile-images.json`에서 메타데이터와 object key로 등록할 수 있습니다.
+- 프로필 프리셋 seed는 객체를 업로드하거나 기존 기본 상태를 덮어쓰지 않습니다.
+- 동일 object key의 자산·프리셋은 중복 생성하지 않습니다.
 
 ## 현재 로컬 샘플 범위
 

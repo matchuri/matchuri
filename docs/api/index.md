@@ -36,6 +36,7 @@
 
 - 자체 회원가입 통합 API: `docs/api/member-local-signup.md`
 - 회원 프로필 및 공개 조회 API: `docs/api/member-profile.md`
+- 회원 프리셋 프로필 이미지 및 관리자 운영 API: `docs/api/member-profile-image.md`
 - 회원 필수 약관 동의 API: `docs/api/member-required-agreements.md`
 - 필수 약관 동의 에러 코드: `docs/api/member-required-agreements-error-codes.md`
 - 필수 약관 동의 테스트 시나리오: `docs/api/member-required-agreements-test-scenarios.md`
