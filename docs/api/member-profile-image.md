@@ -16,8 +16,8 @@
 
 최초 기본 프리셋은 다음 기존 R2 객체를 기준 데이터로 등록합니다.
 
-- 공개 URL: `https://asset.matchuri.com/preset-profile/spagetti-v1.png`
-- object key: `preset-profile/spagetti-v1.png`
+- 공개 URL: `https://asset.matchuri.com/preset-profile/v1-spaghetti.png`
+- object key: `preset-profile/v1-spaghetti.png`
 - content type: `image/png`
 - content length: `628206` bytes
 - resolution: `1254 × 1254`
@@ -49,7 +49,7 @@
   "data": {
     "profileImageId": 15,
     "presetProfileImageId": 1,
-    "imageUrl": "https://asset.matchuri.com/preset-profile/spagetti-v1.png",
+    "imageUrl": "https://asset.matchuri.com/preset-profile/v1-spaghetti.png",
     "updatedAt": "2026-08-24T12:30:00"
   },
   "error": null
