@@ -127,7 +127,7 @@ MemberController 응답도 공통 envelope 구조를 사용합니다.
     "nickname": "점심탐험가",
     "isSocial": false,
     "email": "tester@example.com",
-    "profileImageUrl": "https://asset.matchuri.com/preset-profile/spagetti-v1.png"
+    "profileImageUrl": "https://asset.matchuri.com/preset-profile/v1-spaghetti.png"
   },
   "error": null
 }
