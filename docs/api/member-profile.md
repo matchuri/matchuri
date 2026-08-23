@@ -126,7 +126,8 @@ MemberController 응답도 공통 envelope 구조를 사용합니다.
     "loginId": "tester01",
     "nickname": "점심탐험가",
     "isSocial": false,
-    "email": "tester@example.com"
+    "email": "tester@example.com",
+    "profileImageUrl": "https://asset.matchuri.com/preset-profile/spagetti-v1.png"
   },
   "error": null
 }
@@ -135,10 +136,12 @@ MemberController 응답도 공통 envelope 구조를 사용합니다.
 현재 응답 기준:
 
 - 최소 프로필만 반환합니다.
-- 현재 단계에서는 `id`, `loginId`, `nickname`, `isSocial`, `email`을 사용하면 됩니다.
+- 현재 단계에서는 `id`, `loginId`, `nickname`, `isSocial`, `email`, `profileImageUrl`을 사용하면 됩니다.
 - `loginId`는 현재 회원의 로그인 ID입니다. 소셜 로그인 전용 회원이면 `null`일 수 있습니다.
 - `isSocial=true`이면 소셜 로그인 회원, `false`이면 자체 로그인 회원입니다.
 - `email`은 현재 회원의 이메일입니다. 레거시 계정이면 `null`일 수 있습니다.
+- `profileImageUrl`은 현재 프로필 이미지 공개 URL입니다. 기능 도입 전 미설정 회원은 `null`일 수 있습니다.
+- 프리셋 변경 계약은 `docs/api/member-profile-image.md`를 봅니다.
 - 취향 프로필 상세는 이 응답에 포함되지 않습니다.
 
 ### 4. 내 기본 정보 수정
@@ -480,7 +483,8 @@ MemberController 응답도 공통 envelope 구조를 사용합니다.
 - 존재하는 loginId는 `exists=true`, 없는 loginId는 `exists=false`를 반환한다.
 - 존재하는 nickname은 `exists=true`, 없는 nickname은 `exists=false`를 반환한다.
 - 잘못된 loginId 또는 nickname 형식은 `COMMON_INVALID_PATH_VARIABLE`을 반환한다.
-- 인증된 회원은 `/api/v1/members/me`에서 `loginId`를 포함한 최소 프로필을 조회할 수 있다.
+- 인증된 회원은 `/api/v1/members/me`에서 `loginId`와 현재 `profileImageUrl`을 조회할 수 있다.
+- 프리셋 이미지 재설정은 회원별 연결 행을 추가하지 않고 기존 행의 자산을 교체한다.
 - 닉네임 수정 성공 시 `updatedAt`이 갱신된다.
 - 닉네임 미완료 회원도 인증된 상태라면 `/api/v1/members/me` 수정으로 닉네임 온보딩을 완료할 수 있다.
 - 중복 닉네임 수정은 `MEMBER_DUPLICATE_NICKNAME`을 반환한다.
