@@ -26,6 +26,10 @@
 
 ## 도메인별 API 문서
 
+### Common
+
+- 홈 화면 조합 API: `docs/api/home.md`
+
 ### Auth
 
 - Google/Kakao/Naver OAuth2 로그인 API: `docs/api/auth-google-oauth2.md`
