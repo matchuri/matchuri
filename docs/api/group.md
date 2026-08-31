@@ -45,8 +45,9 @@
 - 그룹 추천 시작은 `PREPARING` 세션을 생성합니다.
 - 추천 시작 직후에는 후보를 생성하지 않으며 `candidates`는 빈 배열입니다.
 - 모든 현재 `ACTIVE` 그룹 멤버가 준비 완료하면 서버가 후보를 생성하고 세션을 `OPEN`으로 전환합니다.
+- `createdAt`은 추천 세션 생성 시각, nullable `startedAt`은 `OPEN` 전환과 투표 시작 시각, `endedAt`은 최종 확정·취소·실패·만료 시각입니다.
 - 준비 진행률의 분모는 현재 `ACTIVE` 그룹 멤버입니다.
-- `PREPARING` 또는 `OPEN` 세션은 `startedAt + 24h` 이후 만료됩니다.
+- `PREPARING` 또는 `OPEN` 세션은 상태와 무관하게 `createdAt + 24h` 이후 만료됩니다.
 - 만료 처리는 별도 scheduler 없이 생성/조회/상태 변경 API 접근 시점에 lazy expire로 수행합니다.
 - 후보 조회 API는 `OPEN` 세션에서만 후보 목록을 반환합니다. `PREPARING`이면 `409 GROUP_RECOMMENDATION_NOT_OPEN`으로 거절합니다.
 - 투표는 추천 세션당 회원 1표만 허용합니다.
