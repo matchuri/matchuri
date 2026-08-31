@@ -45,7 +45,6 @@
 | --- | --- | --- |
 | Backend tests | 가능 | `backend`에서 `./gradlew test` |
 | Backend CI | 있음 | `backend/.github/workflows/backend-ci.yml` |
-| Backend coverage | 가능 | `./gradlew test jacocoTestReport` |
 | Frontend lint | 가능 | `frontend`에서 `npm run lint` |
 | Frontend tests/coverage | 없음 | 추후 도입 후보 |
 
@@ -59,7 +58,7 @@
 | 도메인/용어 일관성 | 3 | 핵심 용어 기준은 있으나 구현 전반 정합성 점검 필요 |
 | 구조 단순성 | 3 | 소수 팀 운영 방향은 명확하나 세부 구조 보강 여지 있음 |
 | 변경 용이성 | 2 | 중복과 결합도는 실제 code 기준 점검 필요 |
-| 테스트/검증 가능성 | 2 | Backend CI와 JaCoCo 가능, Frontend 자동 테스트 부족 |
+| 테스트/검증 가능성 | 2 | Backend CI는 있으나 Frontend 자동 테스트 부족 |
 | 문서/계약 명확성 | 3 | 상위 기준 문서는 있으나 구현 변경과 동기화 루틴 필요 |
 | 운영 준비도 | 2 | 운영 기준은 있으나 실제 복구 절차 구체화 필요 |
 

@@ -25,6 +25,8 @@
 - 백엔드 보안 리뷰 스킬: `.agents/skills/matchuri-backend-security-review/SKILL.md`
 - 백엔드 신뢰성 리뷰 스킬: `.agents/skills/matchuri-backend-reliability-review/SKILL.md`
 - FE/BE API 계약 동기화 스킬: `.agents/skills/matchuri-api-contract-sync/SKILL.md`
+- GitHub PR 생성 스킬: `.agents/skills/matchuri-github-pr/SKILL.md`
+- PR Markdown 임시 파일 하네스: `.agents/skills/matchuri-github-pr/scripts/write_pr_body.py`
 - API 계약 drift 하네스: `backend/scripts/audit_api_contract.py`
 - JPA mapping drift 하네스: `backend/scripts/audit_jpa_schema.py`
 
