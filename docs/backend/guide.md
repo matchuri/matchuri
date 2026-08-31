@@ -318,9 +318,6 @@ API 문서화 전략과 업데이트 순서는 `docs/decisions/api-docs-strategy
 ## 테스트
 
 - 최소 기준: `./gradlew test`
-- 커버리지 리포트가 필요하면 `./gradlew test jacocoTestReport`
-- JaCoCo HTML: `backend/build/reports/jacoco/test/html/index.html`
-- JaCoCo XML: `backend/build/reports/jacoco/test/jacocoTestReport.xml`
 - 도메인 저장소와 상태 전이는 테스트 우선순위가 높습니다.
 - 새 API를 추가하면 정상 흐름과 대표 실패 케이스를 함께 검증합니다.
 - API 계약 변경 시 OpenAPI 메타데이터, Swagger 산출물, 관련 `docs/api/` 설명을 같이 확인합니다.
