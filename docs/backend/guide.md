@@ -317,7 +317,11 @@ API 문서화 전략과 업데이트 순서는 `docs/decisions/api-docs-strategy
 
 ## 테스트
 
-- 최소 기준: `./gradlew test`
+- 개발 중에는 변경 영향에 가장 가까운 단위 테스트를 먼저 실행합니다.
+- Controller·Security·JPA 경계를 바꿨다면 관련 통합 테스트나 repository slice 테스트도 좁게 실행합니다.
+- 마지막 동작 변경 후 `./gradlew test --quiet`를 1회 이상 성공시키고, 실패를 고쳤다면 다시 실행합니다.
+- 통합 테스트는 HTTP 계약, 인증/인가, DB 제약, 대표 정상·실패 흐름에 집중합니다.
+- 정책 분기와 상태 계산은 service/support/entity 테스트로 검증하고 같은 분기를 통합 테스트에 반복하지 않습니다.
 - 도메인 저장소와 상태 전이는 테스트 우선순위가 높습니다.
 - 새 API를 추가하면 정상 흐름과 대표 실패 케이스를 함께 검증합니다.
 - API 계약 변경 시 OpenAPI 메타데이터, Swagger 산출물, 관련 `docs/api/` 설명을 같이 확인합니다.

@@ -68,8 +68,9 @@ frontend-only API consumption에는 사용하지 않는다. backend와 frontend�
 
 6. 검증한다.
    - root에서 `python backend\scripts\audit_api_contract.py --root backend --strict`를 실행한다.
-   - `backend`에서 `./gradlew test`를 실행한다.
-   - 필요하면 좁은 test를 먼저 실행하고, 완료 전 full backend test를 실행한다.
+   - 개발 중에는 변경 영향에 가장 가까운 service/domain test와 필요한 controller integration test를 `--tests`로 좁게 실행한다.
+   - 마지막 동작 변경 후 `backend`에서 `./gradlew test --quiet`를 1회 이상 성공시킨다. 실패를 고친 뒤에는 다시 실행한다.
+   - 실패 원인 분석에 상세 로그가 필요할 때만 해당 test를 `--quiet` 없이 다시 실행한다.
    - frontend 영향은 보고하되 frontend 코드를 수정하지 않는다.
    - 사용자가 BE와 FE 동시 수정을 명시한 경우에만 `matchuri-api-contract-sync`를 사용한다.
 

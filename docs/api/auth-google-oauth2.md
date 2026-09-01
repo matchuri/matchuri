@@ -263,5 +263,5 @@ GET https://www.matchuri.com/login?loginResult=failed&provider=kakao&errorCode=A
 
 ## 후속 문서화 항목
 
-- 실제 OpenAPI 또는 REST Docs 결과 반영
+- 실제 OpenAPI 결과 반영
 - provider별 사용자 정보 매핑 필드 확정

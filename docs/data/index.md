@@ -17,7 +17,7 @@
 
 ```powershell
 python scripts/audit_jpa_schema.py --root . --strict
-./gradlew test
+./gradlew test --quiet
 ```
 
 CI는 두 검증을 모두 실행합니다. 별도의 generated schema 파일은 저장하지 않습니다.

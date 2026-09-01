@@ -26,7 +26,7 @@
 
 ## 작업 기준
 
-- 기본 검증은 `backend`에서 `./gradlew test`입니다.
+- 개발 중에는 영향받은 테스트를 좁게 실행하고, 마지막 동작 변경 후 `backend`에서 `./gradlew test --quiet`를 성공시킵니다. 명령 선택 기준은 `backend/AGENTS.md`를 따릅니다.
 - API 계약 변경 시 OpenAPI 메타데이터, Swagger 산출물, 관련 `docs/api/` 문서를 함께 확인합니다.
 - 데이터 모델 변경 시 엔티티/마이그레이션 기준과 `docs/data/`를 함께 확인합니다.
 - 인증/인가/시크릿 변경은 보안 리뷰 스킬을 사용합니다.

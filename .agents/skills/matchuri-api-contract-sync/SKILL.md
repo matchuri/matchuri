@@ -61,7 +61,7 @@ FE/BE contract alignment에 사용한다. 자동 background trigger가 아니라
    - status 또는 error code로 분기하는 UI states
 
 5. 검증한다.
-   - Backend: `backend`에서 `./gradlew test`를 실행한다.
+   - Backend: 개발 중에는 영향받은 test를 좁게 실행하고, 마지막 backend 동작 변경 후 `backend`에서 `./gradlew test --quiet`를 1회 이상 성공시킨다.
    - Frontend: `frontend`에서 `npm run lint`를 실행한다.
    - 사용 가능하거나 명시적으로 필요할 때만 추가 frontend build/type check를 실행한다.
 

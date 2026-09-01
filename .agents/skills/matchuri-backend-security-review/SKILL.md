@@ -65,7 +65,7 @@ backend 변경이 인증, 인가, 시크릿, 로그, error response 기준을 �
    - 인증 필요 여부를 OpenAPI와 `docs/api`에 반영한다.
    - API 변경이면 `matchuri-backend-api-change`도 사용한다.
    - cross-stack 인증 흐름이 바뀌면 `matchuri-api-contract-sync`도 사용한다.
-   - 가능한 경우 `backend`에서 `./gradlew test`를 실행한다.
+   - 가능한 경우 `backend`에서 `./gradlew test --quiet`를 실행한다.
 
 ## 주요 기준
 

@@ -43,7 +43,7 @@
 
 | 영역 | 상태 | 확인 |
 | --- | --- | --- |
-| Backend tests | 가능 | `backend`에서 `./gradlew test` |
+| Backend tests | 가능 | `backend`에서 `./gradlew test --quiet` |
 | Backend CI | 있음 | `backend/.github/workflows/backend-ci.yml` |
 | Frontend lint | 가능 | `frontend`에서 `npm run lint` |
 | Frontend tests/coverage | 없음 | 추후 도입 후보 |

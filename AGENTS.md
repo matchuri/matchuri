@@ -25,6 +25,13 @@
 - 데이터 모델: `docs/data/index.md`
 - 설계 결정: `docs/decisions/index.md`
 
+## Git 저장소 경계
+
+- 이 워크스페이스의 루트, `backend/`, `frontend/`는 각각 독립된 Git 저장소입니다.
+- `git status`, `git log`, `git diff`, 커밋 조회는 확인하려는 영역의 디렉터리에서 실행합니다.
+- 루트 저장소의 Git 이력만 보고 `backend/` 또는 `frontend/`의 최신 변경이나 커밋을 판단하지 않습니다.
+- 작업 영역이 명확하지 않은 커밋 조회 요청은 먼저 관련 코드 경로를 확인한 뒤 해당 저장소를 선택합니다.
+
 ## 작업 규칙
 
 - 작업 전에 모든 문서를 읽지 말고, 작업 종류에 맞는 진입점부터 엽니다.
@@ -47,8 +54,8 @@
 
 ## 검증
 
-- Backend: `backend`에서 `./gradlew test`
+- Backend: 개발 중에는 `backend/AGENTS.md`의 test ladder를 따르고, 마지막 동작 변경 후 `backend`에서 `./gradlew test --quiet`를 1회 이상 성공시킵니다.
 - API 계약 변경: OpenAPI 메타데이터, Swagger 산출물, 관련 `docs/api/` 문서 확인
-- 데이터 모델 변경: backend에서 `python scripts\audit_jpa_schema.py --root . --strict`와 `./gradlew test`; 정책 변경 시 `docs/data/policies.md` 확인
+- 데이터 모델 변경: backend에서 `python scripts\audit_jpa_schema.py --root . --strict`와 `./gradlew test --quiet`; 정책 변경 시 `docs/data/policies.md` 확인
 - 문서 거버넌스: `python .agents\skills\matchuri-doc-governance\scripts\audit_docs.py --root . --strict`
 - API 계약 동기화: `python backend\scripts\audit_api_contract.py --root backend --strict`
