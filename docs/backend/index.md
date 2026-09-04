@@ -10,6 +10,7 @@
 - 보안 기준: `docs/backend/security.md`
 - 신뢰성 기준: `docs/backend/reliability.md`
 - 품질 점수 기준: `docs/backend/quality-score.md`
+- API 쿼리 성능 Before 기준선: `docs/backend/query-performance-before.md`
 - API 계약: `docs/api/index.md`
 - 데이터 모델: `docs/data/index.md`
 - 품질 리뷰 스킬: `.agents/skills/matchuri-backend-quality-review/SKILL.md`
@@ -23,6 +24,7 @@
 - [보안 기준](./security.md)
 - [신뢰성 기준](./reliability.md)
 - [품질 점수 기준](./quality-score.md)
+- [API 쿼리 성능 Before 기준선](./query-performance-before.md)
 
 ## 작업 기준
 
