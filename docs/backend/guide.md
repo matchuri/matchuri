@@ -218,6 +218,16 @@ API 문서화 세부 전략은 `docs/decisions/api-docs-strategy.md`를 기준�
 - `MemberService`, `MemberAgreementService`: 인터페이스 유지
 - `MemberReader`, `RequiredAgreementRevisionResolver`: concrete class 우선
 
+## 기능별 Service 분리
+
+- 도메인마다 하나의 거대한 Service를 유지하지 않습니다.
+- public 유스케이스, Repository 의존, private helper가 계속 늘어나면 유스케이스를 기능 응집도 기준으로 묶어 Service를 분리합니다.
+- Service 분리는 계층을 추가하는 작업이 아니라 같은 `service` 계층 안에서 트랜잭션 경계와 변경 이유를 나누는 작업입니다.
+- API 경계의 `Request -> Command -> Service -> Result -> Response` 흐름은 유지합니다.
+- Command마다 Handler를 하나씩 만들거나, 여러 Repository를 의미 없는 Facade로 감싸 의존 수만 숨기지 않습니다.
+- 여러 Service에서 반복되는 조회, 검증, 계산, 결과 조립은 도메인 의미가 분명하고 단독 테스트 가치가 있을 때 `support`로 승격합니다.
+- 인터페이스와 구현이 함께 늘어나는 리팩토링 대상은 인터페이스를 `service`, 구현을 `service/impl`에 둘 수 있습니다.
+
 ## 의존 방향
 
 기본 흐름:
