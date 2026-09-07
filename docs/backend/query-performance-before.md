@@ -45,6 +45,20 @@ API_QUERY_BEFORE method=GET uri=/api/v1/... status=200 total=... select=... inse
 - 개인 추천 후보 목록은 각 candidate의 menuItem을 접근하고 후보마다 MenuThumbnailUrlResolver.resolve를 호출한다.
 - 내 그룹 목록은 각 room마다 GroupRecommendationExpirationManager.latestRecommendationStatus를 호출한다.
 
+## 개선 결과
+
+### GET /api/v1/personal/recommendations/{id}/candidates
+
+| fixture | Before | After |
+| --- | ---: | ---: |
+| candidate 1 | 5 SELECT | 3 SELECT |
+| candidate 12 | 27 SELECT | 3 SELECT |
+
+- 후보, 메뉴, 선택적 메뉴 이미지와 이미지 자산을 QueryDSL scalar projection 한 번으로 조회한다.
+- 후보에서 메뉴는 to-one이고 메뉴 이미지는 `menu_id` unique 제약으로 최대 1개이므로 join으로 인한 행 곱이 발생하지 않는다.
+- API의 3 SELECT는 활성 회원 조회, 소유한 개인 추천 조회, 후보 응답 projection 조회로 구성된다.
+- 작은 fixture와 큰 fixture의 SQL 수가 같도록 통합 테스트에서 회귀 검증한다.
+
 ## 대표 API Before
 
 아래 값은 명시된 fixture에 대한 현재 정상 흐름의 단일 실행 결과다.
@@ -89,7 +103,7 @@ API_QUERY_BEFORE method=GET uri=/api/v1/... status=200 total=... select=... inse
 
 ## 우선 개선 대상
 
-1. GET /api/v1/personal/recommendations/{id}/candidates
+1. ~~GET /api/v1/personal/recommendations/{id}/candidates~~ 완료: candidate 1·12 모두 3 SELECT
 2. GET /api/v1/menu-items/{id}
 3. GET /api/v1/groups
 4. POST /api/v1/guest/recommendations
@@ -113,6 +127,14 @@ rg가 설치된 환경에서는 기존과 같이 다음 명령을 사용할 수 
 
 ~~~powershell
 rg "API_QUERY_BEFORE" build/test-results/test
+~~~
+
+최적화된 API의 규모별 회귀 테스트:
+
+~~~powershell
+./gradlew test --tests "*measure*AfterOptimization" --quiet
+Select-String -Path "build/test-results/test/*.xml" -Pattern "API_QUERY_BEFORE" |
+    ForEach-Object { [regex]::Match($_.Line, "API_QUERY_BEFORE.*").Value }
 ~~~
 
 대표 정상 흐름은 다음 통합 테스트에서 재현한다.
