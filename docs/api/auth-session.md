@@ -6,6 +6,7 @@
 ## 범위
 
 - 로컬 로그인
+- 로컬 부하 테스트용 Access Token 발급
 - refresh token 쿠키 기반 access token 재발급
 - 로그아웃
 - 현재 단계의 세션 종료 의미
@@ -27,12 +28,14 @@
 - 현재 공급자는 Google reCAPTCHA v3이며 Google 어댑터가 `success`, `login` action, score를 검증합니다.
 - 현재 기본 score 임계값은 `0.5`이며 환경 변수로 조정할 수 있습니다.
 - `POST /api/v1/auth/login`은 `accessToken`을 응답 body에 반환합니다.
+- `POST /api/test/login`은 `local` 프로필에서만 등록되며, 지정한 활성 회원의 Access Token만 발급합니다.
 - `refreshToken`은 응답 body가 아니라 `HttpOnly` 쿠키로 내려갑니다.
 - `POST /api/v1/auth/refresh`는 요청 body 없이 refresh token 쿠키만으로 새 access token을 발급합니다.
 - refresh 성공 시 refresh token도 새 값으로 회전하여 쿠키를 다시 설정합니다.
 - `POST /api/v1/auth/logout`은 현재 세션의 refresh token만 폐기합니다.
 - 로그아웃 후에도 이미 발급된 access token은 만료 전까지 즉시 무효화되지 않습니다.
 - 필수 약관 또는 닉네임 온보딩 미완료 회원은 로그인 자체는 가능하지만 핵심 보호 API 접근은 차단될 수 있습니다.
+- `onboarding`은 필수 약관, 닉네임, 취향 프로필 저장을 모두 완료해야 `completed=true`, `nextStep=READY`를 반환합니다. 약관과 닉네임만 완료했다면 `REQUIRED_TASTE_PROFILE`을 반환합니다.
 - 로그인과 refresh 응답은 앱 재진입 시에도 프론트가 다음 필수 온보딩 단계를 판단할 수 있도록 `onboarding` 상태를 포함합니다.
 
 ## 공통 응답 형식
@@ -54,6 +57,7 @@
     "onboarding": {
       "requiredAgreementsCompleted": true,
       "nicknameCompleted": true,
+      "tasteProfileCompleted": true,
       "completed": true,
       "nextStep": "READY"
     }
@@ -104,6 +108,7 @@
     "onboarding": {
       "requiredAgreementsCompleted": true,
       "nicknameCompleted": true,
+      "tasteProfileCompleted": true,
       "completed": true,
       "nextStep": "READY"
     }
@@ -141,7 +146,38 @@
 - site key는 `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`, secret key는 `MATCHURI_GOOGLE_RECAPTCHA_SECRET_KEY`로 주입합니다.
 - score 임계값은 `MATCHURI_GOOGLE_RECAPTCHA_SCORE_THRESHOLD`로 조정하며 기본값은 `0.5`입니다.
 
-### 2. refresh token으로 access token 재발급
+### 2. 로컬 부하 테스트용 Access Token 발급
+
+- Method: `POST`
+- URL: `/api/test/login`
+- 권한: 비회원
+- 실행 환경: `local` 프로필 전용
+
+요청 body 예시:
+
+```json
+{
+  "memberId": 1
+}
+```
+
+응답 payload는 로컬 로그인과 같은 `LoginResponse` 구조를 사용하지만, `refreshToken`은 만들지 않고 쿠키도 설정하지 않습니다.
+
+동작 기준:
+
+1. `memberId`에 해당하는 활성 회원을 조회합니다.
+2. 비밀번호와 CAPTCHA를 검증하지 않고 해당 회원의 JWT Access Token을 발급합니다.
+3. 토큰에는 일반 로그인과 같은 회원 ID, 역할, loginId, 필수 약관 revision claim이 포함됩니다.
+4. 회원이 없으면 `MEMBER_NOT_FOUND` (`404`), 비활성 회원이면 `MEMBER_INACTIVE_MEMBER` (`403`)를 반환합니다.
+
+보안 및 운영 기준:
+
+- 컨트롤러, 서비스, 공개 Security filter chain은 모두 `local` 프로필에서만 등록됩니다.
+- `dev`와 `prod`에서는 endpoint 자체가 존재하지 않습니다.
+- 비밀번호, Refresh Token, 별도 테스트 시크릿을 저장하거나 응답하지 않습니다.
+- 부하 테스트의 setup 단계에서 회원별 토큰을 준비할 때만 사용하고, 측정 대상 요청에는 포함하지 않습니다.
+
+### 3. refresh token으로 access token 재발급
 
 - Method: `POST`
 - URL: `/api/v1/auth/refresh`
@@ -169,7 +205,7 @@
 - 필수 약관 미완료 회원도 refresh 자체는 가능할 수 있습니다.
 - 다만 이후 보호 API 호출 시 `MEMBER_AGREEMENT_REQUIRED`가 반환될 수 있습니다.
 
-### 3. 로그아웃
+### 4. 로그아웃
 
 - Method: `POST`
 - URL: `/api/v1/auth/logout`

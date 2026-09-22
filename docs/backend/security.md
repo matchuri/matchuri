@@ -106,6 +106,7 @@
 
 - 회원 가입
 - 로그인
+- 로컬 프로필에서만 제공하는 `/api/test/login` 테스트 토큰 발급
 - loginId 중복 확인
 - 이메일 인증 코드 발송/확인
 - loginId 찾기와 password reset
@@ -133,6 +134,7 @@
 ## Spring Security 기준
 
 - 공개 경로는 whitelist 방식으로 최소한만 엽니다.
+- `/api/test/**` 공개 filter chain과 테스트 인증 bean은 `local` 프로필에서만 등록하며 `dev`/`prod`에는 노출하지 않습니다.
 - 나머지 service API는 기본적으로 인증 필요 상태를 기본값으로 둡니다.
 - 인증 이후에는 `로그인 필요`와 `필수 약관 동의 완료 필요`를 별도 조건으로 구분합니다.
 - 현재 `application.yaml`의 `public-api-patterns`는 구현 시작점으로 사용하되, 실제 Security 설정이 생기면 한 곳에서 관리합니다.
