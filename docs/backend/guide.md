@@ -314,12 +314,14 @@ API 문서화 전략과 업데이트 순서는 `docs/decisions/api-docs-strategy
 - 같은 초기화가 여러 번 실행돼도 데이터가 중복 생성되지 않아야 합니다.
 - 기준 데이터(reference data)와 개발 편의용 샘플 데이터(sample data)를 구분합니다.
 - 기존 데이터는 자동으로 덮어쓰거나 삭제하지 않습니다.
-- 메뉴 대표 이미지는 seed 범위에 포함하지 않습니다.
+- 운영 R2에 이미 존재하는 메뉴 대표 이미지 메타데이터는 로컬 프로필에서만 별도 seed로 등록합니다.
+- 로컬 메뉴 이미지 seed는 메뉴 code로 연결하며 기존 메뉴 이미지와 이미지 자산 메타데이터를 덮어쓰지 않습니다.
 - 이미 R2에 존재하는 프로필 프리셋 기준 자산은 검증된 메타데이터와 object key가 있을 때만 별도 기준 seed로 등록할 수 있습니다.
 
 현재 기준:
 
 - 기준 데이터: `backend/src/main/resources/seed/reference-data.json`
+- 로컬 메뉴 이미지: `backend/src/main/resources/seed/local-menu-images.json`
 - 로컬 샘플 데이터: `backend/src/main/resources/seed/local-sample-data.json`
 - 로컬 수동 테스트용 샘플 계정과 관리자 계정은 개발 환경에서만 생성합니다.
 
