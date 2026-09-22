@@ -6,6 +6,7 @@
 
 - 제품 감각과 불변 조건: `docs/product/product-sense.md`
 - 제품 명세: `docs/product/specs/index.md`
+- 상세 내부 기능명세: 명시적 요청 시 독립 `artifacts/specs/` 저장소
 - 도메인 용어: `docs/decisions/domain-language.md`
 
 ## 주요 문서

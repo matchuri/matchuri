@@ -461,9 +461,12 @@ MemberController 응답도 공통 envelope 구조를 사용합니다.
 
 동작 기준:
 
-- 물리 삭제가 아니라 `status=INACTIVE`로 전환합니다.
-- 탈퇴 후 같은 계정으로 다시 로그인할 수 없습니다.
-- 이미 발급된 access token이 남아 있더라도 이후 보호 API에서는 비활성 회원으로 거절될 수 있습니다.
+- 즉시 물리 삭제하지 않고 `status=DELETED`, `deletedAt`, `purgeAt`을 기록합니다.
+- `purgeAt`은 탈퇴 요청 시각으로부터 3일 뒤입니다.
+- 탈퇴 즉시 기존 refresh token과 OAuth2 교환 코드를 폐기합니다.
+- 회원이 방장인 그룹도 `DELETED` 처리하며, 자식 이력은 물리 삭제 전까지 유지합니다.
+- 삭제 대기 기간은 물리 삭제 실행을 위한 유예이며, 현재 탈퇴 철회는 제공하지 않습니다.
+- 이미 발급된 access token이 남아 있더라도 이후 보호 API에서는 비활성 회원으로 거절됩니다.
 
 성공 응답 예시:
 
@@ -472,7 +475,7 @@ MemberController 응답도 공통 envelope 구조를 사용합니다.
   "success": true,
   "data": {
     "id": 1,
-    "status": "INACTIVE"
+    "status": "DELETED"
   },
   "error": null
 }
@@ -498,4 +501,6 @@ MemberController 응답도 공통 envelope 구조를 사용합니다.
 - 개인 위치 재 PUT은 기존 row를 추가하지 않고 네 필드를 전체 교체한다.
 - 개인 위치가 없으면 GET은 `200 OK`, `success=true`, `data=null`, `error=null`을 반환한다.
 - 개인 위치 요청의 필수값 누락과 값 범위 위반은 `COMMON_INVALID_BODY_FIELD`를 반환한다.
-- 회원 탈퇴 후 동일 계정 재로그인은 `MEMBER_INACTIVE_MEMBER`를 반환한다.
+- 회원 탈퇴 후 동일 계정의 정상 로그인은 `MEMBER_INACTIVE_MEMBER`를 반환한다.
+- 탈퇴 회원과 회원탈퇴로 삭제된 방장 그룹은 물리 삭제 전에도 복구되지 않는다.
+- 탈퇴 후 기존 access token으로 보호 API를 호출하면 `MEMBER_INACTIVE_MEMBER`를 반환한다.

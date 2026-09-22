@@ -51,6 +51,8 @@
 - CAPTCHA 검증은 로컬 로그인에만 적용하고 OAuth2 로그인에는 적용하지 않습니다.
 - 도메인 로그인 흐름은 `CaptchaVerifier`와 `CaptchaPurpose`만 사용하며 현재 공급자인 Google reCAPTCHA v3의 action, score, API 형식은 infra 어댑터에 격리합니다.
 - 소셜 로그인은 `Spring Security OAuth2 Client`를 사용합니다.
+- 탈퇴한 `DELETED` 회원은 로컬 비밀번호 또는 OAuth2 인증에 성공하더라도 서비스 로그인을 허용하지 않습니다.
+- 현재 탈퇴 철회 API와 복구용 인증 파라미터는 제공하지 않습니다.
 - API 인증은 Matchuri JWT Access Token 기반으로 통일합니다.
 - Frontend는 backend가 발급한 token만 기준으로 로그인 상태를 해석합니다.
 - `Member`는 서비스 내부 회원 식별의 최종 기준입니다.
@@ -85,6 +87,7 @@
 - Redis 미도입 단계에서는 Access Token 즉시 전역 무효화보다 짧은 만료 시간과 Refresh Token 차단을 우선합니다.
 - Refresh Token은 로그인 단위 다중 저장을 기준으로 합니다.
 - 로그아웃은 현재 로그인 세션의 Refresh Token 삭제와 cookie 제거를 의미합니다.
+- 회원탈퇴는 해당 회원의 모든 Refresh Token과 미사용 OAuth2 교환 코드를 즉시 폐기합니다.
 - 다중 로그인은 허용합니다.
 - MVP 단계에서는 강제 로그아웃 기능을 제공하지 않습니다.
 - JWT 서명은 현재 단일 backend 운영 구조를 기준으로 HMAC 대칭키 방식을 사용합니다.

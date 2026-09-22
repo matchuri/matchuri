@@ -15,6 +15,7 @@
 - 기계적으로 판정 가능한 규칙은 harness script나 테스트로 둡니다.
 - `docs/`는 개발 기준, 계약 인덱스, ADR급 결정만 남기는 방향으로 줄입니다.
 - GitHub Wiki는 사람이 읽는 프로젝트 설명과 포트폴리오 서사를 담당합니다.
+- `artifacts/`는 상세 기능명세와 확장 가능한 내부 산출물을 보관하는 독립 저장소로 두고, 일반 작업에서는 읽지 않습니다.
 
 ## 현재 도입 항목
 
@@ -38,6 +39,7 @@
 | SKILL | 반복되는 에이전트 작업 절차 | `.agents/skills/` |
 | HARNESS | 자동 검증 가능한 규칙 | scripts/tests/CI |
 | WIKI | 사람이 읽는 설명과 포트폴리오 서사 | GitHub Wiki |
+| ARTIFACT | 상시 구현 컨텍스트가 아닌 상세 내부 산출물 | 독립 `artifacts/` 저장소 |
 | REMOVE | 중복, 오래된 가정, 대체된 문서 | 삭제 검토 |
 
 ## 다음 후보
@@ -48,3 +50,4 @@
 - 데이터 스키마 장문 문서는 제거하고 엔티티, 빈 DB 생성 테스트, JPA mapping audit로 전환했습니다.
 - 백엔드 보안, 신뢰성, 품질 점수 문서는 기준만 남기고 review skill로 절차를 분리했습니다. 다음은 검증 가능한 항목을 harness로 옮깁니다.
 - 제품 서사는 GitHub Wiki로 옮기고 `docs/product/`는 제품 판단 기준만 남깁니다.
+- 상세 기능명세는 `artifacts/specs/`에서 관리하고 GitHub Actions가 Notion으로 단방향 동기화합니다.

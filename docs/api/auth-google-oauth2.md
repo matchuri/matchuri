@@ -234,7 +234,7 @@ GET https://www.matchuri.com/login?loginResult=failed&provider=kakao&errorCode=A
 - 지원하지 않는 provider로 요청한 경우
 - 내부 회원 처리 또는 토큰 발급 단계가 실패한 경우
 - 단기 교환 코드가 없거나 유효하지 않거나 만료된 경우
-- 이미 비활성화된 회원이 다시 로그인하려는 경우
+- 비활성화되었거나 탈퇴한 회원이 다시 로그인하려는 경우
 - 필수 약관 동의가 필요한 상태로 핵심 API를 호출한 경우
 - 닉네임 온보딩이 필요한 상태로 핵심 API를 호출한 경우
 
@@ -260,6 +260,8 @@ GET https://www.matchuri.com/login?loginResult=failed&provider=kakao&errorCode=A
 - 사용자가 provider 동의를 취소하면 프론트 실패 URL로 복귀한다.
 - provider 사용자 식별자가 누락되면 로그인에 실패하고 적절한 에러 코드가 남는다.
 - 비활성 회원은 소셜 로그인 성공 후에도 서비스 로그인은 거절된다.
+- 탈퇴한 소셜 회원은 `MEMBER_INACTIVE_MEMBER`로 로그인 화면에 복귀한다.
+- 현재 OAuth2 로그인에는 탈퇴 철회 query나 계정 복구 흐름이 없다.
 
 ## 후속 문서화 항목
 

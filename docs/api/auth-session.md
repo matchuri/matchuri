@@ -117,8 +117,10 @@
 1. 서버는 선택된 CAPTCHA 공급자 어댑터로 토큰과 `LOGIN` 목적을 검증합니다. 현재 Google 어댑터는 `login` action과 score 임계값도 확인합니다.
 2. 서버는 `loginId`로 회원을 조회합니다.
 3. 비밀번호 해시를 검증합니다.
-4. 활성 회원이면 access token과 refresh token을 발급합니다.
-5. access token은 body에, refresh token은 `HttpOnly` 쿠키에 내려갑니다.
+4. 회원 상태가 `ACTIVE`인지 확인합니다.
+5. 탈퇴한 `DELETED` 회원을 포함한 비활성 회원은 `MEMBER_INACTIVE_MEMBER`로 거절합니다.
+6. 활성 회원이면 access token과 refresh token을 발급합니다.
+7. access token은 body에, refresh token은 `HttpOnly` 쿠키에 내려갑니다.
 
 실패 기준:
 
@@ -126,11 +128,13 @@
 - 토큰이 거절되거나 action 또는 score가 기준에 맞지 않으면 `AUTH_CAPTCHA_VERIFICATION_FAILED` (`400`)
 - 선택된 CAPTCHA 공급자의 통신 장애 또는 secret 설정 오류면 `AUTH_CAPTCHA_SERVICE_UNAVAILABLE` (`503`)
 - 아이디 또는 비밀번호가 올바르지 않으면 `AUTH_LOGIN_FAILED`
-- 비활성 회원이면 `MEMBER_INACTIVE_MEMBER`
+- 비활성 회원이나 탈퇴 회원이면 `MEMBER_INACTIVE_MEMBER` (`403`)
 
 보안 및 운영 기준:
 
 - CAPTCHA 검증 실패 시 회원 조회와 비밀번호 비교를 수행하지 않습니다.
+- 비활성 여부는 올바른 비밀번호를 검증한 뒤에만 반환하여 계정 상태 노출을 줄입니다.
+- 현재 탈퇴 철회 기능과 복구용 로그인 필드는 제공하지 않습니다.
 - CAPTCHA token과 secret 원문은 응답이나 log에 남기지 않습니다.
 - CAPTCHA 공급자 검증 API 장애 시 로그인은 fail-closed로 처리합니다.
 - 공급자 선택은 `MATCHURI_CAPTCHA_PROVIDER`로 주입하며 현재 기본값은 `google`입니다.

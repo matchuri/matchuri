@@ -4,15 +4,16 @@
 
 ## 저장소 구성
 
-Matchuri는 세 개의 독립 Git 저장소를 한 워크스페이스에서 사용합니다.
+Matchuri는 네 개의 독립 Git 저장소를 한 워크스페이스에서 사용합니다.
 
 | 경로 | 저장소 | 역할 |
 | --- | --- | --- |
 | `/` | [matchuri/matchuri](https://github.com/matchuri/matchuri) | 공통 개발 문서, 에이전트 규칙과 워크스페이스 진입점 |
 | `backend/` | [matchuri/backend](https://github.com/matchuri/backend) | Spring Boot API 서버 |
 | `frontend/` | [matchuri/frontend](https://github.com/matchuri/frontend) | Next.js 웹 애플리케이션 |
+| `artifacts/` | 별도 비공개 저장소 | 기능명세를 포함한 내부 산출물 |
 
-`backend/`와 `frontend/`는 루트 저장소에서 추적하지 않습니다. 브랜치, 커밋, 원격 저장소 작업도 각 디렉터리에서 따로 수행합니다.
+`backend/`, `frontend/`, `artifacts/`는 루트 저장소에서 추적하지 않습니다. 브랜치, 커밋, 원격 저장소 작업도 각 디렉터리에서 따로 수행합니다.
 
 ## 준비 사항
 
@@ -31,6 +32,7 @@ git clone https://github.com/matchuri/matchuri.git
 cd matchuri
 git clone https://github.com/matchuri/backend.git backend
 git clone https://github.com/matchuri/frontend.git frontend
+# 비공개 artifacts 저장소는 접근 권한이 있는 팀원만 artifacts/에 clone
 ```
 
 ### 2. Infisical 연결하기
@@ -89,6 +91,7 @@ macOS/Linux에서는 백엔드 테스트 명령으로 `./gradlew test`를 사용
 - 공통 개발 문서 진입점: [docs/README.md](docs/README.md)
 - 백엔드 작업 규칙: 로컬 `backend/AGENTS.md`
 - 프론트엔드 작업 규칙: 로컬 `frontend/AGENTS.md`
+- 내부 산출물 작업 규칙: 로컬 `artifacts/AGENTS.md`
 - 제품 소개와 협업 맥락: [GitHub Wiki](https://github.com/matchuri/matchuri/wiki)
 
 작업하려는 저장소에서 브랜치를 만들고, 동작이나 API 계약·데이터 구조·도메인 용어가 바뀌면 루트 `docs/`의 관련 문서도 함께 갱신합니다.
