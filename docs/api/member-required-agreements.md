@@ -23,7 +23,7 @@
 - 최신 필수 버전은 서버 상수로 관리합니다.
 - 약관 동의 이력은 별도 `member_agreements` 테이블에 저장합니다.
 - 미동의 회원도 로그인은 가능하지만, 핵심 API는 차단합니다.
-- 프론트는 로그인, refresh, OAuth2 교환 응답의 `data.onboarding.nextStep`을 기준으로 약관 또는 닉네임 온보딩 화면으로 이동합니다.
+- 프론트는 로그인, refresh, OAuth2 교환 응답의 `data.onboarding.nextStep`을 기준으로 약관, 닉네임 또는 취향 프로필 온보딩 화면으로 이동합니다.
 - 핵심 API 인가는 기본적으로 Access Token claim의 필수 약관 revision으로 판단합니다.
 - 다만 기존 회원이 구 토큰을 계속 보유한 경우를 위해, claim이 현재 서버 revision과 다를 때만 DB로 최신 필수 약관 완료 여부를 fallback 확인할 수 있습니다.
 - 필수 약관 완료 여부 계산은 과거 이력 전체를 덮어쓰지 않고, "현재 서버가 요구하는 최신 버전이 존재하는가" 기준으로 판단합니다.
@@ -122,6 +122,7 @@
   "onboarding": {
     "requiredAgreementsCompleted": true,
     "nicknameCompleted": false,
+    "tasteProfileCompleted": false,
     "completed": false,
     "nextStep": "REQUIRED_NICKNAME"
   },
@@ -142,7 +143,7 @@
 ### 로그인 응답 또는 후속 교환 응답에 포함
 
 - 로그인, refresh, OAuth2 교환 응답 payload에 `onboarding`을 포함합니다.
-- 프론트는 응답을 보고 즉시 약관 동의 또는 닉네임 설정 화면 이동 여부를 판단합니다.
+- 프론트는 응답을 보고 즉시 약관 동의, 닉네임 설정 또는 취향 프로필 입력 화면 이동 여부를 판단합니다.
 
 장점:
 
@@ -190,6 +191,7 @@
 - `onboarding`
   - `requiredAgreementsCompleted`
   - `nicknameCompleted`
+  - `tasteProfileCompleted`
   - `completed`
   - `nextStep`
 - `accessToken` (`POST /api/v1/member-agreements/consents` 성공 시)
@@ -201,7 +203,13 @@
 - 약관 전문 URL 또는 약관 표시용 메타데이터
 
 `onboarding.nextStep`은 서버의 `OnboardingNextStep` enum을 문자열로 직렬화한 값입니다.
-현재 값은 `REQUIRED_AGREEMENTS`, `REQUIRED_NICKNAME`, `READY`입니다.
+현재 값은 `REQUIRED_AGREEMENTS`, `REQUIRED_NICKNAME`, `REQUIRED_TASTE_PROFILE`, `READY`입니다.
+
+- 다음 단계는 최신 필수 약관 → 닉네임 → 취향 프로필 순으로 판단합니다.
+- `tasteProfileCompleted`는 저장된 `member_taste_profiles` 레코드 존재 여부입니다. 모든 선택 목록이 빈 배열이어도 저장했다면 완료입니다. 조회 시 반환되는 기본 빈 프로필만으로는 완료되지 않습니다.
+- `completed`는 세 단계가 모두 완료된 경우에만 `true`입니다.
+- 약관과 닉네임을 완료한 회원은 `PATCH /api/v1/members/me/taste-profile`로 취향 프로필을 저장할 수 있습니다. 저장 후 refresh 응답으로 최신 온보딩 상태를 확인합니다.
+- 핵심 API 접근 필터는 필수 약관과 닉네임을 검사합니다. 취향 프로필 미입력은 응답의 온보딩 상태로 안내하며 별도 `403` 차단 조건은 아닙니다.
 
 ## 검증 실패 및 오류 시나리오
 

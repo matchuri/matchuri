@@ -153,7 +153,7 @@ GET https://www.matchuri.com/auth/callback/kakao?loginResult=success&provider=ka
 현재 구현 기준:
 
 - 후속 교환 API 응답 body는 `accessToken`, `refreshToken(null)`, `expiresIn`, `member`, `onboarding`을 반환합니다.
-- `data.onboarding.nextStep` 값은 `REQUIRED_AGREEMENTS`, `REQUIRED_NICKNAME`, `READY` 중 하나입니다.
+- `data.onboarding.nextStep` 값은 `REQUIRED_AGREEMENTS`, `REQUIRED_NICKNAME`, `REQUIRED_TASTE_PROFILE`, `READY` 중 하나입니다.
 - 브라우저 세션 복구와 access token 재발급은 `POST /api/v1/auth/refresh`로 처리합니다.
 - 필수 약관 또는 닉네임 온보딩 미완료 상태에서 받은 Access Token은 핵심 API 접근용으로는 충분하지 않습니다.
 - 필수 약관 동의 완료 후에는 `POST /api/v1/member-agreements/consents` 응답의 새 Access Token으로 교체해야 합니다.

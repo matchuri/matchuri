@@ -152,14 +152,14 @@
 
 - 회원가입 성공 후 즉시 로그인 상태로 보지 않습니다.
 - 프론트는 로그인 화면으로 이동하거나, 같은 `loginId/password`로 `POST /api/v1/auth/login`을 호출합니다.
-- 새 통합 회원가입으로 생성된 회원은 필수 약관 동의가 이미 완료된 상태이므로, 로그인 후 별도 약관 동의 화면으로 보내지 않습니다.
+- v2 가입은 약관, 닉네임, 취향 프로필을 함께 저장하므로 이후 로그인 시 모두 완료된 상태라면 `onboarding.nextStep=READY`를 반환합니다. 프론트는 로그인 응답의 최신 상태로 화면을 결정합니다.
 
 ## 레거시 API와의 관계
 
 ### 기존 통합 `POST /api/v1/members/signup`
 
 - `loginId`, `password`, `nickname`, 검증된 `email`, 필수 약관 동의를 함께 처리합니다.
-- 취향 프로필을 생성하지 않습니다.
+- 취향 프로필을 생성하지 않습니다. 별도로 저장하기 전에는 로그인 응답에 `tasteProfileCompleted=false`, `completed=false`, `nextStep=REQUIRED_TASTE_PROFILE`을 반환합니다.
 - v2 안정화 기간 동안 기존 클라이언트 호환용으로 유지하며 신규 연동의 기본 경로로 보지 않습니다.
 
 ### 레거시 `POST /api/v1/members`

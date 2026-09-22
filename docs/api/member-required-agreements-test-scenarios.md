@@ -245,7 +245,8 @@
   - `PATCH /api/v1/members/me`로 닉네임 수정
 - Then:
   - 성공 응답
-  - 응답의 `data.onboarding.nextStep=READY`
+  - 취향 프로필 미저장 시 `data.onboarding.nextStep=REQUIRED_TASTE_PROFILE`, `completed=false`
+  - 취향 프로필 저장 완료 시 `data.onboarding.nextStep=READY`, `completed=true`
 
 ### 19. 약관과 닉네임 완료 후 핵심 API 허용
 

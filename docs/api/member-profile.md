@@ -163,7 +163,7 @@ MemberController 응답도 공통 envelope 구조를 사용합니다.
 - 현재 단계에서는 `nickname`만 수정합니다.
 - 부분 수정 API라서 필요한 필드만 보낼 수 있습니다.
 - 약관 또는 닉네임 온보딩 미완료 상태에서도 인증된 회원이면 닉네임 확정을 위해 호출할 수 있습니다.
-- 성공 시 `members.nickname_completed=true`로 처리되어 닉네임 온보딩이 완료됩니다.
+- 성공 시 `members.nickname_completed=true`로 처리되어 닉네임 온보딩이 완료됩니다. 약관 완료 상태에서 취향 프로필이 없으면 `nextStep=REQUIRED_TASTE_PROFILE`을 반환합니다.
 - 성공 시 최신 수정 시각을 반환합니다.
 
 성공 응답 예시:
@@ -177,6 +177,7 @@ MemberController 응답도 공통 envelope 구조를 사용합니다.
     "onboarding": {
       "requiredAgreementsCompleted": true,
       "nicknameCompleted": true,
+      "tasteProfileCompleted": true,
       "completed": true,
       "nextStep": "READY"
     }
@@ -320,7 +321,7 @@ MemberController 응답도 공통 envelope 구조를 사용합니다.
 
 동작 기준:
 
-- 이 API는 전체 교체형 저장입니다.
+- 이 API는 전체 교체형 저장입니다. 최초 저장으로 취향 프로필 온보딩을 완료하며 모든 선택 목록이 빈 배열이어도 완료로 인정합니다. 저장 후 refresh 응답의 `onboarding`으로 최신 상태를 확인합니다.
 - `attributeCategoryIds`, `restrictionIngredientIds`, `dislikedMenuItemIds`는 각각 최신 입력 기준으로 전체 교체됩니다.
 - 특정 목록을 비우려면 빈 배열을 보내야 합니다.
 - 잘못된 ID나 비활성 참조 데이터는 거절됩니다.
