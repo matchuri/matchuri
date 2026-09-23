@@ -22,6 +22,8 @@
 - 그룹마다 하나의 고정 초대 코드를 유지합니다.
 - 그룹 상세는 현재 회원이 해당 그룹의 `ACTIVE` 멤버일 때만 조회할 수 있습니다.
 - 그룹 상세의 member 목록은 활성 멤버만 포함합니다.
+- `GET /api/v2/groups/{groupId}`는 기존 그룹 상세 계약에 더해 각 member의 `memberProfileImageUrl`을 반환합니다. 프로필 이미지가 없는 회원은 `null`입니다.
+- 기존 `GET /api/v1/groups/{groupId}` 응답 계약은 유지하며 `memberProfileImageUrl`을 추가하지 않습니다.
 - 그룹 수정과 삭제는 `OWNER` 역할의 활성 멤버만 수행할 수 있습니다.
 - 일반 멤버 탈퇴는 허용하고, `OWNER` 탈퇴는 그룹 삭제 API로 분리합니다.
 - 삭제된 그룹은 목록과 상세에서 노출하지 않습니다.
@@ -54,6 +56,9 @@
 - 최종 확정은 `OWNER`만 수행합니다.
 - 최종 확정에서 동률이면 `rankNo`가 가장 낮은 후보를 선택합니다.
 - 투표가 0건이면 `rankNo=1` 후보를 선택합니다.
+- 그룹 추천 결과 기록 목록은 `GET /api/v2/groups/{groupId}/recommendations`를 사용합니다. 기존 v1 목록 필드에 `selectedMenuName`을 더하며, `FINALIZED`이고 최종 후보가 있을 때만 메뉴명을 반환하고 그 외 상태는 `null`입니다.
+- 개별 기록의 후보와 투표 현황까지 필요한 경우 `GET /api/v1/groups/{groupId}/recommendations/{sessionId}`를 사용합니다.
+- 기존 `GET /api/v1/groups/{groupId}/recommendations` 응답 계약에는 `selectedMenuName`을 추가하지 않습니다.
 - 그룹 추천의 `contextJson`은 후보 생성 및 `OPEN` 전환 시에는 `null`입니다. 최종 확정 요청에 `latitude`, `longitude`, `radiusMeters`, `address`가 모두 있으면 해당 위치를 스냅샷으로 저장하고, 요청 body가 없거나 하나라도 없으면 확정만 처리한 뒤 `null`을 유지합니다. 이 위치는 `GroupLocation`을 조회하거나 갱신하지 않습니다.
 
 그룹 최종 확정 요청 body와 위치 필드는 이전 클라이언트와의 호환을 위해 선택 사항입니다. 아래 네 필드를 모두 전달하면 클라이언트가 후보 주변 식당을 탐색하며 확장한 최종 검색 반경을 보존합니다. 일부만 전달하면 최종 확정은 정상 처리하고 위치 컨텍스트는 저장하지 않습니다.
