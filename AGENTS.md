@@ -8,18 +8,18 @@
 - MVP의 핵심 흐름은 `후보 3개 안팎 + 투표 + 최종 메뉴 확정`입니다.
 - 현재 개발 기준 문서는 `docs/`와 코드입니다.
 - 사람이 읽는 소개, 포트폴리오, 협업 안내 문서는 GitHub Wiki에서 관리합니다.
-- 기능명세를 포함한 내부 산출물은 독립된 `artifacts/` 저장소에서 관리합니다.
+- 기능명세를 포함한 내부 산출물은 독립된 `app/artifacts/` 저장소에서 관리합니다.
 - 반복되는 에이전트 작업 절차는 `.agents/skills/`의 repo-local skill로 관리합니다.
 - 기계적으로 검증할 수 있는 문서 규칙은 harness script나 테스트로 관리합니다.
-- 운영 런북, 실행 계획, 개인 도구 설정은 공개 문서가 아니라 내부 `secrets/` 영역에서 관리합니다.
+- 운영 런북, 실행 계획, 개인 도구 설정은 공개 문서가 아니라 내부 `app/secrets/` 영역에서 관리합니다.
 - 일반 개발 작업에서 GitHub Wiki나 로컬 Wiki 폴더는 구현 기준으로 읽지 않습니다.
-- 명시적인 내부 산출물 작업이 아니면 `artifacts/`를 열거나 검색하지 않습니다.
+- 명시적인 내부 산출물 작업이 아니면 `app/artifacts/`를 열거나 검색하지 않습니다.
 
 ## 문서 진입점
 
 - 개발 문서 홈: `docs/README.md`
-- 백엔드 작업 라우터: `backend/AGENTS.md`
-- 프론트엔드 작업 라우터: `frontend/AGENTS.md`
+- 백엔드 작업 라우터: `app/backend/AGENTS.md`
+- 프론트엔드 작업 라우터: `app/frontend/AGENTS.md`
 - 제품 판단: `docs/product/index.md`
 - 프론트엔드 작업: `docs/frontend/index.md`
 - 백엔드 작업: `docs/backend/index.md`
@@ -29,9 +29,9 @@
 
 ## Git 저장소 경계
 
-- 이 워크스페이스의 루트, `backend/`, `frontend/`, `artifacts/`는 각각 독립된 Git 저장소입니다.
+- 이 워크스페이스의 루트, `app/backend/`, `app/frontend/`, `app/artifacts/`는 각각 독립된 Git 저장소입니다.
 - `git status`, `git log`, `git diff`, 커밋 조회는 확인하려는 영역의 디렉터리에서 실행합니다.
-- 루트 저장소의 Git 이력만 보고 `backend/`, `frontend/`, `artifacts/`의 최신 변경이나 커밋을 판단하지 않습니다.
+- 하위 저장소의 최신 변경이나 커밋을 루트 Git 이력만으로 판단하지 않습니다.
 - 작업 영역이 명확하지 않은 커밋 조회 요청은 먼저 관련 코드 경로를 확인한 뒤 해당 저장소를 선택합니다.
 
 ## 작업 규칙
@@ -47,8 +47,8 @@
 - 프로젝트 소개, 포트폴리오 서사, 협업 방식처럼 사람이 읽을 맥락은 GitHub Wiki에 남깁니다.
 - GitHub Wiki는 루트 프로젝트와 별도의 문서 저장소로 취급합니다. 루트 저장소 문서에서는 추적하지 않는 로컬 위키 경로를 링크하지 않습니다.
 - 명시적인 Wiki 산출/수정 작업이 아니면 로컬 Wiki 폴더를 열거나 검색하지 않습니다.
-- 명시적인 내부 산출물 생성/수정 작업이 아니면 `artifacts/`를 열거나 검색하지 않습니다. 작업할 때는 먼저 `artifacts/AGENTS.md`를 읽습니다.
-- 일반 검색은 `AGENTS.md`, `docs/`, `backend/`, `frontend/`, 관련 코드 경로를 대상으로 합니다.
+- 명시적인 내부 산출물 생성/수정 작업이 아니면 `app/artifacts/`를 열거나 검색하지 않습니다. 작업할 때는 먼저 `app/artifacts/AGENTS.md`를 읽습니다.
+- 일반 검색은 `AGENTS.md`, `docs/`, `app/backend/`, `app/frontend/`, 관련 코드 경로를 대상으로 합니다.
 - Wiki 내용은 구현 기준이 아닙니다. 구현 판단은 코드와 `docs/`를 기준으로 합니다.
 - 반복 절차를 문서로 길게 쓰기 전에 skill로 만들 수 있는지 확인합니다.
 - 검사 가능한 규칙은 prose보다 harness script를 우선합니다.
@@ -57,8 +57,8 @@
 
 ## 검증
 
-- Backend: 개발 중에는 `backend/AGENTS.md`의 test ladder를 따르고, 마지막 동작 변경 후 `backend`에서 `./gradlew test --quiet`를 1회 이상 성공시킵니다.
+- Backend: 개발 중에는 `app/backend/AGENTS.md`의 test ladder를 따르고, 마지막 동작 변경 후 `app/backend`에서 `./gradlew test --quiet`를 1회 이상 성공시킵니다.
 - API 계약 변경: OpenAPI 메타데이터, Swagger 산출물, 관련 `docs/api/` 문서 확인
-- 데이터 모델 변경: backend에서 `python scripts\audit_jpa_schema.py --root . --strict`와 `./gradlew test --quiet`; 정책 변경 시 `docs/data/policies.md` 확인
+- 데이터 모델 변경: `app/backend`에서 `python scripts\audit_jpa_schema.py --root . --strict`와 `./gradlew test --quiet`; 정책 변경 시 `docs/data/policies.md` 확인
 - 문서 거버넌스: `python .agents\skills\matchuri-doc-governance\scripts\audit_docs.py --root . --strict`
-- API 계약 동기화: `python backend\scripts\audit_api_contract.py --root backend --strict`
+- API 계약 동기화: 루트에서 `python app/backend/scripts/audit_api_contract.py --root app/backend --strict`

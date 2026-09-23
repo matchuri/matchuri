@@ -9,11 +9,11 @@ Matchuri는 네 개의 독립 Git 저장소를 한 워크스페이스에서 사�
 | 경로 | 저장소 | 역할 |
 | --- | --- | --- |
 | `/` | [matchuri/matchuri](https://github.com/matchuri/matchuri) | 공통 개발 문서, 에이전트 규칙과 워크스페이스 진입점 |
-| `backend/` | [matchuri/backend](https://github.com/matchuri/backend) | Spring Boot API 서버 |
-| `frontend/` | [matchuri/frontend](https://github.com/matchuri/frontend) | Next.js 웹 애플리케이션 |
-| `artifacts/` | 별도 비공개 저장소 | 기능명세를 포함한 내부 산출물 |
+| `app/backend/` | [matchuri/backend](https://github.com/matchuri/backend) | Spring Boot API 서버 |
+| `app/frontend/` | [matchuri/frontend](https://github.com/matchuri/frontend) | Next.js 웹 애플리케이션 |
+| `app/artifacts/` | 별도 비공개 저장소 | 기능명세를 포함한 내부 산출물 |
 
-`backend/`, `frontend/`, `artifacts/`는 루트 저장소에서 추적하지 않습니다. 브랜치, 커밋, 원격 저장소 작업도 각 디렉터리에서 따로 수행합니다.
+하위 저장소는 루트 저장소에서 추적하지 않습니다. 브랜치, 커밋, 원격 저장소 작업도 각 디렉터리에서 따로 수행합니다.
 
 ## 준비 사항
 
@@ -30,9 +30,9 @@ Matchuri는 네 개의 독립 Git 저장소를 한 워크스페이스에서 사�
 ```bash
 git clone https://github.com/matchuri/matchuri.git
 cd matchuri
-git clone https://github.com/matchuri/backend.git backend
-git clone https://github.com/matchuri/frontend.git frontend
-# 비공개 artifacts 저장소는 접근 권한이 있는 팀원만 artifacts/에 clone
+git clone https://github.com/matchuri/backend.git app/backend
+git clone https://github.com/matchuri/frontend.git app/frontend
+# 비공개 artifacts 저장소는 접근 권한이 있는 팀원만 app/artifacts/에 clone
 ```
 
 ### 2. Infisical 연결하기
@@ -48,10 +48,10 @@ infisical init
 
 ### 3. 백엔드 실행하기
 
-먼저 [백엔드 README](https://github.com/matchuri/backend#3-실행환경)의 로컬 예시대로 `backend/.env`를 준비합니다.
+먼저 [백엔드 README](https://github.com/matchuri/backend#3-실행환경)의 로컬 예시대로 `app/backend/.env`를 준비합니다.
 
 ```powershell
-cd backend
+cd app/backend
 docker compose up -d db
 .\gradlew.bat bootRun
 ```
@@ -63,10 +63,10 @@ macOS/Linux에서는 `./gradlew bootRun`을 사용합니다. 서버가 기동되
 
 ### 4. 프론트엔드 실행하기
 
-새 터미널에서 실행합니다. `npm run dev`는 Infisical의 `dev` 환경을 `frontend/.env.local`로 내보낸 뒤 개발 서버를 시작합니다.
+새 터미널에서 실행합니다. `npm run dev`는 Infisical의 `dev` 환경을 `app/frontend/.env.local`로 내보낸 뒤 개발 서버를 시작합니다.
 
 ```bash
-cd frontend
+cd app/frontend
 npm ci
 npm run dev
 ```
@@ -76,7 +76,7 @@ npm run dev
 ## 기본 검증
 
 ```powershell
-cd backend
+cd app/backend
 .\gradlew.bat test
 
 cd ..\frontend
@@ -89,9 +89,9 @@ macOS/Linux에서는 백엔드 테스트 명령으로 `./gradlew test`를 사용
 ## 작업 시작 전
 
 - 공통 개발 문서 진입점: [docs/README.md](docs/README.md)
-- 백엔드 작업 규칙: 로컬 `backend/AGENTS.md`
-- 프론트엔드 작업 규칙: 로컬 `frontend/AGENTS.md`
-- 내부 산출물 작업 규칙: 로컬 `artifacts/AGENTS.md`
+- 백엔드 작업 규칙: 로컬 `app/backend/AGENTS.md`
+- 프론트엔드 작업 규칙: 로컬 `app/frontend/AGENTS.md`
+- 내부 산출물 작업 규칙: 로컬 `app/artifacts/AGENTS.md`
 - 제품 소개와 협업 맥락: [GitHub Wiki](https://github.com/matchuri/matchuri/wiki)
 
 작업하려는 저장소에서 브랜치를 만들고, 동작이나 API 계약·데이터 구조·도메인 용어가 바뀌면 루트 `docs/`의 관련 문서도 함께 갱신합니다.

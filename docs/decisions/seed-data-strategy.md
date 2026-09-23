@@ -18,7 +18,7 @@
 - `menu_items`
 - 메뉴-속성/재료 매핑
 
-기준 데이터는 `backend/src/main/resources/seed/reference-data.json`에서 관리합니다.
+기준 데이터는 `app/backend/src/main/resources/seed/reference-data.json`에서 관리합니다.
 `ReferenceDataSeedRunner`는 `test`를 제외한 프로필에서 실행하며 자연 키 기준으로 누락 항목만 생성합니다.
 
 ### 로컬 샘플 데이터
@@ -28,8 +28,8 @@
 - 샘플 약관 동의와 취향 프로필
 - 샘플 그룹과 구성원, 위치
 
-로컬 메뉴 이미지는 `backend/src/main/resources/seed/local-menu-images.json`, 나머지 샘플 데이터는
-`backend/src/main/resources/seed/local-sample-data.json`에서 관리합니다. `LocalSampleDataSeedRunner`는 `local`이면서
+로컬 메뉴 이미지는 `app/backend/src/main/resources/seed/local-menu-images.json`, 나머지 샘플 데이터는
+`app/backend/src/main/resources/seed/local-sample-data.json`에서 관리합니다. `LocalSampleDataSeedRunner`는 `local`이면서
 `test`가 아닌 경우에만 실행합니다.
 
 ## 실행 순서와 실패 처리

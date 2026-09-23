@@ -2,7 +2,7 @@
 
 `docs/`는 Matchuri의 개발 기준 문서입니다. 제품 판단, 프론트엔드, 백엔드, API, 데이터, 설계 결정처럼 구현과 함께 계속 맞춰야 하는 기준을 한곳에서 찾을 수 있게 유지합니다.
 
-사람이 읽는 프로젝트 소개, 포트폴리오용 설명, 협업 안내는 GitHub Wiki에서 관리합니다. 기능명세를 포함한 내부 산출물은 독립된 `artifacts/` 저장소에서, 운영 런북과 실행 계획 기록은 `secrets/`에서 관리합니다.
+사람이 읽는 프로젝트 소개, 포트폴리오용 설명, 협업 안내는 GitHub Wiki에서 관리합니다. 기능명세를 포함한 내부 산출물은 독립된 `app/artifacts/` 저장소에서, 운영 런북과 실행 계획 기록은 `app/secrets/`에서 관리합니다.
 
 반복되는 에이전트 작업 절차는 `.agents/skills/`로, 기계적으로 검증할 수 있는 문서 규칙은 harness script나 테스트로 분리합니다.
 
@@ -55,11 +55,11 @@
 ## 관련 문서 공간
 
 - 사람용 위키: GitHub Wiki
-- 내부 산출물: 독립된 `artifacts/` 저장소
+- 내부 산출물: 독립된 `app/artifacts/` 저장소
 - 에이전트 작업 절차: `.agents/skills/`
 - 문서 거버넌스 스킬: `.agents/skills/matchuri-doc-governance/SKILL.md`
 - 백엔드 리뷰 스킬: `.agents/skills/matchuri-backend-quality-review/SKILL.md`, `.agents/skills/matchuri-backend-security-review/SKILL.md`, `.agents/skills/matchuri-backend-reliability-review/SKILL.md`
-- 내부 운영/실행 계획: `secrets/`
+- 내부 운영/실행 계획: `app/secrets/`
 
 ## 주요 인덱스
 

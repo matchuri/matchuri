@@ -11,13 +11,13 @@ Matchuri는 개인 취향과 그룹 취향을 함께 반영해 점심 메뉴 결
 
 ## 저장소 경계
 
-- `backend/`: Spring Boot 4, Java 21, Gradle Kotlin DSL 기반 API 서버.
+- `app/backend/`: Spring Boot 4, Java 21, Gradle Kotlin DSL 기반 API 서버.
 - `docs/`: 현재 개발 기준 문서. 문서 진입점은 `docs/README.md`.
 - GitHub Wiki: 사람이 읽는 프로젝트 소개, 포트폴리오, 협업 안내.
 - `docs/api/`: API 계약 설명과 상태표.
 - `docs/data/`: 엔티티 구조만으로 알 수 없는 데이터 정책과 검증 진입점.
 - 내부 운영 문서: 배포/운영 런북과 인프라 세부 절차.
-- `frontend/`: 프론트엔드 애플리케이션. 백엔드 작업에서는 API 연동 계약이 필요할 때만 확인합니다.
+- `app/frontend/`: 프론트엔드 애플리케이션. 백엔드 작업에서는 API 연동 계약이 필요할 때만 확인합니다.
 
 ## 서버 책임
 
@@ -61,7 +61,7 @@ Matchuri는 개인 취향과 그룹 취향을 함께 반영해 점심 메뉴 결
 패키지는 아래 축을 기준으로 나눕니다.
 
 ```text
-backend/src/main/java/matchuri/backend
+app/backend/src/main/java/matchuri/backend
 ├─ api
 ├─ domain
 ├─ global

@@ -223,8 +223,8 @@ API 계약이 바뀌면 아래 순서로 맞춥니다.
 - 애플리케이션 경로 기준으로는 `/docs/**`를 공개 접근으로 유지합니다.
 - staging/prod 외부 노출 보호는 Nginx Basic Auth로 처리합니다.
 - 문서 설명 중심 위치:
-  - `backend/src/main/java/.../api/*Api.java`
-  - `backend/src/main/java/.../api/**/dto/*.java`
+  - `app/backend/src/main/java/.../api/*Api.java`
+  - `app/backend/src/main/java/.../api/**/dto/*.java`
   - `docs/api/*.md`
 
 ## 언제 전략을 다시 바꿀까

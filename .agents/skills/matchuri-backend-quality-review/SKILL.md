@@ -12,7 +12,7 @@ backend 변경이 Matchuri의 제품 목표, 도메인 구조, 테스트, 문서
 ## 먼저 읽을 것
 
 1. root `AGENTS.md`
-2. `backend/AGENTS.md`
+2. `app/backend/AGENTS.md`
 3. `docs/backend/index.md`
 4. `docs/backend/guide.md`
 5. `docs/backend/architecture.md`
@@ -54,8 +54,8 @@ backend 변경이 Matchuri의 제품 목표, 도메인 구조, 테스트, 문서
    - 운영 또는 security 영향 여부
 
 2. 자동화 근거를 먼저 수집한다.
-   - `backend`에서 `./gradlew test --quiet`
-   - API 계약 변경이면 `python backend\scripts\audit_api_contract.py --root backend --strict`
+   - `app/backend`에서 `./gradlew test --quiet`
+   - API 계약 변경이면 `python app/backend/scripts/audit_api_contract.py --root app/backend --strict`
    - 실행하지 못한 명령은 이유를 보고한다.
 
 3. code 구조를 확인한다.

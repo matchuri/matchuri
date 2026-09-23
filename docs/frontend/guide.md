@@ -8,7 +8,7 @@ UI 구조, 라우팅 규칙, 스타일링 기준, 프론트엔드 구현 원칙�
 
 - 프레임워크: Next.js 16
 - 언어: TypeScript
-- 애플리케이션 위치: `frontend/`
+- 애플리케이션 위치: `app/frontend/`
 
 ## 로컬 로그인 CAPTCHA
 

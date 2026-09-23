@@ -9,14 +9,14 @@ description: Matchuri 작업을 backend-only 범위로 제한한다. backend 구
 
 ## 범위
 
-- `backend/**`를 수정한다.
+- `app/backend/**`를 수정한다.
 - 변경된 동작이나 계약에 직접 관련된 `docs/backend/**`, `docs/api/**`, `docs/data/**`, `docs/decisions/**`만 함께 수정한다.
 - 루트 공용 설정, 다른 문서, repo-local skill은 사용자가 해당 변경을 요청한 경우에만 수정한다.
-- 영향 분석을 위해 `frontend/**`를 읽을 수 있지만 수정하지 않는다.
+- 영향 분석을 위해 `app/frontend/**`를 읽을 수 있지만 수정하지 않는다.
 
 ## 경계
 
-- `frontend/**`를 수정하지 않는다.
+- `app/frontend/**`를 수정하지 않는다.
 - frontend API client, domain type, hook, selector, UI, test, config를 수정하지 않는다.
 - frontend 전용 문서를 수정하지 않는다.
 - 다른 스킬이 frontend 변경을 안내하더라도 실행하지 않는다.

@@ -12,7 +12,9 @@ from urllib.parse import unquote
 
 FORBIDDEN_LINK_PATTERNS = [
     re.compile(r"\]\(matchuri\.wiki[/)]"),
+    re.compile(r"\]\(app/matchuri\.wiki[/)]"),
     re.compile(r"`matchuri\.wiki/"),
+    re.compile(r"`app/matchuri\.wiki/"),
     re.compile(r"\]\(\.\./docs/"),
 ]
 MARKDOWN_LINK_PATTERN = re.compile(r"\[[^\]]*\]\((?P<target>[^)]+)\)")

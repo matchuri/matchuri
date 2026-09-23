@@ -1,6 +1,6 @@
 # 데이터 모델
 
-데이터 구조의 단일 기준은 `backend/src/main/java/matchuri/backend/domain/**/entity`의 JPA 매핑입니다. 테이블·컬럼·인덱스·연관관계를 Markdown에 다시 복사하지 않습니다.
+데이터 구조의 단일 기준은 `app/backend/src/main/java/matchuri/backend/domain/**/entity`의 JPA 매핑입니다. 테이블·컬럼·인덱스·연관관계를 Markdown에 다시 복사하지 않습니다.
 
 ## 기준과 검증
 
@@ -10,7 +10,7 @@
 | FK와 연관관계 | JPA association, `@JoinColumn` |
 | unique와 index | `@Table`의 constraint/index 선언 |
 | 실제 매핑 가능 여부 | H2 `ddl-auto: create-drop`를 사용하는 backend 테스트 |
-| 명명·enum·연관관계 규칙 | `backend/scripts/audit_jpa_schema.py` |
+| 명명·enum·연관관계 규칙 | `app/backend/scripts/audit_jpa_schema.py` |
 | 구조만으로 알 수 없는 판단 | [데이터 정책](./policies.md) |
 
 검증 명령은 backend 저장소에서 실행합니다.
