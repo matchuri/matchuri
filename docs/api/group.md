@@ -22,6 +22,8 @@
 - 그룹마다 하나의 고정 초대 코드를 유지합니다.
 - 그룹 상세는 현재 회원이 해당 그룹의 `ACTIVE` 멤버일 때만 조회할 수 있습니다.
 - 그룹 상세의 member 목록은 활성 멤버만 포함합니다.
+- `GET /api/v2/groups/{groupId}`는 기존 그룹 상세 계약에 더해 각 member의 `memberProfileImageUrl`을 반환합니다. 프로필 이미지가 없는 회원은 `null`입니다.
+- 기존 `GET /api/v1/groups/{groupId}` 응답 계약은 유지하며 `memberProfileImageUrl`을 추가하지 않습니다.
 - 그룹 수정과 삭제는 `OWNER` 역할의 활성 멤버만 수행할 수 있습니다.
 - 일반 멤버 탈퇴는 허용하고, `OWNER` 탈퇴는 그룹 삭제 API로 분리합니다.
 - 삭제된 그룹은 목록과 상세에서 노출하지 않습니다.
