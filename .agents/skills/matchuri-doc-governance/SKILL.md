@@ -1,6 +1,6 @@
 ---
 name: matchuri-doc-governance
-description: Matchuri 문서 구조와 컨텍스트 무게를 관리한다. docs/GitHub Wiki/artifacts/AGENTS.md/repo-local skill/harness script 배치 판단, 문서 중복과 추적 문서 링크 점검이 필요할 때 사용한다.
+description: Matchuri 문서 구조와 컨텍스트 무게를 관리한다. docs, GitHub Wiki, app/artifacts/AGENTS.md, repo-local skill, harness script 배치 판단, 문서 중복과 추적 문서 링크 점검이 필요할 때 사용한다.
 ---
 
 # Matchuri 문서 거버넌스
@@ -19,7 +19,7 @@ Matchuri 문서를 가볍게 유지한다. 사람용 서사, 지속되는 개발
 | SKILL | 반복되는 agent workflow 또는 절차 checklist | `.agents/skills/<skill>/SKILL.md` |
 | HARNESS | 기계적으로 확인할 규칙 | skill `scripts/`, repo scripts, tests, CI |
 | WIKI | 사람이 읽는 프로젝트 서사 또는 portfolio 설명 | GitHub Wiki |
-| ARTIFACT | 상시 구현 컨텍스트가 아닌 상세 내부 산출물 | 독립 `artifacts/` 저장소 |
+| ARTIFACT | 상시 구현 컨텍스트가 아닌 상세 내부 산출물 | 독립 `app/artifacts/` 저장소 |
 | REMOVE | 중복, 오래됨, 대체됨 | 고유 계약이 없음을 확인한 뒤 삭제 |
 
 ## 절차
@@ -36,9 +36,9 @@ Matchuri 문서를 가볍게 유지한다. 사람용 서사, 지속되는 개발
 5. 반복 절차는 `docs/`를 늘리지 말고 skill로 옮긴다.
 6. 기계적으로 확인할 규칙은 prose가 아니라 harness script로 옮긴다.
 7. 프로젝트 이야기, portfolio 설명, 읽기 쉬운 요약은 GitHub Wiki로 옮긴다.
-8. `matchuri.wiki/...` 같은 무시된 local wiki 경로를 추적 문서에 링크하지 않는다.
-9. 현재 작업이 Wiki 생성, 수정, 감사, 이동을 명시하지 않으면 `matchuri.wiki/`를 읽거나 검색하지 않는다.
-10. 현재 작업이 내부 산출물 작성, 감사, 동기화를 명시하지 않으면 `artifacts/`를 읽거나 검색하지 않는다.
+8. `app/matchuri.wiki/...` 같은 무시된 local wiki 경로를 추적 문서에 링크하지 않는다.
+9. 현재 작업이 Wiki 생성, 수정, 감사, 이동을 명시하지 않으면 `app/matchuri.wiki/`를 읽거나 검색하지 않는다.
+10. 현재 작업이 내부 산출물 작성, 감사, 동기화를 명시하지 않으면 `app/artifacts/`를 읽거나 검색하지 않는다.
 
 ## `docs/`에 남길 것
 
@@ -76,17 +76,17 @@ Matchuri 문서를 가볍게 유지한다. 사람용 서사, 지속되는 개발
 
 ## GitHub Wiki 경계
 
-GitHub Wiki는 별도의 사람용 문서 공간이다. 추적 문서는 GitHub Wiki URL을 링크할 수 있지만, `matchuri.wiki/Home.md` 같은 무시된 local path를 링크하지 않는다.
+GitHub Wiki는 별도의 사람용 문서 공간이다. 추적 문서는 GitHub Wiki URL을 링크할 수 있지만, `app/matchuri.wiki/Home.md` 같은 무시된 local path를 링크하지 않는다.
 
-Wiki 문서는 독립적으로 읽히게 작성한다. `docs/`, `backend/`, `frontend/`로 돌아가는 root-relative link를 사용하지 않는다.
+Wiki 문서는 독립적으로 읽히게 작성한다. `docs/`, `app/backend/`, `app/frontend/`로 돌아가는 root-relative link를 사용하지 않는다.
 
-일반 개발, API, data, backend, frontend 작업에서는 local `matchuri.wiki/`를 무시한다. 구현 기준은 code와 `docs/`를 사용한다. 사람용 Wiki content를 만들거나 고칠 때만 Wiki 파일을 연다.
+일반 개발, API, data, backend, frontend 작업에서는 local `app/matchuri.wiki/`를 무시한다. 구현 기준은 code와 `docs/`를 사용한다. 사람용 Wiki content를 만들거나 고칠 때만 Wiki 파일을 연다.
 
 ## Artifacts 경계
 
-`artifacts/`는 루트와 분리된 내부 저장소다. 상세 기능명세를 비롯해 앞으로 추가되는 산출물 도메인은 각각 자체 index, template, validator를 소유한다.
+`app/artifacts/`는 루트와 분리된 내부 저장소다. 상세 기능명세를 비롯해 앞으로 추가되는 산출물 도메인은 각각 자체 index, template, validator를 소유한다.
 
-일반 개발 작업에서는 `artifacts/`를 무시한다. 명시적인 내부 산출물 작업일 때만 `artifacts/AGENTS.md`와 요청된 도메인의 index를 읽는다. `artifacts/specs/`의 Markdown은 상세 기능명세의 기준이고 Notion은 CI가 갱신하는 배포 대상이다.
+일반 개발 작업에서는 `app/artifacts/`를 무시한다. 명시적인 내부 산출물 작업일 때만 `app/artifacts/AGENTS.md`와 요청된 도메인의 index를 읽는다. `app/artifacts/specs/`의 Markdown은 상세 기능명세의 기준이고 Notion은 CI가 갱신하는 배포 대상이다.
 
 ## 보고
 

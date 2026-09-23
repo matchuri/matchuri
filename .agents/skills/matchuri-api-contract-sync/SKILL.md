@@ -15,15 +15,15 @@ FE/BE contract alignment에 사용한다. 자동 background trigger가 아니라
 - backend에 맞춰 frontend API client 또는 domain type을 바꿔야 한다.
 - Controller mapping과 OpenAPI API ID registry가 어긋났을 수 있다.
 - OpenAPI/Swagger output을 수동 또는 script로 검증해야 한다.
-- PR이 `backend/`와 `frontend/`를 함께 건드린다.
+- PR이 `app/backend/`와 `app/frontend/`를 함께 건드린다.
 
 상대 영역에 영향이 있다는 사실만으로 이 스킬을 사용하거나 수정 범위를 넓히지 않는다. backend-only 작업에는 `matchuri-backend-scope`와 관련 backend 스킬을 사용하고, frontend-only 작업에는 `matchuri-frontend-scope`를 사용한다.
 
 ## 먼저 읽을 것
 
 1. Root `AGENTS.md`
-2. backend code가 관련되면 `backend/AGENTS.md`
-3. frontend code가 관련되면 `frontend/AGENTS.md`
+2. backend code가 관련되면 `app/backend/AGENTS.md`
+3. frontend code가 관련되면 `app/frontend/AGENTS.md`
 4. `docs/api/index.md`
 5. `OpenApiConfig.API_OPERATION_METADATA`에서 관련 API ID/path entry 검색
 6. domain별 `docs/api/*.md`
@@ -43,7 +43,7 @@ FE/BE contract alignment에 사용한다. 자동 background trigger가 아니라
 2. backend/docs drift를 감사한다.
 
    ```powershell
-   python backend\scripts\audit_api_contract.py --root backend --strict
+   python app/backend/scripts/audit_api_contract.py --root app/backend --strict
    ```
 
 3. contract source가 바뀌면 backend를 먼저 갱신한다.
@@ -55,14 +55,14 @@ FE/BE contract alignment에 사용한다. 자동 background trigger가 아니라
    - 정책이 바뀐 경우에만 관련 `docs/api/*.md`
 
 4. frontend consumer를 갱신한다.
-   - `frontend/src/features/**/infrastructure/api`
-   - `frontend/src/features/**/domain`
+   - `app/frontend/src/features/**/infrastructure/api`
+   - `app/frontend/src/features/**/domain`
    - response shape에 의존하는 hooks/usecases/selectors
    - status 또는 error code로 분기하는 UI states
 
 5. 검증한다.
-   - Backend: 개발 중에는 영향받은 test를 좁게 실행하고, 마지막 backend 동작 변경 후 `backend`에서 `./gradlew test --quiet`를 1회 이상 성공시킨다.
-   - Frontend: `frontend`에서 `npm run lint`를 실행한다.
+   - Backend: 개발 중에는 영향받은 test를 좁게 실행하고, 마지막 backend 동작 변경 후 `app/backend`에서 `./gradlew test --quiet`를 1회 이상 성공시킨다.
+   - Frontend: `app/frontend`에서 `npm run lint`를 실행한다.
    - 사용 가능하거나 명시적으로 필요할 때만 추가 frontend build/type check를 실행한다.
 
 ## Contract 규칙
@@ -77,7 +77,7 @@ FE/BE contract alignment에 사용한다. 자동 background trigger가 아니라
 
 ## Harness
 
-`backend/scripts/audit_api_contract.py`는 backend 저장소와 CI에서 가벼운 static audit를 수행한다.
+`app/backend/scripts/audit_api_contract.py`는 backend 저장소와 CI에서 가벼운 static audit를 수행한다.
 
 - backend `/api/v1/**` Controller mapping을 추출한다.
 - `OpenApiConfig.API_OPERATION_METADATA`의 path, method, API ID, tag를 추출한다.

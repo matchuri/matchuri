@@ -26,7 +26,7 @@
 백엔드는 `api`, `domain`, `global`, `infra` 축으로 나눕니다.
 
 ```text
-backend/src/main/java/matchuri/backend
+app/backend/src/main/java/matchuri/backend
 ├─ api
 ├─ domain
 ├─ global
@@ -320,9 +320,9 @@ API 문서화 전략과 업데이트 순서는 `docs/decisions/api-docs-strategy
 
 현재 기준:
 
-- 기준 데이터: `backend/src/main/resources/seed/reference-data.json`
-- 로컬 메뉴 이미지: `backend/src/main/resources/seed/local-menu-images.json`
-- 로컬 샘플 데이터: `backend/src/main/resources/seed/local-sample-data.json`
+- 기준 데이터: `app/backend/src/main/resources/seed/reference-data.json`
+- 로컬 메뉴 이미지: `app/backend/src/main/resources/seed/local-menu-images.json`
+- 로컬 샘플 데이터: `app/backend/src/main/resources/seed/local-sample-data.json`
 - 로컬 수동 테스트용 샘플 계정과 관리자 계정은 개발 환경에서만 생성합니다.
 
 기준 데이터 정책은 `docs/data/policies.md`, 실제 스키마 구조는 JPA Entity를 기준으로 봅니다.

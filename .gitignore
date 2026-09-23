@@ -1,20 +1,20 @@
-/backend
-/frontend
+/app/artifacts
+/app/backend
+/app/frontend
+/app/secrets
+/app/matchuri.wiki
+
 /mcp/
 /docs/ops/
 /docs/exec-plans/
 /archive/
 /python/
 /journal/
-/matchuri.wiki
 
 .env
 .infisical.json
 
 .obsidian
 .secrets
-secrets/
 .gemini/
 *.skill
-
-artifacts/

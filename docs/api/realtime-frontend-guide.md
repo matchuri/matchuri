@@ -55,9 +55,9 @@ Accept: text/event-stream
 
 구현 위치:
 
-- 유틸: `frontend/src/features/realtime/infrastructure/sse/realtimeSseClient.ts`
-- hook: `frontend/src/features/realtime/application/hooks/useRealtimeEventStream.ts`
-- 테스트 화면: `frontend/src/app/realtime-lab/page.tsx`
+- 유틸: `app/frontend/src/features/realtime/infrastructure/sse/realtimeSseClient.ts`
+- hook: `app/frontend/src/features/realtime/application/hooks/useRealtimeEventStream.ts`
+- 테스트 화면: `app/frontend/src/app/realtime-lab/page.tsx`
 
 테스트 화면은 로그인 후 `/realtime-lab`에서 접근합니다.
 
