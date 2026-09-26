@@ -12,6 +12,7 @@ PR 생성은 구현이나 검증을 다시 수행하는 단계가 아니다.
 
 root, app/backend/, app/frontend/는 각각 독립된 Git 저장소다.
 항상 PR 대상 코드가 속한 저장소에서 Git 명령을 수행한다.
+백엔드 PR의 브랜치와 제목 규칙은 `app/backend/CONTRIBUTING.md`를 확인한다.
 
 ## PR 작성
 

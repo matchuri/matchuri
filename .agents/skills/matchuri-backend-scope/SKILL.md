@@ -13,6 +13,7 @@ description: Matchuri 작업을 backend-only 범위로 제한한다. backend 구
 - 변경된 동작이나 계약에 직접 관련된 `docs/backend/**`, `docs/api/**`, `docs/data/**`, `docs/decisions/**`만 함께 수정한다.
 - 루트 공용 설정, 다른 문서, repo-local skill은 사용자가 해당 변경을 요청한 경우에만 수정한다.
 - 영향 분석을 위해 `app/frontend/**`를 읽을 수 있지만 수정하지 않는다.
+- 백엔드 저장소의 브랜치, 커밋, PR 작업은 `app/backend/CONTRIBUTING.md`를 따른다.
 
 ## 경계
 
