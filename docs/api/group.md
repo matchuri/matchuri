@@ -47,6 +47,10 @@
 - 그룹 추천 시작은 `PREPARING` 세션을 생성합니다.
 - 추천 시작 직후에는 후보를 생성하지 않으며 `candidates`는 빈 배열입니다.
 - 모든 현재 `ACTIVE` 그룹 멤버가 준비 완료하면 서버가 후보를 생성하고 세션을 `OPEN`으로 전환합니다.
+- 후보 생성에 사용한 당시 활성 그룹원의 취향과 후보 메뉴로 최대 5개의 `recommendationCategories`를 한 번 선택해 세션에 저장합니다. 이후 취향 수정이나 멤버 탈퇴로 다시 계산하지 않습니다.
+- `COMMON`은 당시 모든 활성 그룹원이 선호하고 실제 후보 메뉴에도 연결된 카테고리입니다. 공통 항목은 연결된 후보 수가 많은 순서로 고르고, 동률이면 `categoryType`, `sortOrder`, ID 순서로 고릅니다.
+- 5개에 못 미치면 추천 후보의 `rankNo` 순서로 활성 메뉴 카테고리를 중복 없이 `MENU` 출처로 채웁니다. 같은 메뉴 안에서는 `categoryType`, `sortOrder`, ID 순서입니다. 가능한 카테고리가 부족하면 5개 미만 또는 빈 배열을 반환합니다.
+- `GET /api/v1/groups/{groupId}/recommendations/{sessionId}`의 `recommendationCategories`는 후보 생성 전에는 `null`, 생성 후에는 저장된 순서의 배열입니다. ID·출처·순위는 추천 당시 값이며 카테고리 이름은 조회 당시의 현재 이름입니다. 그룹 상세의 `recentlyRecommendation`에는 이 필드를 추가하지 않습니다.
 - `createdAt`은 추천 세션 생성 시각, nullable `startedAt`은 `OPEN` 전환과 투표 시작 시각, `endedAt`은 최종 확정·취소·실패·만료 시각입니다.
 - 준비 진행률의 분모는 현재 `ACTIVE` 그룹 멤버입니다.
 - `PREPARING` 또는 `OPEN` 세션은 상태와 무관하게 `createdAt + 24h` 이후 만료됩니다.
