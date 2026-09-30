@@ -40,27 +40,25 @@
 
 ### 동일 조건으로 브랜치별 실행
 
-백엔드 저장소에서 아래 명령을 순서대로 실행합니다. Windows에서는 `./gradlew` 대신 `.\gradlew.bat`를 사용할 수 있습니다.
+백엔드의 `RecommendationScoreComparisonIntegrationTest`를 각 브랜치에서 IDE로 직접 실행합니다. 콘솔에 그룹 점수 3줄을 출력하는 비교용 테스트이며, 전용 Gradle task는 없습니다. 명령줄에서는 기존 `test` task로 실행하고 점수 행만 표시할 수 있습니다.
 
-```shell
+```powershell
 git switch chore/recommendation-preference-baseline
-./gradlew scoreComparisonTest --console=plain
+.\gradlew.bat test --tests '*RecommendationScoreComparisonIntegrationTest' --info --rerun | Select-String 'SCORE_COMPARISON'
 
 git switch fix/exclusive-recommendation-preferences
-./gradlew scoreComparisonTest --console=plain
+.\gradlew.bat test --tests '*RecommendationScoreComparisonIntegrationTest' --info --rerun | Select-String 'SCORE_COMPARISON'
 ```
 
-두 브랜치의 `RecommendationScoreComparisonIntegrationTest`와 `scoreComparisonTest` task는 동일합니다. 테스트는 해당 브랜치의 실제 개인·비회원 추천 서비스와 그룹 후보 생성 경로를 호출하고, 반환받은 점수를 `SCORE_COMPARISON` 행으로 콘솔에 출력합니다. 테스트 안에 변경 전 계산식이나 Before/After 기대 점수를 복제하지 않습니다. 전용 H2 데이터베이스의 동일한 메뉴 3개와 선호를 사용하며, 선택 이력·제한 재료·비선호는 없고 그룹은 동일 취향의 3명입니다.
+두 브랜치의 테스트 코드는 동일합니다. 같은 메뉴 1개와 동일 취향의 그룹원 3명을 사용하고, 선택 이력·제한 재료·비선호 없이 해당 브랜치의 실제 그룹 후보 생성 경로를 호출합니다. 메뉴 속성은 한식·뜨거움·매콤·진한 맛·국물·바삭입니다.
 
-| 시나리오 | 선호 | 비교할 `KOREAN_HOT` 점수 (`v1` → `v1.1`) |
+| 출력 조건 | 선호 | `v1` → `v1.1` |
 | --- | --- | ---: |
 | `EXCLUSIVE` | 한식·중식, 뜨거움·차가움 | 50.0 → 100.0 |
 | `MIXED` | 위 선호 + 매콤·진한 맛 | 66.7 → 100.0 |
 | `OTHER_TYPES` | 매콤·진한 맛, 국물·구이, 바삭·쫄깃 | 66.7 → 66.7 |
 
-`KOREAN_HOT`은 한식·뜨거움·매콤·진한 맛·국물·바삭 속성을 갖습니다. 나머지 메뉴는 `CHINESE_COLD`(중식·차가움·산뜻·구이·쫄깃), `JAPANESE_HOT`(일식·뜨거움·달콤·튀김)입니다. 출력은 시나리오, 추천 종류, 순위, 메뉴, 점수를 포함하므로 동일한 시나리오·종류·메뉴끼리 비교합니다. 일식 메뉴는 선택하지 않은 음식 분류가 일치로 처리되지 않는 경우도 보여줍니다.
-
-이 조건에서 개인·비회원·그룹 점수가 같은지, 후보 3개와 0~100 점수 범위를 검증합니다. 점수 자체는 브랜치에 따라 달라질 수 있도록 고정값으로 단언하지 않습니다. 전용 task는 매번 다시 실행하여 점수를 출력하므로 `--quiet` 없이 실행합니다. 두 백엔드 PR을 병합한 이후의 테스트 출력은 새 로직의 점수입니다. 변경 전 결과를 다시 보려면 변경 전 PR 브랜치에서 실행합니다.
+출력은 반환받은 실제 점수이며 기대 점수를 고정하지 않습니다. 병합 후에는 새 로직의 점수가 출력되므로 Before를 다시 보려면 변경 전 PR 브랜치에서 실행합니다.
 
 ## 개인과 비회원 추천
 
@@ -85,7 +83,7 @@ git switch fix/exclusive-recommendation-preferences
 ## 검증 근거와 API 진입점
 
 - `RecommendationPreferenceBaselineTest`: 유형 정보가 없는 입력의 변경 전 50점·66.7점·100점 기준.
-- `RecommendationScoreComparisonIntegrationTest`: 두 브랜치에서 같은 조건으로 실행하여 실제 개인·비회원·그룹 점수를 출력.
+- `RecommendationScoreComparisonIntegrationTest`: 두 브랜치에서 같은 조건으로 실행하여 그룹 점수 3줄을 출력.
 - `RecommendationExclusivePreferenceTest`: 개인·비회원·그룹의 OR 계산, 불일치, 유형별 독립 계산, 다른 유형 유지, 그룹 비선호 감점.
 - `PersonalRecommendationIntegrationTest`, `GuestRecommendationIntegrationTest`, `GroupIntegrationTest`: 실제 카테고리 유형 조회부터 후보 점수 반환·저장까지 검증.
 - [개인·비회원 추천 API](../api/recommendation.md), [그룹 의사결정 API](../api/group.md).
