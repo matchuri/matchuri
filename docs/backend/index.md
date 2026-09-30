@@ -11,6 +11,7 @@
 - 신뢰성 기준: `docs/backend/reliability.md`
 - 품질 점수 기준: `docs/backend/quality-score.md`
 - API 계약: `docs/api/index.md`
+- 추천 점수 계약: `docs/backend/recommendation-scoring.md`
 - 데이터 모델: `docs/data/index.md`
 - 품질 리뷰 스킬: `.agents/skills/matchuri-backend-quality-review/SKILL.md`
 - 보안 리뷰 스킬: `.agents/skills/matchuri-backend-security-review/SKILL.md`
@@ -20,6 +21,7 @@
 
 - [백엔드 가이드](./guide.md)
 - [아키텍처](./architecture.md)
+- [추천 점수 계약](./recommendation-scoring.md)
 - [보안 기준](./security.md)
 - [신뢰성 기준](./reliability.md)
 - [품질 점수 기준](./quality-score.md)
