@@ -2,276 +2,71 @@
 
 ## 목적
 
-현재 Matchuri의 인증 정책에서는 브라우저 기본 `EventSource`를 사용할 수 없다.
-이 문서는 그 이유와 `fetch` 기반 SSE 클라이언트가 담당해야 하는 기능, 현재 구현 상태, 운영 적용 권장안을 정리한다.
+현재 서비스 화면과 테스트 화면의 SSE 구현, 오류 처리와 복구 범위를 정리합니다.
+상세 계약은 [실시간 이벤트 API](./realtime.md), 화면별 반응은 [프론트 연동 가이드](./realtime-frontend-guide.md)를 기준으로 봅니다.
 
-상세 SSE API와 이벤트 payload 계약은 [`docs/api/realtime.md`](./realtime.md)를 기준으로 한다.
+## 현재 연결 방식
 
-## SSE 맥락
+상태 변경은 기존 HTTP API가 처리하고, SSE는 관련 사용자에게 변경을 알립니다.
+인증은 `Authorization: Bearer <accessToken>` 헤더를 사용합니다.
 
-SSE(Server-Sent Events)는 서버가 이미 연결된 HTTP 응답 스트림을 통해 클라이언트로 이벤트를 지속적으로 전송하는 방식이다.
+| 구분 | 현재 구현 | 용도 |
+| --- | --- | --- |
+| 서비스 개인 스트림 | `event-source-polyfill`의 `EventSourcePolyfill` | 초대 수신, 그룹장 전용 전원 투표 완료 이벤트 수신 |
+| 서비스 그룹 스트림 | `EventSourcePolyfill` | 그룹 멤버·추천·투표·확정 상태 변화 수신 |
+| `/realtime-lab` | 직접 구현한 `fetch` + `ReadableStream` client | 수동 연결·종료와 이벤트 로그 확인 |
 
-Matchuri에서 실제 상태 변경은 기존 HTTP API가 담당한다.
-SSE는 서버 상태가 변경되었음을 관련 사용자에게 알리는 신호로 사용한다.
+브라우저 기본 `EventSource`에 임의 헤더를 붙이는 대신 서비스 client는 polyfill의 헤더 옵션을 사용합니다.
+두 서비스 client의 `heartbeatTimeout`은 60초입니다. 서버 기본 heartbeat는 30초, 연결 timeout은 30분입니다.
 
-```text
-투표 요청
-POST /api/v1/groups/{groupId}/recommendations/{sessionId}/votes
+## 구현 위치
 
-투표 진행률 변경 알림
-GROUP_RECOMMENDATION_VOTE_UPDATED SSE 이벤트
-```
+- 서비스 client: `app/frontend/src/infrastructure/sse/myRealtimeClient.ts`, `groupRealtimeClient.ts`
+- 개인 hook: `app/frontend/src/features/realtime/application/hooks/useMyRealtimeEvents.ts`
+- 그룹 hook: `app/frontend/src/features/group/application/hooks/useGroupRealtimeEvents.ts`
+- 공통 연결: `app/frontend/src/features/realtime/ui/components/MyRealtimeEventsInitializer.tsx`
+- 테스트 client: `app/frontend/src/features/realtime/infrastructure/sse/realtimeSseClient.ts`
+- 테스트 hook: `app/frontend/src/features/realtime/application/hooks/useRealtimeEventStream.ts`
+- 테스트 화면: `app/frontend/src/app/realtime-lab/page.tsx`
 
-프론트는 SSE 이벤트를 받으면 payload의 최소 상태를 반영하거나 기존 REST 조회 API를 다시 호출한다.
+## 서비스 연결 생명주기
 
-## EventSource
+- 개인 스트림은 로그인·온보딩 완료 후 앱 공통 initializer에서 연결합니다.
+- 그룹 스트림은 그룹 상세·준비·투표 화면에서 연결합니다.
+- 서비스 hook은 해제 시 연결을 닫습니다. access token, groupId 또는 등록 callback 등 effect 의존성이 변경되면 기존 연결을 닫고 새로 연결합니다.
+- 개별 화면이 등록한 이벤트 callback에 따라 상태를 반영하거나 REST로 재조회합니다. 모든 화면이 같은 이벤트를 처리하지는 않습니다.
 
-브라우저는 SSE 연결을 위한 `EventSource` API를 기본 제공한다.
+## 현재 오류 처리
 
-```ts
-const source = new EventSource("/api/v1/realtime/events");
+| 구분 | 오류 시 동작 | 복구 범위 |
+| --- | --- | --- |
+| 그룹 스트림 | Sentry·로그 기록 후 `close()` | 해당 연결의 자동 재시도 중단; 화면 재진입·새로고침 또는 effect 재실행 시 새 연결 |
+| 개인 스트림 | 로그 기록, 오류 handler에서 연결을 닫지 않음 | 네트워크 단절 등의 재연결은 polyfill 동작에 맡김; 모든 오류의 복구를 보장하지 않음 |
+| `/realtime-lab` | 오류 상태와 메시지 표시 | 자동 재연결 없음; 수동으로 다시 연결 |
 
-source.addEventListener("GROUP_INVITE_CREATED", (event) => {
-  const data = JSON.parse(event.data);
-});
-```
+SSE는 REST `httpClient`의 401 token 갱신·재시도 처리를 직접 사용하지 않습니다.
+SSE 자체의 상태 코드별 token 갱신·이동·재시도 정책도 없습니다. 다른 인증 처리에서 access token이 바뀌면 서비스 hook이 새 token으로 연결합니다.
+서비스 이벤트 handler의 `JSON.parse`에는 공통 오류 복구 처리가 없으며, 이벤트 중복 방어는 일부 화면의 `eventId` 집합에서 수행합니다.
 
-`EventSource`는 다음 기능을 기본 제공한다.
+## 이벤트 유실과 상태 동기화
 
-- SSE frame 파싱
-- 연결 종료 감지
-- 자동 재연결
-- 서버가 전달한 `retry` 값 반영
-- `Last-Event-ID` 전송
-- named event 처리
+- 서버는 이벤트를 저장하지 않으며 `Last-Event-ID` 기반 재전송과 오프라인 재전송을 지원하지 않습니다.
+- 개인 스트림의 `REALTIME_CONNECTED`와 `GROUP_INVITE_CREATED` 수신 시 초대 목록·존재 여부를 REST로 재조회합니다. 연결 중 누락된 초대 상태는 이 조회로 보정할 수 있습니다.
+- 그룹 스트림의 `REALTIME_CONNECTED`는 연결 로그만 남깁니다. 연결 완료 시 그룹/추천 상태를 일괄 재조회하는 callback은 없습니다.
+- 그룹 멤버 변동 시 각 화면은 그룹 상세나 추천 상태를 재조회합니다.
+- `GROUP_RECOMMENDATION_VOTE_UPDATED` payload는 진행률만 제공합니다. 투표 화면은 이를 반영한 뒤 세션 상세·그룹 상세를 재조회합니다.
+- 그룹장 전용 `GROUP_RECOMMENDATION_VOTE_COMPLETED`는 개인 hook에서 수신·기록하지만 공통 initializer에는 화면 처리 callback이 연결되어 있지 않습니다.
+- 연결이 끊긴 동안의 그룹 변경은 이후 화면 진입이나 이벤트 처리 등으로 REST 조회가 실행될 때 반영됩니다. 연결 복구만으로 최신 상태가 보장되지는 않습니다.
 
-참고 자료: [MDN - Using server-sent events](https://developer.mozilla.org/ko/docs/Web/API/Server-sent_events/Using_server-sent_events)
+## 테스트 client의 범위
 
-## EventSource를 사용하지 않는 이유
+`/realtime-lab`의 직접 구현 client는 응답 성공 여부와 body 존재 여부를 확인하고, chunk buffer와 SSE frame의 `id`, `event`, 여러 줄 `data`를 파싱합니다.
+heartbeat comment는 무시하며 `AbortController`로 수동 종료합니다.
+자동 재연결, token 갱신, `Content-Type` 검증과 이벤트 재전송 처리는 없습니다. 잘못된 JSON은 오류 callback으로 전달됩니다.
 
-Matchuri는 access token을 `Authorization` header로 전달하여 인증한다.
+## 개선 제안(후속 검토)
 
-```http
-Authorization: Bearer {accessToken}
-```
+- 그룹 스트림에 제한된 backoff 재시도와 재연결 후 그룹/추천 REST 보정 조회를 함께 검토합니다.
+- 인증·권한 오류의 재시도 중단 기준과 token 갱신 후 연결 정책을 명시하면 복구 범위를 예측하기 쉬워집니다.
 
-하지만 브라우저 기본 `EventSource`는 요청에 임의의 HTTP header를 추가할 수 없다.
-
-```ts
-new EventSource("/api/v1/realtime/events");
-// Authorization header 설정 불가능
-```
-
-따라서 현재 인증 정책을 유지하면서 SSE를 사용하려면 `fetch` 기반 연결이 필요하다.
-
-```ts
-const response = await fetch("/api/v1/realtime/events", {
-  headers: {
-    Accept: "text/event-stream",
-    Authorization: `Bearer ${accessToken}`,
-  },
-});
-```
-
-## EventSource를 사용할 수 있는 경우
-
-- 인증을 HTTP-only cookie로 처리하는 경우
-- SSE 전용 단기 연결 token을 발급하는 경우
-- 인증이 필요 없는 공개 SSE인 경우
-
-일반 access token을 query parameter로 전달하는 방식은 사용하지 않는다.
-URL, 브라우저 기록, 프록시 및 접근 로그 등에 token이 노출될 위험이 있기 때문이다.
-
-## fetch 기반 SSE가 직접 처리해야 하는 것
-
-`fetch`는 응답 stream만 제공한다.
-`EventSource`가 처리하던 SSE 관련 동작은 클라이언트가 직접 구현해야 한다.
-
-### 연결 관리
-
-- `Authorization` header를 포함한 연결
-- 응답 status 및 `Content-Type` 검증
-- 화면 이탈 및 로그아웃 시 `AbortController`로 연결 종료
-- React 재렌더링으로 인한 중복 연결 방지
-- access token 변경 시 기존 연결 종료 후 재연결
-
-### Stream 처리
-
-- `ReadableStream` chunk 읽기
-- 여러 chunk에 걸쳐 잘린 SSE frame 복원
-- 하나의 chunk에 포함된 여러 frame 분리
-- `id`, `event`, `data`, `retry` field 파싱
-- 여러 줄로 구성된 `data` 결합
-- heartbeat comment와 일반 이벤트 구분
-- 잘못된 JSON이나 알 수 없는 `eventType` 처리
-
-### 재연결 정책
-
-- 네트워크 단절 감지
-- 재연결 횟수 및 exponential backoff 관리
-- 정상 종료와 오류 종료 구분
-- `401`, `403`, `404`, `5xx`별 처리 분리
-- 필요하면 마지막 `eventId`를 `Last-Event-ID` header로 전달
-
-## Matchuri SSE 연결
-
-### 개인 스트림
-
-```http
-GET /api/v1/realtime/events
-Authorization: Bearer {accessToken}
-Accept: text/event-stream
-```
-
-로그인 후 앱 공통 영역에서 하나만 연결하는 것을 권장한다.
-
-주요 수신 이벤트:
-
-- `GROUP_INVITE_CREATED`
-- `GROUP_RECOMMENDATION_VOTE_COMPLETED`
-
-### 그룹 스트림
-
-```http
-GET /api/v1/groups/{groupId}/realtime/events
-Authorization: Bearer {accessToken}
-Accept: text/event-stream
-```
-
-그룹 상세 또는 추천 화면 진입 시 연결하고, 화면 이탈 시 종료한다.
-
-주요 수신 이벤트:
-
-- `GROUP_MEMBER_JOINED`
-- `GROUP_MEMBER_LEFT`
-- `GROUP_DELETED`
-- `GROUP_RECOMMENDATION_STARTED`
-- `GROUP_RECOMMENDATION_READINESS_UPDATED`
-- `GROUP_RECOMMENDATION_OPENED`
-- `GROUP_RECOMMENDATION_VOTE_UPDATED`
-- `GROUP_RECOMMENDATION_FINALIZED`
-
-서버는 연결 직후 `REALTIME_CONNECTED` 이벤트를 보낸다.
-연결 유지를 위해 30초마다 heartbeat comment를 보내며, 연결 timeout은 30분이다.
-
-## 이벤트 처리 원칙
-
-SSE 이벤트는 서버 상태 변경을 알리는 신호로 처리한다.
-
-```ts
-switch (event.eventType) {
-  case "GROUP_MEMBER_JOINED":
-  case "GROUP_MEMBER_LEFT":
-    // 그룹 상세 및 진행 상태 재조회
-    break;
-
-  case "GROUP_DELETED":
-    // 그룹 리스트 페이지로 이동
-    break;
-
-  case "GROUP_RECOMMENDATION_VOTE_UPDATED":
-    // payload의 투표 진행률만 화면에 반영
-    break;
-}
-```
-
-권장 원칙:
-
-- 이벤트에 포함된 최소 정보만 즉시 반영한다.
-- 정확한 최신 상태가 필요하면 기존 REST 조회 API를 호출한다.
-- 알 수 없는 `eventType`은 무시하고 연결은 유지한다.
-- 동일 `eventId`를 다시 받더라도 문제가 없도록 멱등하게 처리한다.
-- SSE 이벤트가 일부 유실되어도 다음 조회로 상태를 복구할 수 있게 한다.
-
-## 오류별 권장 처리
-
-| 상황 | 처리 |
-| --- | --- |
-| 사용자가 화면을 이탈하거나 로그아웃함 | 재연결하지 않고 종료 |
-| 네트워크 오류 또는 `5xx` | backoff 후 재연결 |
-| `401 Unauthorized` | token 갱신 후 새 token으로 재연결 |
-| `403 Forbidden` | 그룹 접근 권한 오류로 처리하고 재연결 중단 |
-| `404 Not Found` | 삭제되었거나 존재하지 않는 그룹으로 처리하고 그룹 리스트로 이동 |
-| 잘못된 event JSON | 해당 이벤트만 무시하고 오류 기록 |
-| 알 수 없는 `eventType` | 해당 이벤트만 무시하고 연결 유지 |
-
-## 현재 프론트 구현 상태
-
-현재 프론트에는 테스트 목적의 fetch 기반 SSE 유틸이 구현되어 있다.
-
-### `realtimeSseClient.ts`
-
-구현된 기능:
-
-- Bearer token을 포함한 SSE 연결
-- `ReadableStream` chunk buffer 처리
-- SSE frame 분리 및 파싱
-- 여러 줄 `data` 결합
-- heartbeat comment 무시
-- `AbortController` 기반 연결 종료
-
-### `useRealtimeEventStream.ts`
-
-구현된 기능:
-
-- 연결 상태 관리
-- 새 연결 전 기존 연결 종료
-- 수신 이벤트 로그 관리
-
-### 운영 적용 전 부족한 기능
-
-- 자동 재연결 및 exponential backoff
-- token 만료 및 갱신 처리
-- HTTP status별 오류 정책
-- `Content-Type` 검증
-- `Last-Event-ID` 처리
-- 중복 이벤트 방어
-- 운영 로그 및 모니터링
-
-현재 구현은 `/realtime-lab` 테스트 용도로는 충분하지만, 운영 화면에서 그대로 사용하기에는 보강이 필요하다.
-
-## 권장 구현 방향
-
-### 권장안: 검증된 fetch 기반 SSE 라이브러리 사용
-
-운영 기능에서는 SSE parser와 재연결 로직을 직접 확장하기보다, `Authorization` header와 재연결 제어를 지원하는 검증된 fetch 기반 SSE 라이브러리를 사용하는 것을 권장한다.
-
-검토 후보:
-
-- [`@microsoft/fetch-event-source`](https://github.com/Azure/fetch-event-source)
-
-```ts
-await fetchEventSource("/api/v1/realtime/events", {
-  headers: {
-    Authorization: `Bearer ${accessToken}`,
-  },
-  signal: abortController.signal,
-
-  onopen(response) {
-    // status 및 Content-Type 검증
-  },
-
-  onmessage(message) {
-    const event = JSON.parse(message.data);
-    handleRealtimeEvent(event);
-  },
-
-  onerror(error) {
-    // 재연결 여부와 대기 시간을 결정
-  },
-});
-```
-
-이 라이브러리는 일반 `fetch`처럼 header를 설정하면서 SSE parsing과 재연결 흐름을 제어할 수 있다.
-도입 전에는 현재 유지보수 상태와 프로젝트의 React/Next.js 환경에서 정상 동작하는지 확인한다.
-
-## 프로젝트 적용 제안
-
-1. 현재 직접 구현 유틸은 `/realtime-lab` 테스트 용도로 유지한다.
-2. 실제 화면 연동 전 검증된 fetch 기반 SSE 라이브러리를 사용한 운영용 client를 작성한다.
-3. 개인 스트림은 앱 전역에서 하나만 관리한다.
-4. 그룹 스트림은 그룹 화면 생명주기에 맞춰 연결하고 종료한다.
-5. 이벤트 수신 후 REST 재조회 방식으로 상태 일관성을 복구한다.
-6. MVP에서는 이벤트 재전송을 보장하지 않고, `Last-Event-ID` 지원은 후속 과제로 둔다.
-
-이 방향은 현재 Bearer 인증 정책을 유지하면서 직접 구현 범위와 장애 대응 비용을 줄이는 현실적인 선택이다.
+위 제안은 후속 개선이며 현재 구현된 동작이 아닙니다.

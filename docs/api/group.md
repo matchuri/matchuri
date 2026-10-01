@@ -8,7 +8,7 @@
 - 그룹 생성, 목록/상세 조회, 정보 수정, 탈퇴, 삭제
 - nickname 기반 그룹 초대 생성과 초대 수락/거절
 - UUID 링크 기반 초대 발급, 재발급, 현재 링크 조회, 초대받는 사람의 그룹 정보 미리보기와 그룹 참여
-- 기존 초대 코드 기반 그룹 참여
+- 기존 고정 초대 코드 기반 그룹 참여 API 유지(실 서비스 사용자 흐름에서는 사용하지 않음)
 - 그룹 추천 준비 세션 시작, 준비 완료, 준비 상태 조회
 - 그룹 추천 목록/상세/후보 조회
 - 후보 투표와 최종 메뉴 확정
@@ -19,7 +19,7 @@
 ## 핵심 계약
 
 - 그룹 생성자는 `OWNER` 멤버로 함께 저장합니다.
-- 그룹마다 하나의 고정 초대 코드를 유지합니다.
+- 그룹마다 하나의 고정 초대 코드를 데이터와 참여 로직에 유지합니다. 고정 코드는 별도 만료 시각이 없으며, 실 서비스에서는 코드 입력 화면이나 코드 기반 참여 흐름을 제공하지 않습니다. 사용자 초대는 닉네임 또는 UUID 링크를 사용합니다.
 - 그룹 상세는 현재 회원이 해당 그룹의 `ACTIVE` 멤버일 때만 조회할 수 있습니다.
 - 그룹 상세의 member 목록은 활성 멤버만 포함합니다.
 - `GET /api/v2/groups/{groupId}`는 기존 그룹 상세 계약에 더해 각 member의 `memberProfileImageUrl`을 반환합니다. 프로필 이미지가 없는 회원은 `null`입니다.
@@ -59,7 +59,7 @@
 - `PREPARING` 또는 `OPEN` 세션은 상태와 무관하게 `createdAt + 24h` 이후 만료됩니다.
 - 만료 처리는 별도 scheduler 없이 생성/조회/상태 변경 API 접근 시점에 lazy expire로 수행합니다.
 - 후보 조회 API는 `OPEN` 세션에서만 후보 목록을 반환합니다. `PREPARING`이면 `409 GROUP_RECOMMENDATION_NOT_OPEN`으로 거절합니다.
-- 투표는 추천 세션당 회원 1표만 허용합니다.
+- 투표는 추천 세션당 회원 1표를 유지하며, `OPEN` 상태에서는 재투표로 선택 후보를 변경할 수 있습니다. 같은 후보에 다시 투표해도 표가 늘어나지 않으며, 확정·만료 등으로 종료된 세션에는 재투표할 수 없습니다.
 - 최종 확정은 `OWNER`만 수행합니다.
 - 최종 확정에서 동률이면 `rankNo`가 가장 낮은 후보를 선택합니다.
 - 투표가 0건이면 `rankNo=1` 후보를 선택합니다.
@@ -101,7 +101,6 @@
 - `GROUP_INVITE_LINK_EXPIRED`
 - `GROUP_RECOMMENDATION_ACTIVE_EXISTS`
 - `GROUP_RECOMMENDATION_NOT_OPEN`
-- `GROUP_RECOMMENDATION_ALREADY_VOTED`
 - `GROUP_RECOMMENDATION_REROLL_DISABLED`
 - `GROUP_RECOMMENDATION_NO_CANDIDATES`
 
