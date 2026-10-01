@@ -28,7 +28,7 @@
 - 서버 구현: Spring MVC `SseEmitter`
 - 이벤트 저장: 1차 구현에서는 저장하지 않음
 - 재전송: 1차 구현에서는 `Last-Event-ID` 기반 재전송을 지원하지 않음
-- Frontend는 `Authorization` header 설정을 위해 browser 기본 `EventSource`보다 `fetch` stream 기반 SSE client를 사용합니다.
+- 실제 서비스 프론트는 `event-source-polyfill`의 `EventSourcePolyfill`로 `Authorization` header를 설정합니다. `/realtime-lab` 테스트 화면만 별도 `fetch` stream client를 사용합니다.
 
 ## 개인 stream
 
@@ -105,7 +105,7 @@ heartbeat는 SSE comment 형식으로 보낼 수 있습니다.
 | --- | --- | --- | --- |
 | `REALTIME_CONNECTED` | personal/group | SSE 연결 성공 | `memberId`, `groupId`, `connectedAt` |
 | `GROUP_INVITE_CREATED` | personal | nickname 기반 초대 생성 | `inviteId`, `groupId`, `groupName`, `requestMemberId`, `expiresAt` |
-| `GROUP_MEMBER_JOINED` | group | 초대 수락 또는 코드 참여 | `groupId`, `memberId`, `memberNickname`, `joinedAt` |
+| `GROUP_MEMBER_JOINED` | group | 닉네임 초대 수락 또는 UUID 링크 참여(유지 중인 고정 코드 API도 발행) | `groupId`, `memberId`, `memberNickname`, `joinedAt` |
 | `GROUP_MEMBER_LEFT` | group | 멤버 탈퇴 | `groupId`, `memberId`, `memberNickname`, `leftAt` |
 | `GROUP_DELETED` | group | OWNER 그룹 삭제 | `groupId`, `deletedByMemberId`, `deletedAt` |
 | `GROUP_RECOMMENDATION_STARTED` | group | 그룹 추천 준비 세션 시작 | `sessionId`, `status`, `readinessProgress` |
@@ -117,15 +117,21 @@ heartbeat는 SSE comment 형식으로 보낼 수 있습니다.
 
 ## Frontend 처리 기준
 
-- 개인 stream은 로그인 후 app 공통 영역에서 1개 연결하는 것을 기본값으로 둡니다.
-- 그룹 stream은 그룹 상세 또는 그룹 추천 화면 진입 시 연결하고 화면 이탈 시 닫습니다.
-- event를 받으면 화면에 필요한 최소 상태를 반영합니다.
-- 정확한 상세가 필요하면 기존 조회 API를 다시 호출합니다.
-- `GROUP_MEMBER_JOINED`, `GROUP_MEMBER_LEFT` 수신 후에는 그룹 상세와 진행 중 추천 상태를 재조회합니다.
-- `GROUP_DELETED` 수신 후에는 그룹 리스트 페이지로 이동합니다.
-- `GROUP_RECOMMENDATION_VOTE_UPDATED`는 진행률만 갱신합니다.
-- `GROUP_RECOMMENDATION_VOTE_COMPLETED`는 그룹장 화면에 최종 확정 버튼 활성화 또는 알림을 표시합니다.
-- `GROUP_RECOMMENDATION_FINALIZED`는 모든 그룹원 화면을 최종 결과 상태로 전환합니다.
+- 개인 stream은 로그인과 온보딩이 완료되면 app 공통 영역의 `MyRealtimeEventsInitializer`에서 연결합니다. 연결 완료와 `GROUP_INVITE_CREATED` 수신 시 초대 목록과 존재 여부를 REST로 재조회합니다.
+- 그룹 stream은 그룹 상세·준비·투표 화면에서 연결하고, 해당 hook 해제 시 닫습니다. 이벤트 반영은 각 화면이 등록한 callback에 따라 다릅니다.
+- `GROUP_MEMBER_JOINED`, `GROUP_MEMBER_LEFT` 수신 시 그룹 상세 화면은 그룹 목록/상세를, 준비·투표 화면은 그룹 상세와 해당 추천 상태를 재조회합니다.
+- `GROUP_DELETED` 수신 후 `/group`으로 이동하는 callback은 현재 그룹 상세 화면에 연결되어 있습니다.
+- `GROUP_RECOMMENDATION_VOTE_UPDATED` payload는 진행률만 제공합니다. 투표 화면은 진행률 반영 후 세션 상세와 그룹 상세를 REST로 재조회해 멤버별 투표 상태 등을 갱신합니다.
+- `GROUP_RECOMMENDATION_VOTE_COMPLETED`는 개인 hook에서 수신·기록하지만, 공통 initializer에는 화면 처리 callback이 연결되어 있지 않습니다. 투표 화면은 그룹 이벤트와 세션 조회 결과를 사용합니다.
+- `GROUP_RECOMMENDATION_FINALIZED`는 투표 화면의 세션을 최종 결과 상태로 바꾸고 그룹 상세를 재조회합니다.
+
+### 연결 종료와 복구
+
+- 그룹 stream은 `onerror`에서 오류를 기록하고 `close()`합니다. 해당 연결의 자동 재시도는 중단되며, 화면 재진입·새로고침 또는 hook 의존성 변경으로 effect가 다시 실행될 때 새 연결을 만듭니다.
+- 개인 stream은 `onerror`에서 오류만 기록합니다. 네트워크 단절 등의 복구는 polyfill의 재연결 동작에 맡깁니다. 모든 오류에 재연결이 보장되는 것은 아닙니다.
+- access token 변경 시 서비스 hook은 기존 연결을 닫고 새 token으로 연결합니다. SSE 자체의 401 token 갱신·재시도 정책은 없으며, REST client의 갱신 처리도 직접 사용하지 않습니다.
+- 그룹 stream의 `REALTIME_CONNECTED`는 연결 로그만 남깁니다. 재연결 직후 그룹/추천 상태를 일괄 보정 조회하는 처리는 없습니다.
+- 서버는 오프라인 이벤트를 저장하거나 재전송하지 않습니다. 연결이 끊긴 동안의 변경은 REST 조회가 다시 실행되는 시점에 반영됩니다.
 
 ## 실패 기준
 
