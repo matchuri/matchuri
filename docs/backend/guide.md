@@ -52,6 +52,7 @@ app/backend/<module>/src/main/java/matchuri/backend/<module-package>
 ├─ api / spi / event
 ├─ service
 ├─ command
+├─ query
 ├─ result
 ├─ support
 ├─ exception
@@ -99,7 +100,7 @@ app/backend/<module>/src/main/java/matchuri/backend/<module-package>
 두지 않는 것:
 
 - 단순 DTO 변환
-- command/result 모델
+- command/query/result 모델
 - 여러 유스케이스에서 반복되는 검증, 조회 조합, 계산 로직
 
 경고 신호:
@@ -111,14 +112,20 @@ app/backend/<module>/src/main/java/matchuri/backend/<module-package>
 
 ### `command`
 
-- 서비스 유스케이스 입력 모델입니다.
+- 상태를 변경하는 서비스 유스케이스의 입력 모델입니다.
 - API request DTO와 분리합니다.
 - request DTO 검증 어노테이션을 직접 들지 않습니다.
 - 여러 유스케이스가 공유하더라도 진짜 공통 의미가 아니면 섣불리 합치지 않습니다.
 
+### `query`
+
+- 조회 유스케이스의 입력 조건을 표현합니다.
+- HTTP 요청 형식이나 repository의 쿼리 구현과 분리합니다.
+- 입력 모델은 `*Query`, 공개 조회 서비스 인터페이스는 `*QueryService`로 구분합니다.
+
 ### `result`
 
-- 서비스 유스케이스 출력 모델입니다.
+- 서비스 또는 모듈 API의 출력 모델입니다.
 - API response DTO가 아니라 도메인 유스케이스 결과를 표현합니다.
 - 한 서비스 인터페이스에만 쓰이더라도 `service`에 섞지 않고 `result`에 둡니다.
 
@@ -183,7 +190,36 @@ app/backend/<module>/src/main/java/matchuri/backend/<module-package>
 
 ## DTO 규칙
 
-DTO는 아래 패키지 기준으로 구분합니다.
+하나의 타입은 하나의 일관된 의미를 갖도록 역할을 구분합니다.
+
+| 타입 | 역할 | 경계 |
+| --- | --- | --- |
+| `Request` | HTTP 입력 | Controller의 요청 처리 |
+| `Response` | HTTP 출력 | Controller의 응답 처리 |
+| `Command` | 상태 변경 입력 | Service / Module API |
+| `Query` | 조회 입력 | Service / Module API |
+| `Result` | 유스케이스 출력 | Service / Module API |
+| `Row` | Repository projection | 소유 모듈 내부, 다른 모듈에 노출 금지 |
+
+`Command`/`Query`/`Result`는 엔티티와 HTTP DTO 사이에 의무적으로 끼우는 중간 계층이 아니라 유스케이스의 입출력 계약입니다. HTTP와 다른 모듈에서 같은 유스케이스를 호출하면 같은 의미의 계약을 사용할 수 있습니다.
+
+### 계약의 소유와 공개 범위
+
+- 계약의 의미와 변경 책임은 제공 모듈이 가집니다. 공개 인터페이스와 필요한 입력·출력 타입이 함께 모듈 계약을 이룹니다.
+- 공개 유스케이스에 필요한 타입만 named interface로 공개합니다. 내부 helper의 입력·출력까지 모두 공개 계약으로 만들지 않습니다.
+- 공개 계약은 필요한 값·ID·계약용 타입으로 구성하고 JPA 엔티티와 영속 관계를 노출하지 않습니다. 기존 엔티티 공유는 수정하는 유스케이스부터 점진적으로 줄입니다.
+- 값이 없을 때의 표현, 오류 조건, 성공 시 완료된 변경의 범위도 계약에 포함합니다.
+- 필드가 같다는 이유만으로 타입을 공유하지 않습니다. 의미와 변경 이유가 같을 때 재사용합니다.
+
+### 불필요한 모델을 만들지 않는 기준
+
+- 입력이 없거나 단일 ID만으로 의미가 충분하면 별도 `Command`/`Query`를 만들지 않아도 됩니다. 반환값이 필요 없는 상태 변경에 빈 `Result`를 만들지 않습니다.
+- 저장소 조회 결과와 공개 출력의 의미가 다르면 내부 `Row`를 `Result`로 조립합니다. 의미가 같으면 `Result`로 직접 projection할 수 있습니다.
+- `Query`라는 이름만으로 조회와 상태 변경이 분리되지는 않습니다. 조회 중 상태를 바꾸는 기존 흐름은 동작과 트랜잭션을 확인하며 별도로 분리합니다.
+
+### HTTP DTO 배치
+
+HTTP DTO는 아래 패키지 기준으로 구분합니다.
 
 - `backend-app/.../application/api/<domain>/dto/request`
 - `backend-app/.../application/api/<domain>/dto/response`
@@ -224,7 +260,7 @@ API 문서화 세부 전략은 `docs/decisions/api-docs-strategy.md`를 기준�
 - 도메인마다 하나의 거대한 Service를 유지하지 않습니다.
 - public 유스케이스, Repository 의존, private helper가 계속 늘어나면 유스케이스를 기능 응집도 기준으로 묶어 Service를 분리합니다.
 - Service 분리는 계층을 추가하는 작업이 아니라 같은 `service` 계층 안에서 트랜잭션 경계와 변경 이유를 나누는 작업입니다.
-- API 경계의 `Request -> Command -> Service -> Result -> Response` 흐름은 유지합니다.
+- API 경계는 `Request -> Command/Query -> Service -> Result -> Response` 흐름을 기본으로 하며, DTO 규칙에 따라 불필요한 모델은 생략합니다.
 - Command마다 Handler를 하나씩 만들거나, 여러 Repository를 의미 없는 Facade로 감싸 의존 수만 숨기지 않습니다.
 - 여러 Service에서 반복되는 조회, 검증, 계산, 결과 조립은 도메인 의미가 분명하고 단독 테스트 가치가 있을 때 `support`로 승격합니다.
 - 인터페이스와 구현이 함께 늘어나는 리팩토링 대상은 인터페이스를 `service`, 구현을 `service/impl`에 둘 수 있습니다.
@@ -234,12 +270,12 @@ API 문서화 세부 전략은 `docs/decisions/api-docs-strategy.md`를 기준�
 기본 흐름:
 
 ```text
-backend-app/application/api -> <module>/api -> <module>/service -> command/result/support/repository/entity
+backend-app/application/api -> <module>/api -> <module>/service -> command/query/result/support/repository/entity
 ```
 
 허용:
 
-- `service -> command/result/support`
+- `service -> command/query/result/support`
 - `service -> repository`
 - `support -> repository`
 - `service`, `support`가 같은 도메인의 `exception`을 사용하는 것
@@ -300,7 +336,7 @@ API 문서화 전략과 업데이트 순서는 `docs/decisions/api-docs-strategy
 ## 점진적 이전
 
 - 기존 `application` 구조는 과도기 상태로 보고 새 파일은 원칙적으로 추가하지 않습니다.
-- 기존 파일을 수정할 때는 기능 변경 범위를 넘지 않는 선에서 `service`/`command`/`result`/`support`/`exception` 이동을 함께 검토합니다.
+- 기존 파일을 수정할 때는 기능 변경 범위를 넘지 않는 선에서 `service`/`command`/`query`/`result`/`support`/`exception` 이동을 함께 검토합니다.
 - 전 도메인 일괄 이동보다, 수정하는 도메인 단위로 얇게 이전합니다.
 - 과도기 디렉터리가 비면 바로 정리해 현재 기준과 실제 구조가 어긋나지 않게 유지합니다.
 

@@ -74,12 +74,12 @@ app/backend/
 
 - `backend-app`은 모든 모듈을 조립하고 `build/libs/backend-<version>.jar` 하나를 생성합니다. 기존 배포의 JAR 탐색·health 경로·환경 설정을 유지합니다.
 - 의존 방향은 `shared-kernel ← media ← catalog ← identity ← recommendation ← group-decision ← realtime`입니다. 각 모듈은 필요한 하위 모듈의 named interface만 참조합니다.
-- 공개 서비스·조회·저장 인터페이스와 command/result, 이벤트, 현재 JPA 연관에 필요한 모델을 명시적으로 공개합니다. 서비스 구현·repository는 내부입니다. 테이블·FK·Entity 필드는 유지하며 모델 공유 축소는 별도 작업으로 남깁니다.
+- 공개 서비스·조회·저장 인터페이스와 필요한 command/query/result, 이벤트를 명시적으로 공개합니다. 서비스 구현·repository·Row는 내부에 둡니다. 기존 JPA 모델 공유는 유스케이스 단위로 줄이며, 타입의 역할과 공개 기준은 [DTO 규칙](./guide.md#dto-규칙)을 따릅니다.
 - `identity`의 열린 개인 추천 ID 조회는 소비자 소유 조회 인터페이스를 `recommendation`이 구현합니다. 기존 조회 조건과 조회 중 저장 동작을 유지하며 순환 의존성을 제거합니다.
 - 초기 데이터 조립인 `backend-app/application/seed`만 bootstrap repository 접근을 허용합니다. 업무 코드의 foreign repository 접근은 추가 구조 테스트로 금지합니다.
 - 회귀 테스트는 루트 `src/test`에 유지해 전체 모듈·HTTP·JPA 경계를 함께 검증합니다. `ModuleStructureTest`는 8개 모듈의 실제 탐지와 순환·내부 접근·허용 의존성을 검사합니다.
 
-새 도메인이나 리팩토링 대상은 `service`, `command`, `result`, `support`, `exception`, `entity`, `repository` 기준을 따릅니다. 자세한 구현 규칙은 `docs/backend/guide.md`를 봅니다.
+새 도메인이나 리팩토링 대상은 `service`, `command`, `query`, `result`, `support`, `exception`, `entity`, `repository` 기준을 따릅니다. 자세한 구현 규칙은 `docs/backend/guide.md`를 봅니다.
 
 ### 모듈 이벤트와 완료 시점
 
