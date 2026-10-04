@@ -58,22 +58,54 @@ Matchuri는 개인 취향과 그룹 취향을 함께 반영해 점심 메뉴 결
 
 ## 백엔드 런타임 구조
 
-패키지는 아래 축을 기준으로 나눕니다.
+8개 Gradle 모듈을 하나의 Spring Boot 애플리케이션과 하나의 DB로 실행합니다. 모듈 ID와 공개 인터페이스는 Spring Modulith 2.0.3으로 선언하며 전체 테스트에서 경계를 검증합니다.
 
 ```text
-app/backend/src/main/java/matchuri/backend
-├─ api
-├─ domain
-├─ global
-└─ infra
+app/backend/
+├─ backend-app       # HTTP API, 공통 설정, 시드, 단일 실행 JAR
+├─ identity          # 인증, 회원, 약관, 취향, Spring Security
+├─ catalog           # 메뉴, 속성, 재료, 메뉴 이미지 연결
+├─ recommendation    # 개인·비회원 추천, 행동 기록, 공통 추천 알고리즘
+├─ group-decision    # 그룹, 초대, 추천 진행, 투표, 최종 확정
+├─ media             # 이미지 자산, 프리셋, 오브젝트 스토리지
+├─ realtime          # SSE 연결과 커밋 후 이벤트 전송
+└─ shared-kernel     # 공통 응답·예외·영속성·트랜잭션 지원
 ```
 
-- `api`: Controller, request/response/docs DTO, Mapper, Swagger/OpenAPI 메타데이터.
-- `domain`: 유스케이스, 도메인 지원 로직, 엔티티, repository, 도메인 예외.
-- `global`: 공통 응답, 공통 예외 처리, 보안 공통 설정, 전역 설정.
-- `infra`: 외부 시스템 연동과 기술 구현 세부사항.
+- `backend-app`은 모든 모듈을 조립하고 `build/libs/backend-<version>.jar` 하나를 생성합니다. 기존 배포의 JAR 탐색·health 경로·환경 설정을 유지합니다.
+- 의존 방향은 `shared-kernel ← media ← catalog ← identity ← recommendation ← group-decision ← realtime`입니다. 각 모듈은 필요한 하위 모듈의 named interface만 참조합니다.
+- 공개 서비스·조회·저장 인터페이스와 command/result, 이벤트, 현재 JPA 연관에 필요한 모델을 명시적으로 공개합니다. 서비스 구현·repository는 내부입니다. 테이블·FK·Entity 필드는 유지하며 모델 공유 축소는 별도 작업으로 남깁니다.
+- `identity`의 열린 개인 추천 ID 조회는 소비자 소유 조회 인터페이스를 `recommendation`이 구현합니다. 기존 조회 조건과 조회 중 저장 동작을 유지하며 순환 의존성을 제거합니다.
+- 초기 데이터 조립인 `backend-app/application/seed`만 bootstrap repository 접근을 허용합니다. 업무 코드의 foreign repository 접근은 추가 구조 테스트로 금지합니다.
+- 회귀 테스트는 루트 `src/test`에 유지해 전체 모듈·HTTP·JPA 경계를 함께 검증합니다. `ModuleStructureTest`는 8개 모듈의 실제 탐지와 순환·내부 접근·허용 의존성을 검사합니다.
 
 새 도메인이나 리팩토링 대상은 `service`, `command`, `result`, `support`, `exception`, `entity`, `repository` 기준을 따릅니다. 자세한 구현 규칙은 `docs/backend/guide.md`를 봅니다.
+
+### 모듈 이벤트와 완료 시점
+
+| 이벤트 | 소비 모듈 | 처리 시점과 원자성 |
+| --- | --- | --- |
+| `MemberWithdrawn` | group-decision | 동기 `@EventListener` + `MANDATORY`. 회원 탈퇴·토큰 제거·소유 그룹 삭제를 같은 트랜잭션으로 완료 |
+| `PresetProfileImageDeleted` | identity | 동기 `@EventListener` + `MANDATORY`. 삭제한 이미지 사용 회원 모두를 활성 기본 이미지로 재지정하고 함께 커밋 |
+| 그룹 참여·초대·추천·투표·삭제 이벤트 | realtime | `AFTER_COMMIT`. 기존 SSE event type과 payload 유지 |
+
+동기 소비자가 실패하면 발행 측 업무 변경도 롤백됩니다. API 성공 응답의 완료 의미는 유지합니다. 비동기 소비, 이벤트 저장소, 자동 재시도·보상은 도입하지 않습니다.
+
+### SSE 수신자 정책
+
+- 일반 그룹 이벤트는 전송 시점의 활성 계정·활성 멤버십·삭제되지 않은 그룹을 다시 조회합니다. 자격을 잃은 그룹 연결은 종료합니다.
+- 그룹 삭제는 삭제 직전 대상 스냅샷 중 현재 활성 계정에 삭제 payload를 전송한 뒤 해당 그룹의 모든 연결을 종료합니다.
+- 초대는 지정 대상에게만 보내며, 아직 유효한 `PENDING` 초대인지 확인합니다. 개인 전송에서도 계정 활성 상태를 확인합니다.
+- 투표 완료는 원래 이벤트 대상이 현재도 활성 OWNER인 경우에만 전송합니다. OWNER 변경 후 새 OWNER로 재전송하지 않습니다.
+- 커밋 후 조회는 별도의 읽기 트랜잭션을 사용합니다. 전송 실패에 대한 보상·재시도와 동시성 고도화는 이후 별도 범위입니다.
+
+### 트랜잭션 실패 경계
+
+- 인증·개인 추천·그룹 추천 서비스는 업무 예외에도 일반 롤백 규칙을 적용합니다. 포괄적인 `noRollbackFor`로 업무 변경을 커밋하지 않습니다.
+- 보존할 실패 기록은 [데이터 정책](../data/policies.md#실패-시-기록-보존)에 한정합니다. 도메인이 기록 내용을 정하고 `RollbackRecordExecutor`가 업무 트랜잭션의 `afterCompletion(ROLLED_BACK)` 이후 `REQUIRES_NEW`로 실행합니다. 외부 유스케이스의 트랜잭션에 참여한 경우에도 최종 롤백 뒤 실행합니다.
+- 별도 트랜잭션은 실패한 트랜잭션의 엔티티를 병합하지 않고 ID·불변 값으로 다시 조회하거나 새 실패 기록을 만듭니다. 업무 커밋 시에는 실패 기록을 추가로 저장하지 않습니다.
+- 실패 기록 저장 자체가 실패하면 오류 로그를 남기고 기존 API 오류 응답을 유지합니다. 자동 재시도·보상·outbox는 이후 별도 설계 범위입니다.
+- API 경로, Request/Response 필드·검증·오류 코드와 성공 응답의 업무 완료 의미는 유지합니다. 대표 HTTP 계약과 업무 롤백·기록 보존은 실제 서비스·JPA 경계를 포함한 통합 테스트로 검증합니다.
 
 ## 추천 흐름
 

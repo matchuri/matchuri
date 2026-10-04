@@ -23,17 +23,13 @@
 
 ## 패키지 구조
 
-백엔드는 `api`, `domain`, `global`, `infra` 축으로 나눕니다.
+백엔드는 8개 Gradle 모듈로 나눕니다. 모듈 책임과 의존 방향은 [아키텍처](./architecture.md#백엔드-런타임-구조)를 따릅니다.
 
 ```text
-app/backend/src/main/java/matchuri/backend
-├─ api
-├─ domain
-├─ global
-└─ infra
+app/backend/<module>/src/main/java/matchuri/backend/<module-package>
 ```
 
-### `api/<domain>`
+### `backend-app/application/api/<domain>`
 
 - Controller
 - 요청/응답 DTO
@@ -47,12 +43,13 @@ app/backend/src/main/java/matchuri/backend
 - 인증 경계 처리
 - API 계약에 맞는 DTO 사용
 
-### `domain/<domain>`
+### 도메인 모듈 내부
 
 새 도메인이나 리팩토링 대상 도메인은 아래 골격을 기본값으로 삼습니다.
 
 ```text
-domain/<domain>
+<module-package>
+├─ api / spi / event
 ├─ service
 ├─ command
 ├─ result
@@ -66,23 +63,27 @@ domain/<domain>
 - 빈 패키지를 Git에 남겨야 할 때만 `.gitkeep`를 사용합니다.
 - 실제 클래스가 추가된 패키지에서는 `.gitkeep`를 제거합니다.
 - `package-info.java`는 패키지 설명이나 패키지 어노테이션이 실제로 필요할 때만 사용합니다.
+- 다른 모듈은 공개 named interface만 사용합니다. 서비스 구현, repository, 내부 adapter 직접 참조를 금지합니다.
+- 조회·저장은 소유 모듈의 공개 인터페이스로 위임합니다. 소비자 소유 SPI 구현으로 순환 의존성을 피할 수 있습니다.
+- 업무 원자성이 필요한 모듈 이벤트는 동기 `@EventListener`와 `MANDATORY` 트랜잭션을 사용합니다. 커밋 후 부수 작업만 `AFTER_COMMIT`으로 처리합니다.
+- bootstrap repository는 초기 데이터 구성만 허용하며 업무 경로에서는 사용하지 않습니다. 변경 후 `ModuleStructureTest`를 실행합니다.
 
-### `global`
+### `shared-kernel`과 애플리케이션 설정
 
 - 공통 응답 형식
-- 공통 예외 처리
-- 보안 공통 설정
-- 전역 설정과 공통 유틸리티
+- 공통 예외 타입과 트랜잭션 지원, 공통 유틸리티
+- HTTP 예외 처리·런타임 조립은 `backend-app/application`에 둡니다.
+- Spring Security·인증 설정은 `identity/security`에 둡니다.
 
-도메인 규칙 자체를 `global`로 올리지 않습니다.
+도메인 규칙 자체를 `shared-kernel`로 올리지 않습니다.
 
-### `infra`
+### 소유 모듈의 기술 어댑터
 
 - 외부 시스템 연동
 - 기술 구현 세부사항
 - 배포/런타임 환경과 가까운 어댑터
 
-도메인 판단을 `infra`에 숨기지 않습니다.
+인증 외부 연동은 `identity/infrastructure`, 저장소 연동은 `media/storage`처럼 소유 모듈에 둡니다. 도메인 판단을 기술 어댑터에 숨기지 않습니다.
 
 ## 도메인 내부 책임
 
@@ -149,7 +150,7 @@ domain/<domain>
 ### `exception`
 
 - 도메인 전용 `ErrorCode`와 필요 시 도메인 전용 예외를 둡니다.
-- 예외 코드는 도메인 규칙과 함께 진화하므로 API 패키지나 `global` 패키지로 올리지 않습니다.
+- 예외 코드는 도메인 규칙과 함께 진화하므로 HTTP API 패키지나 `shared-kernel`로 올리지 않습니다.
 - 서비스, 지원 컴포넌트, 다른 도메인이 같은 에러 언어를 사용하도록 유지합니다.
 
 ### `entity`
@@ -184,9 +185,9 @@ domain/<domain>
 
 DTO는 아래 패키지 기준으로 구분합니다.
 
-- `api/<domain>/dto/request`
-- `api/<domain>/dto/response`
-- `api/<domain>/dto/docs`
+- `backend-app/.../application/api/<domain>/dto/request`
+- `backend-app/.../application/api/<domain>/dto/response`
+- `backend-app/.../application/api/<domain>/dto/docs`
 
 역할:
 
@@ -233,7 +234,7 @@ API 문서화 세부 전략은 `docs/decisions/api-docs-strategy.md`를 기준�
 기본 흐름:
 
 ```text
-api -> domain/<domain>/service -> command/result/support/repository/entity
+backend-app/application/api -> <module>/api -> <module>/service -> command/result/support/repository/entity
 ```
 
 허용:
@@ -320,9 +321,9 @@ API 문서화 전략과 업데이트 순서는 `docs/decisions/api-docs-strategy
 
 현재 기준:
 
-- 기준 데이터: `app/backend/src/main/resources/seed/reference-data.json`
-- 로컬 메뉴 이미지: `app/backend/src/main/resources/seed/local-menu-images.json`
-- 로컬 샘플 데이터: `app/backend/src/main/resources/seed/local-sample-data.json`
+- 기준 데이터: `app/backend/backend-app/src/main/resources/seed/reference-data.json`
+- 로컬 메뉴 이미지: `app/backend/backend-app/src/main/resources/seed/local-menu-images.json`
+- 로컬 샘플 데이터: `app/backend/backend-app/src/main/resources/seed/local-sample-data.json`
 - 로컬 수동 테스트용 샘플 계정과 관리자 계정은 개발 환경에서만 생성합니다.
 
 기준 데이터 정책은 `docs/data/policies.md`, 실제 스키마 구조는 JPA Entity를 기준으로 봅니다.

@@ -1,6 +1,6 @@
 # 데이터 모델
 
-데이터 구조의 단일 기준은 `app/backend/src/main/java/matchuri/backend/domain/**/entity`의 JPA 매핑입니다. 테이블·컬럼·인덱스·연관관계를 Markdown에 다시 복사하지 않습니다.
+데이터 구조의 단일 기준은 `app/backend/<domain-module>/src/main/java/matchuri/backend/**/entity`의 JPA 매핑입니다. 테이블·컬럼·인덱스·연관관계를 Markdown에 다시 복사하지 않습니다.
 
 ## 기준과 검증
 
