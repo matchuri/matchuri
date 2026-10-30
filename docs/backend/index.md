@@ -22,6 +22,7 @@
 - [백엔드 가이드](./guide.md)
 - [아키텍처](./architecture.md)
 - [추천 점수 계약](./recommendation-scoring.md)
+- [메뉴 시드 추천 커버리지](./menu-seed-coverage.md)
 - [보안 기준](./security.md)
 - [신뢰성 기준](./reliability.md)
 - [품질 점수 기준](./quality-score.md)
