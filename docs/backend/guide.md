@@ -23,13 +23,13 @@
 
 ## 패키지 구조
 
-백엔드는 8개 Gradle 모듈로 나눕니다. 모듈 책임과 의존 방향은 [아키텍처](./architecture.md#백엔드-런타임-구조)를 따릅니다.
+백엔드는 단일 Gradle 모듈의 레이어드 구조를 사용합니다. 책임과 의존 방향은 [아키텍처](./architecture.md#백엔드-런타임-구조)를 따릅니다.
 
 ```text
-app/backend/<module>/src/main/java/matchuri/backend/<module-package>
+app/backend/src/main/java/matchuri/backend/{api,domain,global,infra}
 ```
 
-### `backend-app/application/api/<domain>`
+### `api/<domain>`
 
 - Controller
 - 요청/응답 DTO
@@ -43,13 +43,12 @@ app/backend/<module>/src/main/java/matchuri/backend/<module-package>
 - 인증 경계 처리
 - API 계약에 맞는 DTO 사용
 
-### 도메인 모듈 내부
+### `domain/<domain>`
 
 새 도메인이나 리팩토링 대상 도메인은 아래 골격을 기본값으로 삼습니다.
 
 ```text
-<module-package>
-├─ api / spi / event
+domain/<domain>
 ├─ service
 ├─ command
 ├─ query
@@ -64,27 +63,25 @@ app/backend/<module>/src/main/java/matchuri/backend/<module-package>
 - 빈 패키지를 Git에 남겨야 할 때만 `.gitkeep`를 사용합니다.
 - 실제 클래스가 추가된 패키지에서는 `.gitkeep`를 제거합니다.
 - `package-info.java`는 패키지 설명이나 패키지 어노테이션이 실제로 필요할 때만 사용합니다.
-- 다른 모듈은 공개 named interface만 사용합니다. 서비스 구현, repository, 내부 adapter 직접 참조를 금지합니다.
-- 조회·저장은 소유 모듈의 공개 인터페이스로 위임합니다. 소비자 소유 SPI 구현으로 순환 의존성을 피할 수 있습니다.
-- 업무 원자성이 필요한 모듈 이벤트는 동기 `@EventListener`와 `MANDATORY` 트랜잭션을 사용합니다. 커밋 후 부수 작업만 `AFTER_COMMIT`으로 처리합니다.
-- bootstrap repository는 초기 데이터 구성만 허용하며 업무 경로에서는 사용하지 않습니다. 변경 후 `ModuleStructureTest`를 실행합니다.
+- 유스케이스는 서비스에서 조합하고 반복되는 조회·검증은 도메인 지원 컴포넌트에 둡니다.
+- 업무 원자성이 필요한 호출은 같은 서비스 트랜잭션에 참여합니다. 커밋 후 실시간 전송은 `AFTER_COMMIT`으로 처리합니다.
 
-### `shared-kernel`과 애플리케이션 설정
+### `global`
 
 - 공통 응답 형식
 - 공통 예외 타입과 트랜잭션 지원, 공통 유틸리티
-- HTTP 예외 처리·런타임 조립은 `backend-app/application`에 둡니다.
-- Spring Security·인증 설정은 `identity/security`에 둡니다.
+- HTTP 예외 처리는 `global/exception`, 애플리케이션 설정은 `global/config`에 둡니다.
+- Spring Security·인증 필터는 `global/security`에 둡니다.
 
-도메인 규칙 자체를 `shared-kernel`로 올리지 않습니다.
+도메인 규칙 자체를 `global`로 올리지 않습니다.
 
-### 소유 모듈의 기술 어댑터
+### `infra`
 
 - 외부 시스템 연동
 - 기술 구현 세부사항
 - 배포/런타임 환경과 가까운 어댑터
 
-인증 외부 연동은 `identity/infrastructure`, 저장소 연동은 `media/storage`처럼 소유 모듈에 둡니다. 도메인 판단을 기술 어댑터에 숨기지 않습니다.
+인증 외부 연동은 `infra/auth`, 저장소 연동은 `infra/storage`, 초기 데이터 구성은 `infra/seed`에 둡니다. 도메인 판단을 기술 어댑터에 숨기지 않습니다.
 
 ## 도메인 내부 책임
 
@@ -125,7 +122,7 @@ app/backend/<module>/src/main/java/matchuri/backend/<module-package>
 
 ### `result`
 
-- 서비스 또는 모듈 API의 출력 모델입니다.
+- 서비스 유스케이스의 출력 모델입니다.
 - API response DTO가 아니라 도메인 유스케이스 결과를 표현합니다.
 - 한 서비스 인터페이스에만 쓰이더라도 `service`에 섞지 않고 `result`에 둡니다.
 
@@ -157,7 +154,7 @@ app/backend/<module>/src/main/java/matchuri/backend/<module-package>
 ### `exception`
 
 - 도메인 전용 `ErrorCode`와 필요 시 도메인 전용 예외를 둡니다.
-- 예외 코드는 도메인 규칙과 함께 진화하므로 HTTP API 패키지나 `shared-kernel`로 올리지 않습니다.
+- 예외 코드는 도메인 규칙과 함께 진화하므로 HTTP API 패키지나 `global`로 올리지 않습니다.
 - 서비스, 지원 컴포넌트, 다른 도메인이 같은 에러 언어를 사용하도록 유지합니다.
 
 ### `entity`
@@ -196,17 +193,17 @@ app/backend/<module>/src/main/java/matchuri/backend/<module-package>
 | --- | --- | --- |
 | `Request` | HTTP 입력 | Controller의 요청 처리 |
 | `Response` | HTTP 출력 | Controller의 응답 처리 |
-| `Command` | 상태 변경 입력 | Service / Module API |
-| `Query` | 조회 입력 | Service / Module API |
-| `Result` | 유스케이스 출력 | Service / Module API |
-| `Row` | Repository projection | 소유 모듈 내부, 다른 모듈에 노출 금지 |
+| `Command` | 상태 변경 입력 | Service |
+| `Query` | 조회 입력 | Service |
+| `Result` | 유스케이스 출력 | Service |
+| `Row` | Repository projection | 저장소 조회 결과 |
 
-`Command`/`Query`/`Result`는 엔티티와 HTTP DTO 사이에 의무적으로 끼우는 중간 계층이 아니라 유스케이스의 입출력 계약입니다. HTTP와 다른 모듈에서 같은 유스케이스를 호출하면 같은 의미의 계약을 사용할 수 있습니다.
+`Command`/`Query`/`Result`는 엔티티와 HTTP DTO 사이에 의무적으로 끼우는 중간 계층이 아니라 유스케이스의 입출력 계약입니다. HTTP와 다른 도메인에서 같은 유스케이스를 호출하면 같은 의미의 계약을 사용할 수 있습니다.
 
 ### 계약의 소유와 공개 범위
 
-- 계약의 의미와 변경 책임은 제공 모듈이 가집니다. 공개 인터페이스와 필요한 입력·출력 타입이 함께 모듈 계약을 이룹니다.
-- 공개 유스케이스에 필요한 타입만 named interface로 공개합니다. 내부 helper의 입력·출력까지 모두 공개 계약으로 만들지 않습니다.
+- 계약의 의미와 변경 책임은 유스케이스를 제공하는 도메인이 가집니다.
+- 호출자가 필요한 입력·출력 타입을 계약으로 둡니다. 내부 helper의 입력·출력까지 모두 공개 계약으로 만들지 않습니다.
 - 공개 계약은 필요한 값·ID·계약용 타입으로 구성하고 JPA 엔티티와 영속 관계를 노출하지 않습니다. 기존 엔티티 공유는 수정하는 유스케이스부터 점진적으로 줄입니다.
 - 값이 없을 때의 표현, 오류 조건, 성공 시 완료된 변경의 범위도 계약에 포함합니다.
 - 필드가 같다는 이유만으로 타입을 공유하지 않습니다. 의미와 변경 이유가 같을 때 재사용합니다.
@@ -221,9 +218,9 @@ app/backend/<module>/src/main/java/matchuri/backend/<module-package>
 
 HTTP DTO는 아래 패키지 기준으로 구분합니다.
 
-- `backend-app/.../application/api/<domain>/dto/request`
-- `backend-app/.../application/api/<domain>/dto/response`
-- `backend-app/.../application/api/<domain>/dto/docs`
+- `api/<domain>/dto/request`
+- `api/<domain>/dto/response`
+- `api/<domain>/dto/docs`
 
 역할:
 
@@ -270,7 +267,7 @@ API 문서화 세부 전략은 `docs/decisions/api-docs-strategy.md`를 기준�
 기본 흐름:
 
 ```text
-backend-app/application/api -> <module>/api -> <module>/service -> command/query/result/support/repository/entity
+api/<domain> -> domain/<domain>/service -> command/query/result/support/repository/entity
 ```
 
 허용:
@@ -279,7 +276,7 @@ backend-app/application/api -> <module>/api -> <module>/service -> command/query
 - `service -> repository`
 - `support -> repository`
 - `service`, `support`가 같은 도메인의 `exception`을 사용하는 것
-- `auth`나 `security` 같은 다른 도메인/공통 모듈이 필요한 `service` 또는 `support`를 사용하는 것
+- `auth`나 `security` 같은 다른 도메인/공통 계층이 필요한 `service` 또는 `support`를 사용하는 것
 
 피할 것:
 
@@ -357,9 +354,9 @@ API 문서화 전략과 업데이트 순서는 `docs/decisions/api-docs-strategy
 
 현재 기준:
 
-- 기준 데이터: `app/backend/backend-app/src/main/resources/seed/reference-data.json`
-- 로컬 메뉴 이미지: `app/backend/backend-app/src/main/resources/seed/local-menu-images.json`
-- 로컬 샘플 데이터: `app/backend/backend-app/src/main/resources/seed/local-sample-data.json`
+- 기준 데이터: `app/backend/src/main/resources/seed/reference-data.json`
+- 로컬 메뉴 이미지: `app/backend/src/main/resources/seed/local-menu-images.json`
+- 로컬 샘플 데이터: `app/backend/src/main/resources/seed/local-sample-data.json`
 - 로컬 수동 테스트용 샘플 계정과 관리자 계정은 개발 환경에서만 생성합니다.
 
 기준 데이터 정책은 `docs/data/policies.md`, 실제 스키마 구조는 JPA Entity를 기준으로 봅니다.
