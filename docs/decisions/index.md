@@ -13,7 +13,6 @@
 
 - [핵심 신념](./core-beliefs.md)
 - [백엔드 코드 품질 기준](./backend-code-quality.md)
-- [레이어드 아키텍처 복귀 결정](./layered-architecture-return.md)
 - [백엔드 배포 인프라 결정](./backend-deployment-infrastructure.md)
 - [도메인 용어 사전](./domain-language.md)
 - [문서 기준 위치](./documentation-source-of-truth.md)

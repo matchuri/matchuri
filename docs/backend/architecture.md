@@ -58,23 +58,7 @@ Matchuri는 개인 취향과 그룹 취향을 함께 반영해 점심 메뉴 결
 
 ## 백엔드 런타임 구조
 
-단일 Gradle 모듈의 레이어드 구조를 하나의 Spring Boot 애플리케이션과 하나의 DB로 실행합니다. 구조 복귀의 판단 근거는 [레이어드 아키텍처 복귀 결정](../decisions/layered-architecture-return.md)을 봅니다.
-
-```text
-app/backend/src/main/java/matchuri/backend/
-├─ api       # HTTP API, DTO, Mapper, Swagger/OpenAPI metadata
-├─ domain    # 도메인별 서비스, 지원 로직, 엔티티, 저장소
-├─ global    # 공통 응답·예외·설정·보안·트랜잭션 지원
-└─ infra     # 외부 연동, 오브젝트 스토리지, 시드
-```
-
-- `BackendApplication`은 `matchuri.backend` 아래를 스캔하고 `build/libs/backend-<version>.jar` 하나를 생성합니다. 기존 배포의 JAR 탐색·health 경로·환경 설정을 유지합니다.
-- HTTP 요청은 `api`에서 받아 `domain/<domain>/service`의 유스케이스로 위임합니다. 도메인별 패키지 책임은 유지하며 별도 Gradle 프로젝트나 Modulith 공개 인터페이스로 경계를 강제하지 않습니다.
-- 서비스 입출력의 역할과 점진적 분리 기준은 [DTO 규칙](./guide.md#dto-규칙)을 따릅니다.
-- 초기 데이터 구성은 `infra/seed`, 리소스는 `src/main/resources/seed`에 둡니다.
-- 회귀 테스트는 `src/test`에서 정책·서비스·HTTP·JPA 경계를 검증합니다.
-
-새 도메인이나 리팩토링 대상은 `service`, `command`, `query`, `result`, `support`, `exception`, `entity`, `repository` 기준을 따릅니다. 자세한 구현 규칙은 `docs/backend/guide.md`를 봅니다.
+백엔드는 단일 Gradle 모듈의 레이어드 아키텍처로 관리합니다. 패키지 구조와 구현 기준은 [백엔드 가이드](./guide.md#패키지-구조)를 따릅니다.
 
 ### 업무 완료와 실시간 이벤트
 
@@ -92,7 +76,7 @@ app/backend/src/main/java/matchuri/backend/
 - 투표 완료는 원래 이벤트 대상이 현재도 활성 OWNER인 경우에만 전송합니다. OWNER 변경 후 새 OWNER로 재전송하지 않습니다.
 - 커밋 후 조회는 별도의 읽기 트랜잭션을 사용합니다. 전송 실패에 대한 보상·재시도와 동시성 고도화는 이후 별도 범위입니다.
 
-구조 복귀에서도 이 수신자 검증과 연결 정리 동작을 유지합니다. SSE 전송 세부 계약은 [실시간 API](../api/realtime.md)를 봅니다.
+SSE 전송 세부 계약은 [실시간 API](../api/realtime.md)를 봅니다.
 
 ### 트랜잭션 실패 경계
 
