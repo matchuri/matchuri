@@ -28,9 +28,9 @@
 
 보고서는 프로필별 후보 수와 메뉴 코드, 기준 미달 수량, `SKIP` 이후 후보, 미태깅 메뉴, 희소 태그, 미지원 사유를 제공합니다. 실행 결과의 수량은 보고서를 기준으로 확인합니다.
 
-`backend-app/src/main/resources/seed/reference-data.json`의 메뉴 코드·태그·재료를 변경하면 이 검사를 다시 실행합니다. 검사기는 시드 순서에 따라 임시 ID를 부여하고 코드·태그·재료 관계를 복원해 실제 알고리즘에 전달합니다. 동점의 ID 정렬은 임시 ID를 따르므로 운영 DB의 메뉴 순서와 동일하다고 보장하지 않습니다.
+`src/main/resources/seed/reference-data.json`의 메뉴 코드·태그·재료를 변경하면 이 검사를 다시 실행합니다. 검사기는 시드 순서에 따라 임시 ID를 부여하고 코드·태그·재료 관계를 복원해 실제 알고리즘에 전달합니다. 동점의 ID 정렬은 임시 ID를 따르므로 운영 DB의 메뉴 순서와 동일하다고 보장하지 않습니다.
 
-기계적인 검사 기준은 `src/test/java/matchuri/backend/application/seed/coverage/MenuSeedCoverageAudit.java`와 fixture를 기준으로 유지합니다. 이 검사는 실제 API에서의 카테고리 조회·후보 저장을 검증하는 통합 테스트와 함께 사용합니다.
+기계적인 검사 기준은 `src/test/java/matchuri/backend/infra/seed/coverage/MenuSeedCoverageAudit.java`와 fixture를 기준으로 유지합니다. 이 검사는 실제 API에서의 카테고리 조회·후보 저장을 검증하는 통합 테스트와 함께 사용합니다.
 
 ## 시드 반영과 이미지
 

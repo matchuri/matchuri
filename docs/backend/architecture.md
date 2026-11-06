@@ -58,38 +58,15 @@ Matchuri는 개인 취향과 그룹 취향을 함께 반영해 점심 메뉴 결
 
 ## 백엔드 런타임 구조
 
-8개 Gradle 모듈을 하나의 Spring Boot 애플리케이션과 하나의 DB로 실행합니다. 모듈 ID와 공개 인터페이스는 Spring Modulith 2.0.3으로 선언하며 전체 테스트에서 경계를 검증합니다.
+백엔드는 단일 Gradle 모듈의 레이어드 아키텍처로 관리합니다. 패키지 구조와 구현 기준은 [백엔드 가이드](./guide.md#패키지-구조)를 따릅니다.
 
-```text
-app/backend/
-├─ backend-app       # HTTP API, 공통 설정, 시드, 단일 실행 JAR
-├─ identity          # 인증, 회원, 약관, 취향, Spring Security
-├─ catalog           # 메뉴, 속성, 재료, 메뉴 이미지 연결
-├─ recommendation    # 개인·비회원 추천, 행동 기록, 공통 추천 알고리즘
-├─ group-decision    # 그룹, 초대, 추천 진행, 투표, 최종 확정
-├─ media             # 이미지 자산, 프리셋, 오브젝트 스토리지
-├─ realtime          # SSE 연결과 커밋 후 이벤트 전송
-└─ shared-kernel     # 공통 응답·예외·영속성·트랜잭션 지원
-```
+### 업무 완료와 실시간 이벤트
 
-- `backend-app`은 모든 모듈을 조립하고 `build/libs/backend-<version>.jar` 하나를 생성합니다. 기존 배포의 JAR 탐색·health 경로·환경 설정을 유지합니다.
-- 의존 방향은 `shared-kernel ← media ← catalog ← identity ← recommendation ← group-decision ← realtime`입니다. 각 모듈은 필요한 하위 모듈의 named interface만 참조합니다.
-- 공개 서비스·조회·저장 인터페이스와 필요한 command/query/result, 이벤트를 명시적으로 공개합니다. 서비스 구현·repository·Row는 내부에 둡니다. 기존 JPA 모델 공유는 유스케이스 단위로 줄이며, 타입의 역할과 공개 기준은 [DTO 규칙](./guide.md#dto-규칙)을 따릅니다.
-- `identity`의 열린 개인 추천 ID 조회는 소비자 소유 조회 인터페이스를 `recommendation`이 구현합니다. 기존 조회 조건과 조회 중 저장 동작을 유지하며 순환 의존성을 제거합니다.
-- 초기 데이터 조립인 `backend-app/application/seed`만 bootstrap repository 접근을 허용합니다. 업무 코드의 foreign repository 접근은 추가 구조 테스트로 금지합니다.
-- 회귀 테스트는 루트 `src/test`에 유지해 전체 모듈·HTTP·JPA 경계를 함께 검증합니다. `ModuleStructureTest`는 8개 모듈의 실제 탐지와 순환·내부 접근·허용 의존성을 검사합니다.
+- 회원 탈퇴, 토큰 제거, 소유 그룹 삭제와 진행 중인 그룹 추천 정리는 서비스·지원 컴포넌트 호출로 같은 업무 트랜잭션에서 처리합니다.
+- 프리셋 프로필 이미지 삭제와 사용 회원의 기본 이미지 재지정도 같은 트랜잭션에서 완료합니다.
+- 그룹 참여·초대·추천·투표·삭제의 실시간 이벤트는 `domain/realtime`에서 `AFTER_COMMIT`으로 전송합니다. 기존 SSE event type과 payload를 유지합니다.
 
-새 도메인이나 리팩토링 대상은 `service`, `command`, `query`, `result`, `support`, `exception`, `entity`, `repository` 기준을 따릅니다. 자세한 구현 규칙은 `docs/backend/guide.md`를 봅니다.
-
-### 모듈 이벤트와 완료 시점
-
-| 이벤트 | 소비 모듈 | 처리 시점과 원자성 |
-| --- | --- | --- |
-| `MemberWithdrawn` | group-decision | 동기 `@EventListener` + `MANDATORY`. 회원 탈퇴·토큰 제거·소유 그룹 삭제를 같은 트랜잭션으로 완료 |
-| `PresetProfileImageDeleted` | identity | 동기 `@EventListener` + `MANDATORY`. 삭제한 이미지 사용 회원 모두를 활성 기본 이미지로 재지정하고 함께 커밋 |
-| 그룹 참여·초대·추천·투표·삭제 이벤트 | realtime | `AFTER_COMMIT`. 기존 SSE event type과 payload 유지 |
-
-동기 소비자가 실패하면 발행 측 업무 변경도 롤백됩니다. API 성공 응답의 완료 의미는 유지합니다. 비동기 소비, 이벤트 저장소, 자동 재시도·보상은 도입하지 않습니다.
+업무 처리 중 예외가 발생하면 같은 트랜잭션의 변경도 롤백됩니다. API 성공 응답의 완료 의미는 유지합니다. 이벤트 저장소, 자동 재시도·보상은 도입하지 않습니다.
 
 ### SSE 수신자 정책
 
@@ -98,6 +75,8 @@ app/backend/
 - 초대는 지정 대상에게만 보내며, 아직 유효한 `PENDING` 초대인지 확인합니다. 개인 전송에서도 계정 활성 상태를 확인합니다.
 - 투표 완료는 원래 이벤트 대상이 현재도 활성 OWNER인 경우에만 전송합니다. OWNER 변경 후 새 OWNER로 재전송하지 않습니다.
 - 커밋 후 조회는 별도의 읽기 트랜잭션을 사용합니다. 전송 실패에 대한 보상·재시도와 동시성 고도화는 이후 별도 범위입니다.
+
+SSE 전송 세부 계약은 [실시간 API](../api/realtime.md)를 봅니다.
 
 ### 트랜잭션 실패 경계
 
